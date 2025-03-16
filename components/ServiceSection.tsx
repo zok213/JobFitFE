@@ -6,56 +6,59 @@ import { ServiceCard } from "./ServiceCard";
 export const ServicesSection = () => {
   const services = [
     {
-      title: ["Employer", "Dashboard"],
-      illustration:
-        "https://cdn.builder.io/api/v1/image/assets/TEMP/a8ddbbd292be52ea7db59ea8ddc086893b632972",
+      title: "Employer Dashboard",
+      description: "Manage all your hiring activities in one place",
+      illustration: "/img/employer_dashboard.png",
       variant: "grey",
     },
     {
-      title: ["Post a Job"],
-      illustration:
-        "https://cdn.builder.io/api/v1/image/assets/TEMP/f3cd4e0c0fb3298596091fb35b48fb046b1c2468",
+      title: "Post a Job",
+      description: "Create and publish job listings with AI optimization",
+      illustration: "/img/post_a_job.png",
       variant: "green",
     },
     {
-      title: ["AI Candidate", "Matching"],
-      illustration:
-        "https://cdn.builder.io/api/v1/image/assets/TEMP/4517dafffc49805ba73ea71f47391f85ceb3111a",
+      title: "AI Candidate Matching",
+      description: "Find perfect matches with our smart algorithms",
+      illustration: "/img/AI_candicate_matching.png",
       variant: "black",
     },
     {
-      title: ["Resume", "Analyzer"],
-      illustration:
-        "https://cdn.builder.io/api/v1/image/assets/TEMP/db026ab47d39bdbdfaac4fd1c4fc3450154a5a2c",
+      title: "Resume Analyzer",
+      description: "Evaluate candidate qualifications with AI precision",
+      illustration: "/img/Resume_analyzer.png",
       variant: "grey",
     },
     {
-      title: ["Talent Pool"],
-      illustration:
-        "https://cdn.builder.io/api/v1/image/assets/TEMP/c61ac0659ba7389575f8161cf26ee804e061cc6d",
+      title: "Talent Pool",
+      description: "Maintain a database of qualified candidates",
+      illustration: "/img/talent_pool.png",
       variant: "green",
     },
     {
-      title: ["Company Profile"],
-      illustration:
-        "https://cdn.builder.io/api/v1/image/assets/TEMP/0fa0deebf0415a7f57c0bbfb10542001a1cc1909",
+      title: "Company Profile",
+      description: "Showcase your employer brand to attract talent",
+      illustration: "/img/company_profile.png",
       variant: "black",
     },
   ];
 
   return (
-    <section className="flex flex-col gap-10 px-24 py-16 max-md:px-12 max-md:py-0">
-      <h2 className="inline-flex items-center px-6 py-3 pr-14 mr-auto text-4xl font-bold text-black whitespace-nowrap bg-lime-300 rounded-2xl">
-        For Employer
-      </h2>
-      <p className="text-lg text-black">
+    <section id="for-employer" className="flex flex-col gap-6 px-6 md:px-12 lg:px-24 py-16 max-w-[1440px] mx-auto">
+      <div className="bg-lime-300 px-4 py-2 rounded-xl w-fit mb-2">
+        <h2 className="text-2xl md:text-3xl font-bold text-black">
+          For Employer
+        </h2>
+      </div>
+      <p className="text-base md:text-lg text-black mb-6">
         Helps recruiters find the most suitable candidates faster and smarter
       </p>
-      <div className="grid gap-10 grid-cols-[repeat(2,1fr)] max-md:grid-cols-[1fr]">
+      <div className="grid gap-6 md:grid-cols-2 grid-cols-1">
         {services.map((service, index) => (
           <ServiceCard
             key={index}
             title={service.title}
+            description={service.description}
             illustration={service.illustration}
             variant={service.variant as "grey" | "green" | "black"}
           />

@@ -1,10 +1,12 @@
 import type { Metadata } from 'next';
 import { Space_Grotesk } from 'next/font/google';
 import './globals.css';
+import { AuthProvider } from '../context/AuthContext';
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
   display: 'swap',
+  variable: '--font-space-grotesk',
 });
 
 export const metadata: Metadata = {
@@ -17,9 +19,16 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // Prevent hydration issues by using a static string for the class name
+  const fontClass = spaceGrotesk.variable;
+  
   return (
-    <html lang="en">
-      <body className={spaceGrotesk.className}>{children}</body>
+    <html lang="en" className={fontClass}>
+      <body suppressHydrationWarning className="font-sans bg-background">
+        <AuthProvider>
+          {children}
+        </AuthProvider>
+      </body>
     </html>
   );
 }

@@ -1,68 +1,95 @@
-export const Footer = () => {
-  return (
-    <footer className="px-16 pt-14 pb-12 mt-16 bg-zinc-900 rounded-[45px_45px_0_0] max-md:px-8 max-md:py-10">
-      <div className="flex flex-col gap-12">
-        <div className="flex gap-40 items-center ml-auto w-full">
-          <img
-            src="https://cdn.builder.io/api/v1/image/assets/TEMP/3e617de5c62b5b64d89a1d1b3596c0f2fb121d31"
-            alt="Footer Logo"
-            className="w-36 h-[73px]"
-          />
-          <div className="social-icons">
-            <svg
-              width="130"
-              height="31"
-              viewBox="0 0 130 31"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <circle cx="15" cy="15.5649" r="15" fill="#B9FF66" />
-              <path
-                d="M8.222 22.624H11.306V12.639H8.222V22.624Z"
-                fill="black"
-              />
-              <path
-                d="M7.941 9.452C7.941 10.436 8.736 11.233 9.764 11.233C10.745 11.233 11.539 10.436 11.539 9.452C11.539 8.467 10.745 7.624 9.764 7.624C8.736 7.624 7.941 8.467 7.941 9.452Z"
-                fill="black"
-              />
-              <path
-                d="M19.81 22.624H22.941V17.139C22.941 14.467 22.334 12.358 19.203 12.358C17.708 12.358 16.68 13.202 16.259 13.999H16.212V12.639H13.268V22.624H16.352V17.702C16.352 16.389 16.586 15.124 18.222 15.124C19.81 15.124 19.81 16.624 19.81 17.749V22.624Z"
-                fill="black"
-              />
-              <path
-                d="M80 15.656C80 7.32 73.286 0.565 65 0.565C56.714 0.565 50 7.32 50 15.656C50 23.202 55.444 29.47 62.641 30.565V20.038H58.831V15.656H62.641V12.37C62.641 8.597 64.879 6.468 68.266 6.468C69.96 6.468 71.653 6.772 71.653 6.772V10.484H69.778C67.903 10.484 67.298 11.64 67.298 12.857V15.656H71.472L70.807 20.038H67.298V30.565C74.496 29.47 80 23.202 80 15.656Z"
-                fill="#B9FF66"
-              />
-              <circle cx="115" cy="15.5649" r="15" fill="#B9FF66" />
-              <path
-                d="M121.996 12.056C122.685 11.539 123.306 10.919 123.788 10.195C123.168 10.471 122.444 10.678 121.72 10.747C122.479 10.299 123.03 9.609 123.306 8.748C122.616 9.161 121.824 9.471 121.031 9.644C120.342 8.92 119.411 8.506 118.377 8.506C116.378 8.506 114.758 10.126 114.758 12.125C114.758 12.401 114.793 12.677 114.861 12.953C111.863 12.78 109.174 11.333 107.382 9.161C107.072 9.678 106.9 10.299 106.9 10.988C106.9 12.229 107.52 13.332 108.52 13.987C107.934 13.952 107.348 13.814 106.865 13.539V13.573C106.865 15.331 108.106 16.778 109.76 17.123C109.485 17.192 109.14 17.261 108.83 17.261C108.588 17.261 108.382 17.227 108.14 17.192C108.588 18.64 109.933 19.674 111.518 19.708C110.277 20.673 108.726 21.259 107.037 21.259C106.727 21.259 106.452 21.225 106.176 21.19C107.761 22.224 109.657 22.81 111.725 22.81C118.377 22.81 121.996 17.33 121.996 12.539C121.996 12.367 121.996 12.229 121.996 12.056Z"
-                fill="black"
-              />
-            </svg>
-          </div>
-        </div>
+"use client";
 
-        <div className="flex gap-40 max-sm:flex-col max-sm:gap-10">
-          <div className="flex flex-col gap-7">
-            <h2 className="inline-block px-2 py-0 text-3xl font-medium text-black bg-lime-300 rounded-lg">
-              Contact us:
-            </h2>
-            <div className="flex flex-col gap-5 text-lg text-lime-300">
-              <p>Email: jobfit.ai@gmail.com</p>
-              <p>Phone: 555-567-8901</p>
-              <p>Address: Vietnam</p>
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+
+export const Footer = () => {
+  const [email, setEmail] = useState("");
+  const [currentYear, setCurrentYear] = useState("");
+
+  // Use useEffect to set the year on the client-side only
+  useEffect(() => {
+    setCurrentYear(new Date().getFullYear().toString());
+  }, []);
+
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Subscribing email:", email);
+    setEmail("");
+  };
+
+  return (
+    <footer className="bg-zinc-900 pt-10 pb-6">
+      <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-24">
+        <div className="flex flex-col gap-8">
+          <div className="flex justify-between items-center flex-wrap gap-6">
+            <div className="flex items-center">
+              <Link href="/" aria-label="JobFit.AI Homepage">
+                <Image 
+                  src="/img/LOGO.png" 
+                  alt="JobFit.AI Logo" 
+                  width={120} 
+                  height={36} 
+                  className="w-auto h-[36px] brightness-200"
+                />
+              </Link>
+            </div>
+            <div className="flex gap-3">
+              <Link href="#" aria-label="LinkedIn" className="bg-lime-300 rounded-full p-2 hover:bg-lime-200 transition-colors">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <rect x="2" y="9" width="4" height="12" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <circle cx="4" cy="4" r="2" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </Link>
+              <Link href="#" aria-label="Twitter" className="bg-lime-300 rounded-full p-2 hover:bg-lime-200 transition-colors">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </Link>
+              <Link href="#" aria-label="Facebook" className="bg-lime-300 rounded-full p-2 hover:bg-lime-200 transition-colors">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </Link>
             </div>
           </div>
 
-          <div className="flex gap-5 px-10 py-14 rounded-2xl bg-zinc-800 max-sm:flex-col max-sm:w-full">
-            <input
-              type="email"
-              placeholder="Email"
-              className="flex px-9 py-6 rounded-2xl border border-lime-300 border-solid w-[285px] max-sm:w-full text-lg text-lime-300 bg-transparent"
-            />
-            <button className="flex px-9 py-5 text-xl text-black bg-lime-300 rounded-2xl cursor-pointer max-sm:w-full justify-center">
-              Subscribe to news
-            </button>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="flex flex-col gap-4">
+              <h2 className="text-lime-300 font-medium text-lg">Contact us</h2>
+              <div className="flex flex-col gap-3 text-sm text-gray-300">
+                <p>Email: <a href="mailto:jobfit.ai@gmail.com" className="hover:text-lime-300 transition-colors">jobfit.ai@gmail.com</a></p>
+                <p>Phone: <a href="tel:5555678901" className="hover:text-lime-300 transition-colors">555-567-8901</a></p>
+                <p>Address: Vietnam</p>
+              </div>
+            </div>
+
+            <div className="bg-zinc-800 p-4 rounded-xl">
+              <form className="flex flex-col gap-4" onSubmit={handleSubscribe}>
+                <div className="flex flex-col md:flex-row gap-3">
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    className="flex-1 px-4 py-3 rounded-xl border border-zinc-700 text-sm text-white bg-transparent focus:border-lime-300 outline-none"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                  <button 
+                    type="submit" 
+                    className="md:w-auto px-6 py-3 text-sm font-medium text-black bg-lime-300 rounded-xl cursor-pointer hover:bg-lime-200 transition-colors"
+                  >
+                    Subscribe
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div className="text-center text-xs text-gray-500 mt-4">
+            © {currentYear || '2023'} JobFit.AI - All rights reserved
           </div>
         </div>
       </div>

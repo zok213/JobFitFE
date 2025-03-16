@@ -5,6 +5,7 @@ import { Navbar } from "./NavBar";
 import { Hero } from "./Hero";
 import { LogoStrip } from "./LogoStrip";
 import { ServicesSection } from "./ServiceSection";
+import { ColleagueFinderSection } from "./ColleagueFinderSection";
 import { BlogSection } from "./BlogSection";
 import { ProcessSection } from "./ProcessSection";
 import { TeamSection } from "./TeamSection";
@@ -18,6 +19,7 @@ export const LandingPage = () => {
       <Hero />
       <LogoStrip />
       <ServicesSection />
+      <ColleagueFinderSection />
       <BlogSection />
       <ProcessSection />
       <TeamSection />

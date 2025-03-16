@@ -1,61 +1,72 @@
+"use client";
+
 import React from 'react';
+import Link from 'next/link';
 
 export const BlogSection = () => {
   const blogPosts = [
     {
+      title: "Traditional job boards rely on manual searches, but AI-driven platforms analyze your skills",
       content:
         "Traditional job boards rely on manual searches, but AI-driven platforms analyze your skills, experience, and preferences to recommend the most relevant job opportunities. Instead of scrolling through thousands of listings, AI does the heavy lifting for you.",
+      link: "#"
     },
     {
+      title: "Many candidates struggle with writing a strong resume. AI-powered tools analyze job descriptions",
       content:
         "Many candidates struggle with writing a strong resume. AI-powered tools analyze job descriptions and provide real-time suggestions to optimize wording, formatting, and keyword usage—helping applicants stand out.",
+      link: "#"
     },
     {
+      title: "Recruiters no longer have to sift through piles of resumes. AI automatically screens applications",
       content:
         "Recruiters no longer have to sift through piles of resumes. AI automatically screens applications, matches the best-fit candidates, and even analyzes past hiring data to predict the best hires—saving time and improving hiring success rates.",
+      link: "#"
     },
   ];
 
   return (
-    <section className="px-24 py-0 mx-0 my-16 max-md:px-12 max-md:py-0">
-      <h2 className="inline-block px-2 py-0 text-4xl font-bold text-black bg-lime-300 rounded-lg mb-8">
-        Blog
-      </h2>
-      <div className="flex gap-16 items-start px-16 py-16 bg-zinc-900 rounded-[45px] max-sm:flex-col max-sm:p-10">
+    <section id="blog" className="px-6 md:px-12 lg:px-24 py-16 max-w-[1440px] mx-auto">
+      <div className="bg-lime-300 py-2 px-4 rounded-xl inline-block mb-8">
+        <h2 className="text-2xl md:text-3xl font-bold text-black">
+          Blog
+        </h2>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 bg-zinc-900 rounded-3xl p-8 md:p-12">
         {blogPosts.map((post, index) => (
-          <React.Fragment key={index}>
-            <article className="flex flex-col gap-5 max-w-[286px]">
-              <p className="text-lg text-lime-300">{post.content}</p>
+          <article 
+            key={index} 
+            className={`flex flex-col justify-between h-full ${
+              index !== 0 ? "md:border-l md:border-lime-300/30 md:pl-8" : ""
+            } ${index !== 0 && "pt-6 border-t border-lime-300/30 md:pt-0 md:border-t-0"}`}
+          >
+            <div>
+              <p className="text-lime-300 font-medium text-sm mb-4 leading-relaxed">{post.title}</p>
+              <p className="text-xs text-gray-300 mb-6 leading-relaxed">{post.content}</p>
+            </div>
+            <Link 
+              href={post.link}
+              className="flex items-center gap-2 text-lime-300 hover:underline group w-fit"
+            >
+              <span className="text-sm">Learn more</span>
               <svg
-                width="142"
-                height="28"
-                viewBox="0 0 142 28"
-                fill="none"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none" 
                 xmlns="http://www.w3.org/2000/svg"
-                className="learn-more-icon"
+                className="transform transition-transform group-hover:translate-x-1"
               >
-                <text
-                  fill="#B9FF66"
-                  xmlSpace="preserve"
-                  style={{ whiteSpace: "pre" }}
-                  fontFamily="Space Grotesk"
-                  fontSize="20"
-                  letterSpacing="0em"
-                >
-                  <tspan x="0" y="20.92">
-                    Learn more
-                  </tspan>
-                </text>
-                <path
-                  d="M122.25 17.701C121.533 18.115 121.287 19.033 121.701 19.75C122.115 20.467 123.033 20.713 123.75 20.299L122.25 17.701ZM141.769 9.388C141.984 8.588 141.509 7.766 140.709 7.551L127.669 4.057C126.869 3.843 126.046 4.318 125.832 5.118C125.617 5.918 126.092 6.74 126.892 6.955L138.483 10.061L135.378 21.652C135.163 22.452 135.638 23.274 136.438 23.489C137.238 23.703 138.061 23.228 138.275 22.428L141.769 9.388ZM123.75 20.299L141.071 10.299L139.571 7.701L122.25 17.701L123.75 20.299Z"
-                  fill="#B9FF66"
+                <path 
+                  d="M5 12H19M19 12L12 5M19 12L12 19" 
+                  stroke="currentColor" 
+                  strokeWidth="2" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
                 />
               </svg>
-            </article>
-            {index < blogPosts.length - 1 && (
-              <div className="w-px bg-lime-300 h-[186px] max-sm:w-full max-sm:h-px" />
-            )}
-          </React.Fragment>
+            </Link>
+          </article>
         ))}
       </div>
     </section>
