@@ -8,9 +8,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Input } from "./ui/input";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 
-const ResetPassword = () => {
+interface ResetPasswordProps {
+  token?: string;
+}
+
+const ResetPassword = ({ token: tokenProp }: ResetPasswordProps) => {
   const params = useParams();
-  const token = params.token as string;
+  // Use the prop if available, otherwise try to get from URL params
+  const token = tokenProp || (params?.token as string);
   
   const [formData, setFormData] = useState({
     password: "",
