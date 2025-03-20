@@ -11,9 +11,4 @@ export default function EmployerPage() {
   
   // This won't render, but TypeScript needs a valid return
   return null;
-}
-
-// Exported for client-side fallback if needed
-export function ClientFallback() {
-  return <RedirectLoader destination="/employer/dashboard" message="Loading Employer Dashboard" />;
 } 

@@ -1,8 +1,8 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { ClientFallback } from "./page";
+import { RedirectLoader } from "@/components/ui/redirect-loader";
 
 export default function EmployerLayout({
   children,
@@ -10,6 +10,7 @@ export default function EmployerLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [redirectFailed, setRedirectFailed] = useState(false);
   
@@ -23,17 +24,18 @@ export default function EmployerLayout({
     }
     
     // If we're still on the root employer path after 1 second,
-    // show the client fallback (server redirect might have failed)
+    // handle redirect on client side (server redirect might have failed)
     const timer = setTimeout(() => {
       setRedirectFailed(true);
+      router.push("/employer/dashboard");
     }, 1000);
     
     return () => clearTimeout(timer);
-  }, [isRootEmployerPath]);
+  }, [isRootEmployerPath, router]);
   
   // Only for the root employer path
   if (isRootEmployerPath && redirectFailed) {
-    return <ClientFallback />;
+    return <RedirectLoader destination="/employer/dashboard" message="Loading Employer Dashboard" />;
   }
   
   return children;
