@@ -2,21 +2,16 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Input } from "./ui/input";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 
 interface ResetPasswordProps {
-  token?: string;
+  token: string;
 }
 
-const ResetPassword = ({ token: tokenProp }: ResetPasswordProps) => {
-  const params = useParams();
-  // Use the prop if available, otherwise try to get from URL params
-  const token = tokenProp || (params?.token as string);
-  
+const ResetPassword = ({ token }: ResetPasswordProps) => {
   const [formData, setFormData] = useState({
     password: "",
     confirmPassword: "",

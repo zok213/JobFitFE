@@ -1,8 +1,12 @@
-import ResetPassword from "../../../components/ResetPassword";
+'use client';
 
-export default function ResetPasswordPage(props: {
-  params: { token: string };
-  searchParams: Record<string, string | string[] | undefined>;
-}) {
-  return <ResetPassword token={props.params.token} />;
+import { useParams } from 'next/navigation';
+import ResetPasswordUI from '../../../components/ResetPassword';
+
+export default function ResetPasswordPage() {
+  // Use client-side navigation to access the token parameter
+  const params = useParams();
+  const token = params?.token as string;
+
+  return <ResetPasswordUI token={token} />;
 } 
