@@ -1,19 +1,84 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useRouter } from "next/navigation";
-import { Navbar } from "./NavBar";
+import Image from "next/image";
+import Link from "next/link";
+import { 
+  User, 
+  Home, 
+  Briefcase, 
+  FileText, 
+  Settings, 
+  Bell, 
+  Search,
+  ChevronRight,
+  ArrowUpRight,
+  Plus,
+  BarChart2,
+  PieChart,
+  LineChart
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
-import { LandingPage } from "./LandingPage";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { User, Briefcase, FileText, Settings, Bell } from "lucide-react";
-import Image from "next/image";
+import { Input } from "./ui/input";
+import { DashboardShell } from "./DashboardShell";
+import { LinkButton } from "./LinkButton";
 
 const Dashboard = () => {
   const { user, isLoading } = useAuth();
   const router = useRouter();
+  const [activeTab, setActiveTab] = useState("dashboard");
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [activeTimeframe, setActiveTimeframe] = useState('weekly');
+  const [imageErrors, setImageErrors] = useState({
+    weeklyActivity: false,
+    interests: false,
+    profileViews: false
+  });
+
+  // Handle scroll for sticky header shadow effect
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Sidebar navigation items
+  const sidebarItems = [
+    { icon: Home, label: "Dashboard", id: "dashboard", active: activeTab === "dashboard" },
+    { icon: User, label: "Profile", id: "profile", active: activeTab === "profile" },
+    { 
+      label: "Job Match", 
+      id: "jobmatch", 
+      active: activeTab === "jobmatch",
+      imgSrc: "/img/briefcase-icon.png"
+    },
+    { 
+      label: "CV Assistant", 
+      id: "cvassistant", 
+      active: activeTab === "cvassistant",
+      imgSrc: "/img/edit-icon.png"
+    },
+    { 
+      label: "Interviewer", 
+      id: "interviewer", 
+      active: activeTab === "interviewer",
+      imgSrc: "/img/ai-interviewer-icon.png"
+    },
+    { 
+      label: "Career Roadmap", 
+      id: "roadmap", 
+      active: activeTab === "roadmap",
+      imgSrc: "/img/chart-icon.png"
+    },
+    { label: "Settings", id: "settings", icon: Settings, active: activeTab === "settings" },
+    { label: "Help", id: "help", icon: Bell, active: activeTab === "help" },
+  ];
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -24,261 +89,452 @@ const Dashboard = () => {
 
   // Show loading or redirect if no user
   if (isLoading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="flex flex-col items-center">
+          <div className="w-16 h-16 relative">
+            <div className="absolute inset-0 rounded-full border-t-4 border-lime-300 animate-spin"></div>
+          </div>
+          <p className="mt-4 text-black font-medium">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
   }
 
   if (!user) {
     return null; // Will redirect in the useEffect
   }
 
-  // If the user hasn't chosen a role yet, redirect them
-  if (!user.role) {
-    router.push("/choose-role");
-    return null;
-  }
+  // Handle sidebar navigation
+  const handleNavigation = (id: string) => {
+    setActiveTab(id);
+    if (id === "profile") {
+      router.push("/profile");
+    }
+    else if (id === "jobmatch") {
+      router.push("/job-match");
+    }
+    else if (id === "cvassistant") {
+      router.push("/cv-assistant");
+    }
+    else if (id === "interviewer") {
+      router.push("/interviewer");
+    }
+    else if (id === "roadmap") {
+      router.push("/roadmap");
+    }
+    else if (id === "settings") {
+      router.push("/settings");
+    }
+    else if (id === "help") {
+      router.push("/help");
+    }
+    else if (id === "dashboard") {
+      router.push("/dashboard");
+    }
+  };
 
-  return (
-    <div className="min-h-screen bg-zinc-50">
-      <Navbar />
-      
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-24 py-8">
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold text-zinc-900">Dashboard</h1>
-          <p className="text-zinc-500">Welcome, {user.username || user.email}!</p>
-        </header>
-        
-        <div className="flex flex-col lg:flex-row gap-6">
-          {/* Sidebar */}
-          <aside className="lg:w-1/4">
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex flex-col items-center mb-6">
-                  <div className="w-24 h-24 rounded-full bg-lime-300 flex items-center justify-center mb-4">
-                    <User size={40} className="text-zinc-800" />
+  // Add this function to handle image load errors
+  const handleImageError = (chart: keyof typeof imageErrors) => {
+    setImageErrors(prev => ({ ...prev, [chart]: true }));
+  };
+
+  // Render dashboard content
+  const renderContent = () => {
+    switch (activeTab) {
+      case "dashboard":
+        return renderDashboardContent();
+      case "profile":
+        return null; // Will redirect to profile page
+      default:
+        return (
+          <div className="flex flex-col items-center justify-center h-[600px]">
+            <div className="w-24 h-24 bg-lime-100 rounded-full flex items-center justify-center mb-6">
+              <Plus className="h-10 w-10 text-black" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">Coming Soon</h2>
+            <p className="text-gray-500 max-w-md text-center">
+              We're working on the {activeTab.replace(/([A-Z])/g, ' $1').trim()} feature. 
+              It will be available in the next update.
+            </p>
+          </div>
+        );
+    }
+  };
+
+  // Render dashboard main content
+  const renderDashboardContent = () => {
+    return (
+      <>
+        {/* Welcome Banner */}
+        <div className="bg-lime-300 rounded-xl p-6 mb-8 shadow-sm">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div>
+              <h2 className="text-xl font-bold text-black">Good morning, {user?.username || 'testuser'}!</h2>
+              <p className="text-black/80 mt-1">Here's what's happening with your profile today.</p>
+            </div>
+            <LinkButton 
+              href="/profile"
+              className="bg-black text-lime-300 hover:bg-gray-800 transition-all shadow-sm"
+              aria-label="Update your profile information"
+            >
+              Update Profile
+            </LinkButton>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {/* CV Points Card */}
+          <Card className="overflow-hidden border-none shadow-md hover:shadow-lg transition-all duration-300 bg-white">
+            <CardHeader className="bg-lime-50 pb-2 pt-5 px-6">
+              <CardTitle className="text-lg text-black flex items-center justify-between">
+                <span>CV Points</span>
+                <Link href="#" className="text-black hover:text-lime-700">
+                  <ChevronRight className="h-5 w-5" />
+                </Link>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="p-6 pt-4">
+                <div className="relative flex flex-col items-center">
+                  <div className="relative w-40 h-40 flex items-center justify-center">
+                    {/* Background circle */}
+                    <div className="absolute inset-0 rounded-full border-[12px] border-lime-100 opacity-20"></div>
+                    
+                    {/* Progress circle */}
+                    <svg className="absolute inset-0 w-full h-full -rotate-90">
+                      <defs>
+                        <filter id="glow">
+                          <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+                          <feMerge>
+                            <feMergeNode in="coloredBlur" />
+                            <feMergeNode in="SourceGraphic" />
+                          </feMerge>
+                        </filter>
+                      </defs>
+                      <circle
+                        cx="80"
+                        cy="80"
+                        r="64"
+                        fill="none"
+                        stroke="#c1fa7e"
+                        strokeWidth="18"
+                        strokeDasharray={2 * Math.PI * 64}
+                        strokeDashoffset={2 * Math.PI * 64 * (1 - 85/100)}
+                        filter="url(#glow)"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                    
+                    {/* Score text */}
+                    <div className="z-10 text-center">
+                      <span className="block text-5xl font-bold text-black">85</span>
+                      <span className="text-sm text-gray-500">out of 100</span>
+                    </div>
                   </div>
-                  <h2 className="text-xl font-semibold">{user.username || user.email}</h2>
-                  <p className="text-zinc-500 capitalize">{user.role}</p>
+                  
+                  <div className="flex justify-between w-full mt-8 text-center">
+                    <div className="flex-1">
+                      <span className="block text-xl font-semibold text-black">75%</span>
+                      <span className="text-xs text-gray-500">Completion</span>
+                    </div>
+                    <div className="flex-1">
+                      <span className="block text-xl font-semibold text-black">24</span>
+                      <span className="text-xs text-gray-500">Tasks Done</span>
+                    </div>
+                    <div className="flex-1">
+                      <span className="block text-xl font-semibold text-black">8</span>
+                      <span className="text-xs text-gray-500">Pending</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Profile Views Card */}
+          <Card className="overflow-hidden border-none shadow-md hover:shadow-lg transition-all duration-300 bg-white">
+            <CardHeader className="bg-lime-50 pb-2 pt-5 px-6">
+              <CardTitle className="text-lg text-black flex items-center justify-between">
+                <span>Profile Views</span>
+                <Link href="#" className="text-black hover:text-lime-700">
+                  <ChevronRight className="h-5 w-5" />
+                </Link>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="p-6 pt-4">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <p className="text-3xl font-bold text-black">237</p>
+                    <p className="text-sm text-gray-500">Total views this month</p>
+                  </div>
+                  <div className="bg-lime-100 px-3 py-1 rounded-full flex items-center">
+                    <ArrowUpRight className="h-4 w-4 text-green-600 mr-1" />
+                    <span className="text-sm font-medium text-green-600">+24%</span>
+                  </div>
+                </div>
+                <div className="h-[180px] flex items-center justify-center">
+                  {imageErrors.profileViews ? (
+                    <div className="flex flex-col items-center justify-center text-gray-500">
+                      <LineChart className="h-12 w-12 mb-2 text-gray-300" />
+                      <p>Profile views data unavailable</p>
+                      <LinkButton
+                        variant="outline"
+                        size="sm"
+                        className="mt-2 text-xs"
+                        onClick={() => setImageErrors(prev => ({ ...prev, profileViews: false }))}
+                      >
+                        Retry
+                      </LinkButton>
+                  </div>
+                  ) : (
+                    <div 
+                      className="w-full h-full bg-contain bg-center bg-no-repeat rounded-lg" 
+                      style={{ backgroundImage: `url('/img/profile-views-chart.png')` }}
+                      onError={() => handleImageError('profileViews')}
+                    />
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Career Progress Card */}
+          <Card className="overflow-hidden border-none shadow-md hover:shadow-lg transition-all duration-300 bg-white">
+            <CardHeader className="bg-lime-50 pb-2 pt-5 px-6">
+              <CardTitle className="text-lg text-black flex items-center justify-between">
+                <span>Career Progress</span>
+                <LinkButton 
+                  href="/roadmap"
+                  variant="ghost"
+                  className="p-0 m-0 h-auto text-black hover:text-lime-700"
+                  aria-label="View career progress details"
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </LinkButton>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="p-6 pt-4">
+                <div className="flex justify-between items-center mb-6">
+                  <p className="text-base text-gray-600 font-medium">Career Skills</p>
+                  <p className="text-sm text-black font-medium">4 of 6 complete</p>
                 </div>
                 
-                <nav className="space-y-2">
-                  <Button variant="ghost" className="w-full justify-start">
-                    <User className="mr-2 h-4 w-4" />
-                    Profile
-                  </Button>
-                  <Button variant="ghost" className="w-full justify-start">
-                    <Briefcase className="mr-2 h-4 w-4" />
-                    Jobs
-                  </Button>
-                  <Button variant="ghost" className="w-full justify-start">
-                    <FileText className="mr-2 h-4 w-4" />
-                    Resume
-                  </Button>
-                  <Button variant="ghost" className="w-full justify-start">
-                    <Bell className="mr-2 h-4 w-4" />
-                    Notifications
-                  </Button>
-                  <Button variant="ghost" className="w-full justify-start">
-                    <Settings className="mr-2 h-4 w-4" />
-                    Settings
-                  </Button>
-                </nav>
-              </CardContent>
-            </Card>
-          </aside>
-          
-          {/* Main content */}
-          <main className="lg:w-3/4">
-            <Card>
-              <CardHeader>
-                <CardTitle>{user.role === "employee" ? "My Job Search" : "Recruitment Dashboard"}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Tabs defaultValue="overview">
-                  <TabsList className="mb-4">
-                    <TabsTrigger value="overview">Overview</TabsTrigger>
-                    <TabsTrigger value="stats">Statistics</TabsTrigger>
-                    <TabsTrigger value="activity">Recent Activity</TabsTrigger>
-                  </TabsList>
-                  
-                  <TabsContent value="overview" className="space-y-4">
-                    {user.role === "employee" ? (
-                      <>
-                        <div className="bg-lime-100 p-6 rounded-lg">
-                          <h3 className="text-lg font-medium mb-2">Complete Your Profile</h3>
-                          <p className="text-zinc-600 mb-4">A complete profile increases your chances of being matched with the right job.</p>
-                          <div className="flex items-center">
-                            <div className="w-full bg-zinc-200 rounded-full h-2.5">
-                              <div className="bg-lime-500 h-2.5 rounded-full w-[45%]"></div>
-                            </div>
-                            <span className="ml-2 text-sm font-medium text-zinc-700">45%</span>
-                          </div>
-                        </div>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          <Card>
-                            <CardContent className="p-4 flex flex-col items-center">
-                              <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center mb-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                </svg>
-                              </div>
-                              <h3 className="font-medium">Job Matches</h3>
-                              <p className="text-2xl font-bold">12</p>
-                            </CardContent>
-                          </Card>
-                          
-                          <Card>
-                            <CardContent className="p-4 flex flex-col items-center">
-                              <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center mb-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                              </div>
-                              <h3 className="font-medium">Applications</h3>
-                              <p className="text-2xl font-bold">5</p>
-                            </CardContent>
-                          </Card>
-                          
-                          <Card>
-                            <CardContent className="p-4 flex flex-col items-center">
-                              <div className="h-12 w-12 rounded-full bg-purple-100 flex items-center justify-center mb-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                                </svg>
-                              </div>
-                              <h3 className="font-medium">Interviews</h3>
-                              <p className="text-2xl font-bold">2</p>
-                            </CardContent>
-                          </Card>
-                        </div>
-                        
-                        <div className="flex flex-col">
-                          <h3 className="text-lg font-medium mb-4">Recommended Jobs</h3>
-                          <div className="space-y-4">
-                            {[1, 2, 3].map((job) => (
-                              <Card key={job}>
-                                <CardContent className="p-4">
-                                  <div className="flex justify-between items-start">
-                                    <div>
-                                      <h4 className="font-medium">Senior Frontend Developer</h4>
-                                      <p className="text-sm text-zinc-500">TechCorp • Remote • $80k - $120k</p>
-                                      <div className="flex flex-wrap gap-2 mt-2">
-                                        <span className="px-2 py-1 bg-zinc-100 text-zinc-800 text-xs rounded-full">React</span>
-                                        <span className="px-2 py-1 bg-zinc-100 text-zinc-800 text-xs rounded-full">TypeScript</span>
-                                        <span className="px-2 py-1 bg-zinc-100 text-zinc-800 text-xs rounded-full">Next.js</span>
-                                      </div>
-                                    </div>
-                                    <span className="text-sm px-2 py-1 bg-lime-100 text-lime-800 rounded-full">98% match</span>
-                                  </div>
-                                </CardContent>
-                              </Card>
-                            ))}
-                          </div>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <div className="bg-lime-100 p-6 rounded-lg">
-                          <h3 className="text-lg font-medium mb-2">Active Job Postings</h3>
-                          <p className="text-zinc-600 mb-4">You have 3 active job postings with a total of 45 applicants.</p>
-                          <Button className="bg-zinc-900 text-lime-300 hover:bg-zinc-800">
-                            Post a New Job
-                          </Button>
-                        </div>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          <Card>
-                            <CardContent className="p-4 flex flex-col items-center">
-                              <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center mb-2">
-                                <Briefcase className="h-6 w-6 text-blue-600" />
-                              </div>
-                              <h3 className="font-medium">Job Postings</h3>
-                              <p className="text-2xl font-bold">3</p>
-                            </CardContent>
-                          </Card>
-                          
-                          <Card>
-                            <CardContent className="p-4 flex flex-col items-center">
-                              <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center mb-2">
-                                <User className="h-6 w-6 text-green-600" />
-                              </div>
-                              <h3 className="font-medium">Total Applicants</h3>
-                              <p className="text-2xl font-bold">45</p>
-                            </CardContent>
-                          </Card>
-                          
-                          <Card>
-                            <CardContent className="p-4 flex flex-col items-center">
-                              <div className="h-12 w-12 rounded-full bg-purple-100 flex items-center justify-center mb-2">
-                                <Bell className="h-6 w-6 text-purple-600" />
-                              </div>
-                              <h3 className="font-medium">Interviews Scheduled</h3>
-                              <p className="text-2xl font-bold">7</p>
-                            </CardContent>
-                          </Card>
-                        </div>
-                        
-                        <div className="flex flex-col">
-                          <h3 className="text-lg font-medium mb-4">Top Candidates</h3>
-                          <div className="space-y-4">
-                            {[1, 2, 3].map((candidate) => (
-                              <Card key={candidate}>
-                                <CardContent className="p-4">
-                                  <div className="flex justify-between items-start">
-                                    <div className="flex gap-3">
-                                      <div className="w-10 h-10 rounded-full bg-zinc-300 flex items-center justify-center">
-                                        <User className="h-5 w-5 text-zinc-600" />
-                                      </div>
-                                      <div>
-                                        <h4 className="font-medium">John Doe</h4>
-                                        <p className="text-sm text-zinc-500">5 years experience • React Developer</p>
-                                        <div className="flex flex-wrap gap-2 mt-2">
-                                          <span className="px-2 py-1 bg-zinc-100 text-zinc-800 text-xs rounded-full">React</span>
-                                          <span className="px-2 py-1 bg-zinc-100 text-zinc-800 text-xs rounded-full">TypeScript</span>
-                                          <span className="px-2 py-1 bg-zinc-100 text-zinc-800 text-xs rounded-full">Node.js</span>
-                                        </div>
-                                      </div>
-                                    </div>
-                                    <span className="text-sm px-2 py-1 bg-lime-100 text-lime-800 rounded-full">92% match</span>
-                                  </div>
-                                </CardContent>
-                              </Card>
-                            ))}
-                          </div>
-                        </div>
-                      </>
-                    )}
-                  </TabsContent>
-                  
-                  <TabsContent value="stats">
-                    <div className="h-80 flex items-center justify-center bg-zinc-100 rounded-lg">
-                      <p className="text-zinc-500">Statistics charts will be displayed here</p>
+                {/* Skill bars */}
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="text-gray-600">Technical</span>
+                      <span className="text-black font-medium">85%</span>
                     </div>
-                  </TabsContent>
-                  
-                  <TabsContent value="activity">
-                    <div className="space-y-4">
-                      <div className="border-l-2 border-lime-300 pl-4">
-                        <h3 className="font-medium">Applied to Frontend Developer position</h3>
-                        <p className="text-sm text-zinc-500">2 hours ago</p>
-                      </div>
-                      <div className="border-l-2 border-lime-300 pl-4">
-                        <h3 className="font-medium">Profile viewed by TechCorp</h3>
-                        <p className="text-sm text-zinc-500">Yesterday</p>
-                      </div>
-                      <div className="border-l-2 border-lime-300 pl-4">
-                        <h3 className="font-medium">Resume updated</h3>
-                        <p className="text-sm text-zinc-500">3 days ago</p>
-                      </div>
+                    <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="h-full bg-lime-300 rounded-full transition-all duration-500" style={{ width: "85%" }}></div>
                     </div>
-                  </TabsContent>
-                </Tabs>
-              </CardContent>
-            </Card>
-          </main>
+                  </div>
+                  
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="text-gray-600">Soft Skills</span>
+                      <span className="text-black font-medium">70%</span>
+                    </div>
+                    <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="h-full bg-lime-300 rounded-full transition-all duration-500" style={{ width: "70%" }}></div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="text-gray-600">Leadership</span>
+                      <span className="text-black font-medium">60%</span>
+                    </div>
+                    <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="h-full bg-lime-300 rounded-full transition-all duration-500" style={{ width: "60%" }}></div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="text-gray-600">Experience</span>
+                      <span className="text-black font-medium">75%</span>
+                    </div>
+                    <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="h-full bg-lime-300 rounded-full transition-all duration-500" style={{ width: "75%" }}></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Weekly Activity Card */}
+          <Card className="overflow-hidden border-none shadow-md hover:shadow-lg transition-all duration-300 bg-white md:col-span-2">
+            <CardHeader className="bg-lime-50 pb-2 pt-5 px-6">
+              <CardTitle className="text-lg text-black flex items-center justify-between">
+                <span>Weekly Activity</span>
+                <div className="flex space-x-2 text-sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className={`h-8 ${activeTimeframe === 'weekly' ? 'bg-lime-300 text-black' : 'text-gray-500'} border-none hover:bg-lime-100`}
+                    onClick={() => setActiveTimeframe('weekly')}
+                  >
+                    Weekly
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className={`h-8 ${activeTimeframe === 'monthly' ? 'bg-lime-300 text-black' : 'text-gray-500'} border-none hover:bg-lime-100`}
+                    onClick={() => setActiveTimeframe('monthly')}
+                  >
+                    Monthly
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className={`h-8 ${activeTimeframe === 'yearly' ? 'bg-lime-300 text-black' : 'text-gray-500'} border-none hover:bg-lime-100`}
+                    onClick={() => setActiveTimeframe('yearly')}
+                  >
+                    Yearly
+                  </Button>
+                </div>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="p-6 pt-4">
+                <div className="h-[380px] flex items-center justify-center">
+                  <div className="bg-gray-50 w-full h-full rounded-lg flex items-center justify-center">
+                    {imageErrors.weeklyActivity ? (
+                      <div className="flex flex-col items-center justify-center text-gray-500">
+                        <BarChart2 className="h-12 w-12 mb-2 text-gray-300" />
+                        <p>Chart data unavailable</p>
+                        <LinkButton
+                          variant="outline"
+                          size="sm"
+                          className="mt-2 text-xs"
+                          onClick={() => setImageErrors(prev => ({ ...prev, weeklyActivity: false }))}
+                        >
+                          Retry
+                        </LinkButton>
+                      </div>
+                    ) : (
+                      <div 
+                        className="w-full h-full bg-contain bg-center bg-no-repeat relative" 
+                        style={{ 
+                          backgroundImage: `url('/img/weekly-activity-chart.png')`
+                        }}
+                        onError={() => handleImageError('weeklyActivity')}
+                      >
+                        <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-gray-50/50 rounded-lg">
+                          <span className="text-gray-500">Click to view detailed analytics</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Interests Card */}
+          <Card className="overflow-hidden border-none shadow-md hover:shadow-lg transition-all duration-300 bg-white">
+            <CardHeader className="bg-lime-50 pb-2 pt-5 px-6">
+              <CardTitle className="text-lg text-black flex items-center justify-between">
+                <span>Interests</span>
+                <Link href="#" className="text-black hover:text-lime-700">
+                  <ChevronRight className="h-5 w-5" />
+                </Link>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="p-6 pt-4">
+                <div className="h-[380px] flex items-center justify-center">
+                  {imageErrors.interests ? (
+                    <div className="flex flex-col items-center justify-center text-gray-500">
+                      <PieChart className="h-12 w-12 mb-2 text-gray-300" />
+                      <p>Interest data unavailable</p>
+                      <LinkButton
+                        variant="outline"
+                        size="sm"
+                        className="mt-2 text-xs"
+                        onClick={() => setImageErrors(prev => ({ ...prev, interests: false }))}
+                      >
+                        Retry
+                      </LinkButton>
+                  </div>
+                  ) : (
+                    <div 
+                      className="w-full h-full bg-contain bg-center bg-no-repeat" 
+                      style={{ backgroundImage: `url('/img/interests-chart.png')` }}
+                      onError={() => handleImageError('interests')}
+                    />
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        
+        {/* Job recommendations section */}
+        <div className="mt-8">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold text-gray-800">Job Recommendations</h2>
+            <Button variant="outline" className="text-black border-lime-300 hover:bg-lime-100">
+              View All
+            </Button>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:grid-cols-3">
+            {[1, 2, 3].map((job) => (
+              <Card 
+                key={job} 
+                className="overflow-hidden border border-gray-100 hover:border-lime-300 hover:shadow-md transition-all duration-300 cursor-pointer group h-full"
+              >
+                <CardContent className="p-5 h-full flex flex-col">
+                  <div className="flex items-start gap-4 h-full">
+                    <div className="w-12 h-12 rounded-md bg-lime-100 flex items-center justify-center flex-shrink-0">
+                      <Briefcase className="h-6 w-6 text-black" />
+                    </div>
+                    <div className="flex-1 flex flex-col h-full">
+                      <h3 className="font-medium text-gray-900 group-hover:text-black transition-colors">Senior Frontend Developer</h3>
+                      <p className="text-sm text-gray-500 mt-1">TechCorp • Remote</p>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        <span className="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">React</span>
+                        <span className="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">TypeScript</span>
+                        <span className="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">Next.js</span>
+                      </div>
+                      <div className="flex justify-between items-center mt-auto pt-3">
+                        <span className="text-sm font-medium text-gray-900">$80k - $120k</span>
+                        <span className="text-sm px-2 py-1 bg-lime-100 text-lime-800 rounded-full">98% match</span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        {/* Career progress stats */}
+        <LinkButton 
+          href="/roadmap"
+          variant="outline" 
+          className="text-black border-lime-300 hover:bg-lime-100 mt-4"
+          aria-label="View your career plan details"
+        >
+          View Career Plan
+        </LinkButton>
+      </>
+    );
+  };
+
+  return (
+      <div className="p-6">
+        {renderContent()}
       </div>
-    </div>
   );
 };
 

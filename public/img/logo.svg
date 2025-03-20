@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="140px" height="40px" viewBox="0 0 140 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <linearGradient x1="0%" y1="0%" x2="100%" y2="100%" id="jobfitLogoGradient">
+      <stop stop-color="#84cc16" offset="0%"></stop>
+      <stop stop-color="#65a30d" offset="100%"></stop>
+    </linearGradient>
+  </defs>
+  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <!-- J Letter with distinctive style -->
+    <g transform="translate(5, 5)">
+      <rect x="0" y="0" width="30" height="30" rx="6" fill="url(#jobfitLogoGradient)"></rect>
+      <path d="M18,6 L18,18 C18,21.3137 15.3137,24 12,24 L10,24" stroke="white" stroke-width="3" stroke-linecap="round"></path>
+    </g>
+    
+    <!-- "ob" -->
+    <text x="40" y="25" font-family="Arial, sans-serif" font-size="20" font-weight="400" fill="#000000">
+      ob
+    </text>
+    
+    <!-- "Fit" with the highlight -->
+    <text x="68" y="25" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="url(#jobfitLogoGradient)">
+      Fit
+    </text>
+    
+    <!-- ".AI" smaller and elevated -->
+    <text x="95" y="18" font-family="Arial, sans-serif" font-size="10" font-weight="400" fill="#000000">
+      .AI
+    </text>
+  </g>
+</svg> 

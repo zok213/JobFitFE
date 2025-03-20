@@ -7,6 +7,7 @@ type User = {
   email: string;
   username?: string;
   role?: "employee" | "employer";
+  avatarUrl?: string;
 };
 
 type AuthContextType = {
@@ -30,8 +31,20 @@ const AuthContext = createContext<AuthContextType>({
 
 // Demo users for testing
 const DEMO_USERS = [
-  { id: "1", email: "test@example.com", password: "password123", username: "testuser" },
-  { id: "2", email: "employer@example.com", password: "employer123", username: "employeruser" },
+  { 
+    id: "1", 
+    email: "test@example.com", 
+    password: "password123", 
+    username: "testuser",
+    avatarUrl: "/img/avatars/user1.jpg" 
+  },
+  { 
+    id: "2", 
+    email: "employer@example.com", 
+    password: "employer123", 
+    username: "employeruser",
+    avatarUrl: "/img/avatars/user2.jpg" 
+  },
 ];
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {

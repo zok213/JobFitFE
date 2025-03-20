@@ -12,6 +12,9 @@
 
 # testing
 /coverage
+/tests
+jest.*
+tsconfig.jest.json
 
 # next.js
 /.next/
@@ -30,13 +33,33 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# local env files
+.env*.local
+.env
+.env.development
+.env.test
+.env.production
 
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
-next-env.d.ts
-package-lock.json*
+# DO NOT IGNORE next-env.d.ts as it's needed for the project
+
+# Nested duplicate project directory 
+/my-next-app
+
+# Large file
+package-lock.json
+
+# Editor directories and files
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Cache
+.swc/

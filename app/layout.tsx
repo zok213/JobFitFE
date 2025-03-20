@@ -19,11 +19,8 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Prevent hydration issues by using a static string for the class name
-  const fontClass = spaceGrotesk.variable;
-  
   return (
-    <html lang="en" className={fontClass}>
+    <html lang="en" className={spaceGrotesk.variable} suppressHydrationWarning>
       <body suppressHydrationWarning className="font-sans bg-background">
         <AuthProvider>
           {children}
