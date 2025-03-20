@@ -53,7 +53,7 @@ const RoadmapButton = ({
   ...props 
 }: {
   children: React.ReactNode;
-  onClick?: (e?: React.MouseEvent<HTMLButtonElement>) => void;
+  onClick?: (e?: React.MouseEvent<HTMLElement>) => void;
   variant?: "primary" | "secondary" | "outline" | "ghost" | "default";
   size?: "sm" | "md" | "lg";
   className?: string;
@@ -147,7 +147,7 @@ export function RoadmapVisualizer({
     }
   };
 
-  const toggleStep = (stepId: string, e?: React.MouseEvent<HTMLButtonElement>) => {
+  const toggleStep = (stepId: string, e?: React.MouseEvent<HTMLElement>) => {
     if (expandedStepId === stepId) {
       setExpandedStepId(null);
     } else {
@@ -155,7 +155,7 @@ export function RoadmapVisualizer({
     }
   };
 
-  const handleNodeClick = (stepId: string, e?: React.MouseEvent<any>) => {
+  const handleNodeClick = (stepId: string, e?: React.MouseEvent<HTMLElement>) => {
     e?.stopPropagation();
 
     // Calculate position before updating state to ensure proper positioning
