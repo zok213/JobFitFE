@@ -174,7 +174,7 @@ export const LandingPage = () => {
               "JobFit.AI completely transformed my job search. After months of applying with no results, their AI helped me understand what skills I was missing and connected me with the perfect opportunity. I landed a job that pays 30% more than my previous position!"
             </p>
             
-            <div className="flex items-center justify-center">
+            {/* <div className="flex items-center justify-center">
               <div className="w-14 h-14 rounded-full bg-gray-200 overflow-hidden mr-4">
                 <img src="https://randomuser.me/api/portraits/women/45.jpg" alt="Testimonial author" className="w-full h-full object-cover" />
               </div>
@@ -182,7 +182,7 @@ export const LandingPage = () => {
                 <p className="font-bold text-gray-900">Sarah Johnson</p>
                 <p className="text-gray-600">Software Developer at TechCorp</p>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </motion.section>

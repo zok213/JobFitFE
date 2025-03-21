@@ -6,7 +6,7 @@ import Link from "next/link";
 export const TeamSection = () => {
   const teamMembers = [
     {
-      name: "Huỳnh Ngọc Hânn",
+      name: "Huỳnh Ngọc Hân",
       role: "Project Manager",
       initials: "HNH",
       linkedin: "#",
@@ -30,7 +30,7 @@ export const TeamSection = () => {
       linkedin: "#",
     },
     {
-      name: "Mai Phước Minh TàiTài",
+      name: "Mai Phước Minh Tài",
       role: "MLOps Engineer",
       initials: "MPMT",
       linkedin: "#",
