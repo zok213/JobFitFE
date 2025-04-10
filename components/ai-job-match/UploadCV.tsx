@@ -13,7 +13,10 @@ import {
   FileText,
   X,
   Info,
-  FileUp
+  FileUp,
+  Trash2,
+  MoreVertical,
+  Download
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Input } from "../ui/input";
@@ -22,16 +25,39 @@ import { Badge } from "../ui/badge";
 import { Progress } from "../ui/progress";
 import { motion, AnimatePresence } from "framer-motion";
 
+type CVFile = {
+  id: string;
+  name: string;
+  size: number;
+  dateAdded: string;
+  isDefault?: boolean;
+};
+
 export function UploadCV() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [fileName, setFileName] = useState<string | null>(null);
-  const [fileSize, setFileSize] = useState<number | null>(null);
   const [uploadStatus, setUploadStatus] = useState<"idle" | "uploading" | "success" | "error">("idle");
   const [uploadProgress, setUploadProgress] = useState(0);
   const [dragActive, setDragActive] = useState(false);
-  const [useExistingCV, setUseExistingCV] = useState(false);
+  const [activeFileId, setActiveFileId] = useState<string | null>(null);
+  
+  // Mock data for existing CVs
+  const [cvFiles, setCvFiles] = useState<CVFile[]>([
+    { 
+      id: "cv1", 
+      name: "Resume_Software_Developer_2024.pdf", 
+      size: 258000, 
+      dateAdded: "2024-03-15",
+      isDefault: true
+    },
+    { 
+      id: "cv2", 
+      name: "Resume_Project_Manager.pdf", 
+      size: 312000, 
+      dateAdded: "2024-02-18"
+    }
+  ]);
 
   // Animation variants
   const containerVariants = {
@@ -63,6 +89,18 @@ export function UploadCV() {
           if (newProgress >= 100) {
             clearInterval(interval);
             setUploadStatus("success");
+            
+            // Add the new CV to the list
+            if (activeFileId) {
+              const newFile = cvFiles.find(file => file.id === activeFileId);
+              if (newFile) {
+                setCvFiles(prev => prev.map(file => ({
+                  ...file,
+                  isDefault: file.id === activeFileId
+                })));
+              }
+            }
+            
             return 100;
           }
           return newProgress;
@@ -71,7 +109,7 @@ export function UploadCV() {
       
       return () => clearInterval(interval);
     }
-  }, [uploadStatus]);
+  }, [uploadStatus, activeFileId, cvFiles]);
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -106,19 +144,44 @@ export function UploadCV() {
   };
 
   const handleFile = (file: File) => {
-    setFileName(file.name);
-    setFileSize(file.size);
+    // Create a new file object and add to the beginning of the list
+    const newFileId = `cv${Date.now()}`;
+    setActiveFileId(newFileId);
+    
+    const newFile: CVFile = {
+      id: newFileId,
+      name: file.name,
+      size: file.size,
+      dateAdded: new Date().toISOString().split('T')[0],
+    };
+    
+    setCvFiles(prev => [newFile, ...prev]);
     setUploadStatus("uploading");
     setUploadProgress(0);
-    setUseExistingCV(false);
   };
 
-  const handleExistingCV = () => {
-    setUseExistingCV(true);
-    setFileName("your_resume.pdf");
-    setFileSize(258000);
-    setUploadStatus("success");
-    setUploadProgress(100);
+  const handleSetDefaultCV = (id: string) => {
+    setCvFiles(prev => prev.map(file => ({
+      ...file,
+      isDefault: file.id === id
+    })));
+  };
+
+  const handleDeleteCV = (id: string) => {
+    // If deleting the default CV, make the first remaining one default
+    setCvFiles(prev => {
+      const isRemovingDefault = prev.find(file => file.id === id)?.isDefault;
+      const filtered = prev.filter(file => file.id !== id);
+      
+      if (isRemovingDefault && filtered.length > 0) {
+        return filtered.map((file, index) => ({
+          ...file,
+          isDefault: index === 0 ? true : false
+        }));
+      }
+      
+      return filtered;
+    });
   };
 
   const handleContinue = () => {
@@ -130,14 +193,14 @@ export function UploadCV() {
     }, 1000);
   };
 
-  const handleRemoveFile = () => {
-    setFileName(null);
-    setFileSize(null);
-    setUploadStatus("idle");
-    setUploadProgress(0);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
+  const getDefaultCV = () => {
+    return cvFiles.find(file => file.isDefault) || cvFiles[0];
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
   return (
@@ -146,202 +209,256 @@ export function UploadCV() {
         initial="hidden"
         animate="visible"
         variants={containerVariants}
-        className="bg-white rounded-xl p-8 shadow-sm border border-gray-100 hover:shadow-md transition-all"
+        className="bg-white rounded-xl p-8 shadow-sm border border-gray-100 hover:shadow-md transition-all mb-6"
       >
         <motion.div variants={itemVariants} className="flex items-center gap-3 mb-8">
           <div className="w-12 h-12 rounded-full bg-lime-300 flex items-center justify-center">
             <FileUp className="h-6 w-6 text-black" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-black">Upload your CV</h2>
+            <h2 className="text-xl font-bold text-black">Your CV Library</h2>
             <p className="text-gray-600 text-sm mt-1">
-              Upload your CV to improve the accuracy of your job matches
+              Manage your CVs to improve the accuracy of your job matches
             </p>
           </div>
         </motion.div>
 
-        <motion.div variants={containerVariants} className="space-y-8">
-          <motion.div variants={itemVariants}>
-            <AnimatePresence mode="wait">
-              {!fileName ? (
-                <motion.div
-                  key="upload-area"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className={`border-2 border-dashed rounded-lg p-12 text-center ${
-                    dragActive ? "border-lime-300 bg-lime-50" : "border-gray-300 hover:border-lime-300 hover:bg-lime-50"
-                  } transition-colors duration-200 ease-in-out`}
-                  onDragEnter={handleDrag}
-                  onDragOver={handleDrag}
-                  onDragLeave={handleDrag}
-                  onDrop={handleDrop}
-                >
-                  <div className="flex flex-col items-center justify-center space-y-6">
-                    <motion.div 
-                      className="w-20 h-20 rounded-full bg-lime-100 flex items-center justify-center"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <Upload className="h-8 w-8 text-black" />
-                    </motion.div>
-                    <div>
-                      <h3 className="text-lg font-medium text-black">Drag and drop your CV here</h3>
-                      <p className="text-gray-600 text-sm mt-2 mb-4">
-                        Supported formats: PDF, DOCX, DOC (Max 5MB)
-                      </p>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                      <span className="text-gray-400">or</span>
-                    </div>
-                    <Button 
-                      variant="outline" 
-                      className="border-gray-300 hover:border-lime-300 hover:bg-lime-50 px-5 py-6 h-auto text-base"
-                      onClick={() => fileInputRef.current?.click()}
-                    >
-                      Browse Files
-                    </Button>
-                    <input
-                      type="file"
-                      ref={fileInputRef}
-                      className="hidden"
-                      accept=".pdf,.docx,.doc"
-                      onChange={handleFileInput}
-                      aria-label="Upload CV file"
-                    />
-                  </div>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="file-preview"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  className="border rounded-lg p-6 bg-white shadow-sm"
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-12 h-12 bg-lime-100 rounded-full flex items-center justify-center">
-                        <File className="h-5 w-5 text-black" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-black">{fileName}</p>
-                        <p className="text-xs text-gray-500">{fileSize ? `${(fileSize / 1024).toFixed(0)} KB` : ''}</p>
-                      </div>
-                    </div>
-                    <Button 
-                      variant="ghost" 
-                      size="icon"
-                      className="h-8 w-8 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100"
-                      onClick={handleRemoveFile}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  
-                  {uploadStatus === "uploading" && (
-                    <div className="mb-4">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm text-gray-600">Uploading...</span>
-                        <span className="text-sm font-medium">{uploadProgress}%</span>
-                      </div>
-                      <Progress value={uploadProgress} className="h-2" indicatorClassName="bg-lime-300" />
-                    </div>
-                  )}
-                  
-                  {uploadStatus === "success" && (
-                    <div className="bg-lime-50 border border-lime-200 rounded-md p-3 flex items-center mb-4">
-                      <Check className="h-5 w-5 text-green-600 mr-2" />
-                      <p className="text-sm text-gray-800">Your CV has been uploaded successfully.</p>
-                    </div>
-                  )}
-                  
-                  {uploadStatus === "error" && (
-                    <div className="bg-red-50 border border-red-200 rounded-md p-3 flex items-center mb-4">
-                      <X className="h-5 w-5 text-red-600 mr-2" />
-                      <p className="text-sm text-gray-800">There was an error uploading your file. Please try again.</p>
-                    </div>
-                  )}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
-
-          <motion.div variants={itemVariants}>
-            <Card className="border-gray-200 shadow-sm bg-gray-50">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-full bg-lime-100 flex items-center justify-center">
-                    <FileText className="h-5 w-5 text-black" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-black">Use existing CV</h3>
-                    <p className="text-sm text-gray-600">We found a CV on your profile</p>
-                  </div>
+        {/* "Use Existing CV" notification banner */}
+        {cvFiles.find(file => file.isDefault) && (
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-lime-50 border border-lime-200 rounded-lg p-4 mb-6 flex items-start gap-4"
+          >
+            <div className="w-10 h-10 rounded-full bg-lime-200 flex-shrink-0 flex items-center justify-center">
+              <Check className="h-5 w-5 text-lime-700" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-medium text-black">Use existing CV</h3>
+              <p className="text-sm text-gray-700 mb-1">
+                We found a CV on your profile
+              </p>
+              <div className="flex items-center gap-2 mt-2 text-sm">
+                <div className="h-7 w-7 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <FileText className="h-3.5 w-3.5 text-gray-600" />
                 </div>
-                
+                <span className="font-medium text-gray-800 truncate">
+                  {getDefaultCV()?.name}
+                </span>
+                <Badge className="ml-1 text-[10px] px-1.5 py-0 h-4 bg-lime-100 text-lime-800 border-lime-200">
+                  Using Existing CV
+                </Badge>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* CV Library Section */}
+        <motion.div variants={itemVariants} className="mb-8">
+          <div className="bg-gray-50 rounded-lg p-4 mb-6">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="font-medium text-gray-900">Your CVs ({cvFiles.length})</h3>
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="text-xs border-lime-600 text-lime-700 hover:bg-lime-50"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <Upload className="h-3.5 w-3.5 mr-1.5" />
+                Upload New CV
+              </Button>
+              <input
+                type="file"
+                ref={fileInputRef}
+                className="hidden"
+                accept=".pdf,.docx,.doc"
+                onChange={handleFileInput}
+                aria-label="Upload CV file"
+              />
+            </div>
+
+            {/* Active upload progress */}
+            {uploadStatus === "uploading" && (
+              <div className="mb-4 p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
+                <div className="flex justify-between items-center mb-2">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-lime-100 flex items-center justify-center">
+                      <File className="h-4 w-4 text-lime-700" />
+                    </div>
+                    <span className="text-sm font-medium">{activeFileId && cvFiles.find(f => f.id === activeFileId)?.name}</span>
+                  </div>
+                  <span className="text-sm font-medium">{uploadProgress}%</span>
+                </div>
+                <Progress value={uploadProgress} className="h-2" indicatorClassName="bg-lime-300" />
+              </div>
+            )}
+
+            {cvFiles.length === 0 ? (
+              <div className="text-center py-8 bg-gray-100 rounded-lg border border-dashed border-gray-300">
+                <FileText className="h-10 w-10 text-gray-400 mx-auto mb-3" />
+                <p className="text-gray-500">You don't have any CVs yet</p>
                 <Button 
                   variant="outline" 
-                  className={`w-full justify-center ${
-                    useExistingCV ? 'border-lime-300 bg-lime-50 text-black' : 'border-gray-300 hover:border-lime-300 hover:bg-lime-50'
-                  }`}
-                  onClick={handleExistingCV}
+                  className="mt-4 border-lime-600 text-lime-700 hover:bg-lime-50"
+                  onClick={() => fileInputRef.current?.click()}
                 >
-                  {useExistingCV ? (
-                    <>
-                      <Check className="h-4 w-4 mr-2" /> Using Existing CV
-                    </>
-                  ) : (
-                    'Use Existing CV'
-                  )}
+                  Upload Your First CV
                 </Button>
-              </CardContent>
-            </Card>
-          </motion.div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {cvFiles.map((file) => (
+                  <motion.div 
+                    key={file.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className={`flex items-center justify-between p-4 rounded-lg ${
+                      file.isDefault 
+                        ? "bg-lime-50 border border-lime-200" 
+                        : "bg-white border border-gray-200"
+                    } hover:shadow-md transition-all`}
+                  >
+                    <div className="flex items-center gap-3 flex-1">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        file.isDefault ? "bg-lime-200" : "bg-gray-100"
+                      }`}>
+                        <FileText className={`h-5 w-5 ${file.isDefault ? "text-lime-700" : "text-gray-600"}`} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-gray-900 truncate">{file.name}</p>
+                        <div className="flex items-center gap-3 text-xs text-gray-500">
+                          <span>{formatFileSize(file.size)}</span>
+                          <span>Added: {file.dateAdded}</span>
+                          {file.isDefault && (
+                            <Badge variant="outline" className="bg-lime-100 text-lime-800 border-lime-200 text-[10px]">
+                              Default
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {!file.isDefault && (
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          className="text-xs text-gray-600 hover:text-lime-700 hover:bg-lime-50"
+                          onClick={() => handleSetDefaultCV(file.id)}
+                        >
+                          Use this CV
+                        </Button>
+                      )}
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        className="h-8 w-8 text-gray-500 hover:text-red-500 hover:bg-red-50"
+                        onClick={() => handleDeleteCV(file.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        className="h-8 w-8 text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </div>
         </motion.div>
-        
-        <motion.div 
-          variants={containerVariants}
-          className="flex flex-col sm:flex-row justify-between mt-8 gap-4"
-        >
-          <motion.div variants={itemVariants}>
-            <Button 
-              variant="outline" 
-              className="border-gray-300 text-gray-700 flex items-center gap-2 hover:bg-gray-50"
-              onClick={() => router.push("/job-match")}
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back
-            </Button>
-          </motion.div>
-          
-          <motion.div variants={itemVariants}>
-            <Button 
-              className="bg-black hover:bg-gray-800 text-lime-300 font-medium px-5"
-              onClick={handleContinue}
-              disabled={isLoading || uploadStatus !== "success"}
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Processing
-                </>
-              ) : (
-                <>
-                  Continue to Results
-                  <ChevronRight className="ml-2 h-4 w-4" />
-                </>
-              )}
-            </Button>
-          </motion.div>
+
+        {/* Add ability to upload a new CV with drag and drop */}
+        <motion.div variants={itemVariants}>
+          <div
+            className={`border-2 border-dashed rounded-lg p-8 text-center ${
+              dragActive ? "border-lime-300 bg-lime-50" : "border-gray-300 hover:border-lime-300 hover:bg-lime-50"
+            } transition-colors duration-200 ease-in-out`}
+            onDragEnter={handleDrag}
+            onDragOver={handleDrag}
+            onDragLeave={handleDrag}
+            onDrop={handleDrop}
+          >
+            <div className="flex flex-col items-center justify-center space-y-4">
+              <motion.div 
+                className="w-16 h-16 rounded-full bg-lime-100 flex items-center justify-center"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Upload className="h-7 w-7 text-lime-700" />
+              </motion.div>
+              <div>
+                <h3 className="text-base font-medium text-gray-900">Drag and drop a new CV</h3>
+                <p className="text-gray-600 text-sm mt-1">
+                  Supported formats: PDF, DOCX, DOC (Max 5MB)
+                </p>
+              </div>
+              <div className="flex items-center space-x-4">
+                <span className="text-gray-400">or</span>
+              </div>
+              <Button 
+                variant="outline" 
+                className="border-gray-300 hover:border-lime-300 hover:bg-lime-50 text-sm"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                Browse Files
+              </Button>
+            </div>
+          </div>
         </motion.div>
-        
-        <motion.div variants={itemVariants} className="mt-6 pt-2 text-center">
-          <p className="flex items-center justify-center text-xs text-gray-500">
-            <Info className="h-3 w-3 mr-1" />
-            <span>You can also continue without uploading a CV, but matching accuracy may be reduced</span>
-          </p>
-        </motion.div>
+
+        {/* Continue button with selected CV info */}
+        {cvFiles.length > 0 && (
+          <motion.div 
+            variants={itemVariants}
+            className="mt-8 pt-6 border-t border-gray-200"
+          >
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-lime-100 flex items-center justify-center">
+                  <Check className="h-5 w-5 text-lime-700" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Selected CV</p>
+                  <p className="font-medium text-gray-900">{getDefaultCV()?.name}</p>
+                </div>
+              </div>
+              <Button 
+                className="bg-lime-600 hover:bg-lime-700 text-white shadow-sm"
+                onClick={handleContinue}
+                disabled={isLoading || cvFiles.length === 0}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    Continue
+                    <ChevronRight className="ml-2 h-4 w-4" />
+                  </>
+                )}
+              </Button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Error message when file type is not supported */}
+        {uploadStatus === "error" && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="mt-4 p-4 bg-red-50 rounded-lg border border-red-100 text-red-800 flex items-center gap-2"
+          >
+            <Info className="h-5 w-5 text-red-600" />
+            <p className="text-sm">File type not supported. Please upload a PDF, DOCX, or DOC file.</p>
+          </motion.div>
+        )}
       </motion.div>
     </div>
   );

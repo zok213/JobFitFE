@@ -6,6 +6,7 @@ import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Input } from "./ui/input";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
+import Image from "next/image";
 
 interface ResetPasswordProps {
   token: string;
@@ -67,17 +68,19 @@ const ResetPassword = ({ token }: ResetPasswordProps) => {
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-lime-300 p-4">
-      <div className="absolute inset-0 bg-[url('/bg-pattern.svg')] bg-cover bg-center opacity-20" />
+      <div className="absolute inset-0 bg-[url('/img/bg-pattern.svg')] bg-cover bg-center opacity-20" />
       
       <Card className="w-full max-w-md bg-white/90 backdrop-blur-sm shadow-xl">
         <CardHeader className="text-center">
           <div className="mx-auto flex items-center justify-center mb-4">
-            <span className="text-lime-300 text-3xl font-bold">J</span>
-            <div className="text-xl font-medium">
-              <span>Job</span>
-              <span className="text-lime-300 font-bold">Fit</span>
-              <span className="text-xs align-top">.AI</span>
-            </div>
+            <Image 
+              src="/img/LOGO.png" 
+              alt="JobFit.AI Logo" 
+              width={120} 
+              height={36} 
+              className="w-auto h-auto"
+              priority
+            />
           </div>
           <CardTitle className="text-2xl font-bold text-zinc-900">Reset Password</CardTitle>
         </CardHeader>

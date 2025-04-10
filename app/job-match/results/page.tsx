@@ -6,7 +6,7 @@ import { JobMatchLayout } from "@/components/ai-job-match/JobMatchLayout";
 
 export default function ResultsPage() {
   return (
-    <DashboardShell activeNavItem="job-match">
+    <DashboardShell activeNavItem="job-match" userRole="employee">
       <JobMatchLayout>
         <MatchResults />
       </JobMatchLayout>

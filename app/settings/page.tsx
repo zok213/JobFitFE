@@ -33,7 +33,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <DashboardShell activeNavItem="settings">
+    <DashboardShell activeNavItem="settings" userRole="employee">
       <div className="w-full max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row gap-8">
           {/* Sidebar */}

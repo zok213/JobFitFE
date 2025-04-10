@@ -165,7 +165,7 @@ export default function PostNewJobPage() {
   };
   
   return (
-    <EmployerDashboardShell activeNavItem="jobs">
+    <EmployerDashboardShell activeNavItem="jobs" userRole="employer">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">

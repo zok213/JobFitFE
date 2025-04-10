@@ -41,7 +41,7 @@ export default function InterviewerPage() {
   };
 
   return (
-    <DashboardShell activeNavItem="interviewer">
+    <DashboardShell activeNavItem="interviewer" userRole="employee">
       <div className="w-full max-w-5xl mx-auto px-4 md:px-6 py-8">
         <div className="mb-10">
           <h1 className="text-2xl font-bold tracking-tight">AI Interviewer</h1>

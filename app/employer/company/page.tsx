@@ -30,7 +30,7 @@ export default function EmployerCompanyProfilePage() {
   };
 
   return (
-    <EmployerDashboardShell activeNavItem="company">
+    <EmployerDashboardShell activeNavItem="company" userRole="employer">
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>

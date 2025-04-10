@@ -20,44 +20,24 @@ export function Logo({
   href = "/",
   isWithinLink = false
 }: LogoProps) {
-  // Size mapping
-  const sizeClasses = {
-    sm: "text-xl",
-    md: "text-2xl",
-    lg: "text-3xl",
+  // Size mapping for the image
+  const sizeValues = {
+    sm: { width: 80, height: 30 },
+    md: { width: 100, height: 40 },
+    lg: { width: 120, height: 50 },
   };
   
-  // Color mapping
-  const colorClasses = {
-    default: {
-      logo: "text-lime-300",
-      text: "text-black",
-      highlight: "text-lime-300",
-    },
-    white: {
-      logo: "text-white",
-      text: "text-white",
-      highlight: "text-lime-300",
-    },
-  };
-  
-  const logoColors = colorClasses[variant];
-  const logoSize = sizeClasses[size];
+  const dimensions = sizeValues[size];
   
   const LogoContent = (
-    <div className="flex items-center gap-1">
-      <div className={cn("font-bold", logoSize, logoColors.logo)}>J</div>
-      {showText && (
-        <div className={cn("font-medium", logoColors.text, {
-          "text-base": size === "sm",
-          "text-xl": size === "md",
-          "text-2xl": size === "lg",
-        })}>
-          <span>Job</span>
-          <span className={cn("font-bold", logoColors.highlight)}>Fit</span>
-          <span className={cn("text-xs align-top", logoColors.text)}>.AI</span>
-        </div>
-      )}
+    <div className="flex items-center">
+      <Image 
+        src="/img/LOGO.png" 
+        alt="JobFit.AI Logo" 
+        width={dimensions.width} 
+        height={dimensions.height}
+        className="object-contain"
+      />
     </div>
   );
   

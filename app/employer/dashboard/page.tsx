@@ -136,7 +136,7 @@ const recentCandidates = [
 
 export default function EmployerDashboardPage() {
   return (
-    <EmployerDashboardShell activeNavItem="dashboard">
+    <EmployerDashboardShell activeNavItem="dashboard" userRole="employer">
       <div className="space-y-8">
         {/* Stats overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

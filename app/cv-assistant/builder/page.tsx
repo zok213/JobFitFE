@@ -1,17 +1,17 @@
 "use client";
 
 import React from "react";
-import { CVEditor } from "@/components/ai-cv-assistant/CVEditor";
+import { CVBuilder } from "@/components/ai-cv-assistant/CVBuilder";
 import { DashboardShell } from "@/components/DashboardShell";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Save, Download } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-export default function CVEditorPage() {
+export default function CVBuilderPage() {
   const router = useRouter();
 
   return (
-    <DashboardShell activeNavItem="cv-assistant" userRole="employee">
+    <DashboardShell activeNavItem="cv-assistant">
       <div className="py-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
@@ -24,8 +24,8 @@ export default function CVEditorPage() {
               <ArrowLeft className="h-4 w-4" /> Back
             </Button>
             <div>
-              <h1 className="text-2xl font-bold">CV Editor</h1>
-              <p className="text-gray-600">Create or edit your CV with our structured editor. We'll help you organize your information and format it professionally.</p>
+              <h1 className="text-2xl font-bold">Create Your CV</h1>
+              <p className="text-gray-600">Build a professional CV step by step</p>
             </div>
           </div>
           <div className="flex gap-2">
@@ -41,7 +41,7 @@ export default function CVEditorPage() {
         </div>
         
         <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-          <CVEditor />
+          <CVBuilder />
         </div>
       </div>
     </DashboardShell>

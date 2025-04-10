@@ -7,7 +7,7 @@ import { EnterJobDescription } from "@/components/ai-job-match/EnterJobDescripti
 
 export default function JobMatchPage() {
   return (
-    <DashboardShell activeNavItem="job-match">
+    <DashboardShell activeNavItem="job-match" userRole="employee">
       <JobMatchLayout>
         <EnterJobDescription />
       </JobMatchLayout>

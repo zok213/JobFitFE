@@ -5,13 +5,26 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, XCircle, AlertTriangle, ArrowRight, Download, Edit } from "lucide-react";
+import { 
+  CheckCircle, XCircle, AlertTriangle, ArrowRight, Download, Edit, 
+  ArrowLeft, Sparkles, FileEdit, FileUp, MessageSquare, Zap, FileSignature
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { LinkButton } from "@/components/LinkButton";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 export function CVAnalysis({ cvData = sampleCVData }) {
   const router = useRouter();
   const [activeSection, setActiveSection] = useState("summary");
+  const [openDialog, setOpenDialog] = useState<string | null>(null);
 
   // Function to get badge and icon based on strength rating
   const getStrengthIndicator = (rating: number) => {
@@ -38,6 +51,31 @@ export function CVAnalysis({ cvData = sampleCVData }) {
 
   return (
     <div className="space-y-8">
+      {/* Back button and header */}
+      <div className="flex items-center justify-between">
+        <Button
+          variant="outline"
+          size="sm"
+          className="flex items-center gap-1.5 border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-all"
+          onClick={() => router.push('/cv-assistant')}
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span>Back to CV Assistant</span>
+        </Button>
+        
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-1.5 border-gray-200 hover:bg-lime-50 hover:border-lime-300 transition-all"
+            onClick={() => setOpenDialog('ai-help')}
+          >
+            <Sparkles className="h-4 w-4 text-lime-600" />
+            <span>AI CV Help</span>
+          </Button>
+        </div>
+      </div>
+      
       {/* Score summary */}
       <Card className="border border-gray-200 shadow-sm">
         <CardContent className="p-6">
@@ -276,6 +314,129 @@ export function CVAnalysis({ cvData = sampleCVData }) {
           Find Matching Jobs
         </LinkButton>
       </div>
+      
+      {/* AI CV Helpers */}
+      <Dialog open={openDialog === "ai-help"} onOpenChange={(open) => !open && setOpenDialog(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold">AI CV Assistant</DialogTitle>
+            <DialogDescription>
+              Choose how you want our AI to help with your CV
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid gap-4 py-4">
+            <button 
+              className="flex items-start gap-4 p-4 text-left rounded-lg hover:bg-gray-50 transition-colors border border-gray-100 hover:border-gray-200"
+              onClick={() => {
+                setOpenDialog(null);
+                router.push('/cv-assistant/builder');
+              }}
+            >
+              <div className="p-2 rounded-full bg-lime-100">
+                <FileSignature className="h-5 w-5 text-lime-700" />
+              </div>
+              <div>
+                <h3 className="font-medium text-black">Build a New CV</h3>
+                <p className="text-sm text-gray-600 mt-1">Create a professional CV from scratch with AI guidance</p>
+              </div>
+            </button>
+            
+            <button 
+              className="flex items-start gap-4 p-4 text-left rounded-lg hover:bg-gray-50 transition-colors border border-gray-100 hover:border-gray-200"
+              onClick={() => {
+                setOpenDialog(null);
+                router.push('/cv-assistant/editor');
+              }}
+            >
+              <div className="p-2 rounded-full bg-blue-100">
+                <FileEdit className="h-5 w-5 text-blue-700" />
+              </div>
+              <div>
+                <h3 className="font-medium text-black">AI Edit Current CV</h3>
+                <p className="text-sm text-gray-600 mt-1">Get AI suggestions to improve individual sections</p>
+              </div>
+            </button>
+            
+            <button 
+              className="flex items-start gap-4 p-4 text-left rounded-lg hover:bg-gray-50 transition-colors border border-gray-100 hover:border-gray-200"
+              onClick={() => {
+                setOpenDialog('ai-optimize');
+              }}
+            >
+              <div className="p-2 rounded-full bg-purple-100">
+                <Zap className="h-5 w-5 text-purple-700" />
+              </div>
+              <div>
+                <h3 className="font-medium text-black">Optimize for Job Match</h3>
+                <p className="text-sm text-gray-600 mt-1">Let AI optimize your CV for specific job descriptions</p>
+              </div>
+            </button>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpenDialog(null)}>Cancel</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* AI Optimize Dialog */}
+      <Dialog open={openDialog === "ai-optimize"} onOpenChange={(open) => !open && setOpenDialog(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold">AI CV Optimizer</DialogTitle>
+            <DialogDescription>
+              Let our AI optimize your CV for specific job positions
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+              <h3 className="font-medium text-gray-900 mb-2 flex items-center gap-2">
+                <MessageSquare className="h-4 w-4 text-blue-600" />
+                <span>Paste Job Description</span>
+              </h3>
+              <textarea 
+                className="w-full h-32 border border-gray-200 rounded-md p-3 text-sm focus:ring-1 focus:ring-lime-300 focus:border-lime-300"
+                placeholder="Paste the job description here to optimize your CV for that specific role..."
+              ></textarea>
+            </div>
+            
+            <div className="border border-gray-100 rounded-lg p-4 bg-lime-50">
+              <h3 className="font-medium text-gray-900 mb-2 flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-lime-600" />
+                <span>AI Optimization Features</span>
+              </h3>
+              <div className="space-y-2 mt-3">
+                <div className="flex items-center gap-2">
+                  <input type="checkbox" id="keywords" className="rounded-sm text-lime-500" defaultChecked />
+                  <label htmlFor="keywords" className="text-sm">Match keywords from job description</label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input type="checkbox" id="skills" className="rounded-sm text-lime-500" defaultChecked />
+                  <label htmlFor="skills" className="text-sm">Highlight relevant skills</label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input type="checkbox" id="achievements" className="rounded-sm text-lime-500" defaultChecked />
+                  <label htmlFor="achievements" className="text-sm">Rewrite achievements to match requirements</label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input type="checkbox" id="summary" className="rounded-sm text-lime-500" defaultChecked />
+                  <label htmlFor="summary" className="text-sm">Optimize professional summary</label>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <DialogFooter className="flex flex-col sm:flex-row gap-3">
+            <Button variant="outline" onClick={() => setOpenDialog('ai-help')}>Back</Button>
+            <Button className="bg-black text-lime-300 hover:bg-gray-800">
+              <Sparkles className="h-4 w-4 mr-2" />
+              Optimize My CV
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -31,7 +31,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <DashboardShell activeNavItem="profile">
+    <DashboardShell activeNavItem="profile" userRole="employee">
       <div className="p-8">
         <h1 className="text-2xl font-bold text-black mb-6">Profile Settings</h1>
         

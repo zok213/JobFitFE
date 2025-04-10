@@ -198,7 +198,7 @@ export default function EmployerAnalyticsPage() {
     : chartData.applications[timeFrame].reduce((sum, item) => sum + item.value, 0);
 
   return (
-    <EmployerDashboardShell activeNavItem="analytics">
+    <EmployerDashboardShell activeNavItem="analytics" userRole="employer">
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>

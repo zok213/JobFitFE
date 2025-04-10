@@ -35,9 +35,16 @@ type NavItem = {
 interface EmployerDashboardShellProps {
   children: ReactNode;
   activeNavItem?: string;
+  userRole?: "employer" | "employee";
+  accountType?: "pro" | "free";
 }
 
-export const EmployerDashboardShell = ({ children, activeNavItem = "dashboard" }: EmployerDashboardShellProps) => {
+export const EmployerDashboardShell = ({ 
+  children, 
+  activeNavItem = "dashboard",
+  userRole = "employer",
+  accountType = "pro"
+}: EmployerDashboardShellProps) => {
   const { user, logout } = useAuth();
   const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
@@ -113,7 +120,7 @@ export const EmployerDashboardShell = ({ children, activeNavItem = "dashboard" }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gray-50 flex overflow-x-hidden">
       {/* Mobile menu background overlay */}
       {mobileMenuOpen && (
         <div 
@@ -135,16 +142,18 @@ export const EmployerDashboardShell = ({ children, activeNavItem = "dashboard" }
             className="transition-transform hover:scale-105 focus:outline-none w-full"
             aria-label="Go to home page"
           >
-            <div className="flex items-center gap-3">
+            <div className="flex items-center">
               <Image 
                 src="/img/LOGO.png" 
                 alt="JobFit.AI Logo" 
                 width={100} 
-                height={100} 
-                className="object-contain"
+                height={40} 
+                className="object-contain max-w-[100px]"
               />
-              <div className="flex flex-col">
-                <span className="mt-2 text-sm font-medium text-gray-300">Employer</span>
+              <div className="flex items-center">
+                <span className="mt-6 text-sm text-white font-medium">
+                  {userRole === "employee" ? "Employee" : "Employer"}
+                </span>
               </div>
             </div>
           </button>
@@ -313,21 +322,34 @@ export const EmployerDashboardShell = ({ children, activeNavItem = "dashboard" }
             
             {/* User menu */}
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-gray-800 flex items-center justify-center text-white font-medium shadow-md">
+              <div className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center text-white font-medium shadow-sm">
                 <span>
                   {user?.username?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'E'}
                 </span>
               </div>
               <div className="hidden md:block">
-                <div className="flex items-center">
-                  <p className="text-sm font-medium leading-tight text-gray-900 mr-1">{user?.username || "employeruser"}</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-medium text-gray-900">{user?.username || "employeruser"}</p>
+                  {accountType === "pro" ? (
+                    <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-gradient-to-r from-lime-600 to-lime-500 text-white rounded shadow-sm">PRO</span>
+                  ) : (
+                    <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-gray-500 text-white rounded shadow-sm">FREE</span>
+                  )}
                 </div>
                 <button 
                   onClick={handleLogout}
-                  className="text-xs text-gray-500 hover:text-lime-700 leading-tight"
+                  className="text-xs text-gray-500 hover:text-lime-700"
                 >
                   Sign out
                 </button>
+              </div>
+              {/* Mobile only account type badge */}
+              <div className="md:hidden">
+                {accountType === "pro" ? (
+                  <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-gradient-to-r from-lime-600 to-lime-500 text-white rounded shadow-sm">PRO</span>
+                ) : (
+                  <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-gray-500 text-white rounded shadow-sm">FREE</span>
+                )}
               </div>
             </div>
           </div>

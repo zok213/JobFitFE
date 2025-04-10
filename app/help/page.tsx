@@ -96,7 +96,7 @@ export default function HelpPage() {
   ];
 
   return (
-    <DashboardShell activeNavItem="help">
+    <DashboardShell activeNavItem="help" userRole="employee">
       <div className="w-full max-w-6xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Help Center</h1>

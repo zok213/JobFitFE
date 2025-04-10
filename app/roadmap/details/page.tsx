@@ -12,7 +12,7 @@ export default function RoadmapDetailsPage() {
   const router = useRouter();
 
   return (
-    <DashboardShell activeNavItem="roadmap">
+    <DashboardShell activeNavItem="roadmap" userRole="employee">
       <div className="w-full max-w-5xl mx-auto px-4 md:px-6 py-8">
         <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
