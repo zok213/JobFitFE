@@ -81,31 +81,39 @@ export const LogoStrip = () => {
           </div>
         </div>
         
-        {/* Partner section with improved mobile layout */}
-        <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl sm:rounded-2xl p-5 sm:p-6 md:p-8 border border-gray-200 shadow-sm max-w-sm sm:max-w-2xl md:max-w-4xl mx-auto">
-          <div className="text-center mb-4 sm:mb-6">
-            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 sm:mb-3">Why Partner With Us?</h3>
-            <p className="text-gray-600 text-sm sm:text-base max-w-xl mx-auto">
-              Enhance your recruitment process with advanced AI-matching technology and gain access to a qualified pool of candidates
-            </p>
-          </div>
+        {/* Partner section with dark theme */}
+        <div className="bg-gradient-to-r from-black to-gray-900 rounded-xl sm:rounded-2xl p-6 sm:p-8 md:p-10 border border-gray-800 shadow-lg max-w-sm sm:max-w-2xl md:max-w-4xl mx-auto relative overflow-hidden">
+          {/* Background grid pattern for consistency */}
+          <div className="absolute inset-0 bg-grid-white/[0.05] bg-[length:20px_20px]"></div>
+          {/* Decorative blurred elements */}
+          <div className="absolute right-0 top-0 -mr-16 -mt-16 w-32 h-32 bg-lime-400 rounded-full blur-3xl opacity-20"></div>
+          <div className="absolute left-0 bottom-0 -ml-16 -mb-16 w-32 h-32 bg-lime-300 rounded-full blur-3xl opacity-20"></div>
           
-          {/* Improved button layout for mobile */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4">
-            <Button 
-              className="bg-lime-400 hover:bg-lime-500 text-black font-medium shadow-sm hover:shadow transition-all duration-300 h-10 w-full text-sm"
-            >
-              Become a Partner
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
+          <div className="relative z-10">
+            <div className="text-center mb-5 sm:mb-7">
+              <h3 className="text-xl sm:text-2xl font-semibold text-white mb-3 sm:mb-4">Why Partner With Us?</h3>
+              <p className="text-gray-300 text-sm sm:text-base max-w-xl mx-auto">
+                Enhance your recruitment process with advanced AI-matching technology and gain access to a qualified pool of candidates
+              </p>
+            </div>
             
-            <Button 
-              variant="ghost" 
-              className="text-gray-700 hover:text-lime-700 hover:bg-lime-50 font-medium transition-all duration-300 w-full text-sm"
-            >
-              View all integration partners
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
+            {/* Buttons styled to match the dark theme */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-4 sm:gap-5">
+              <Button 
+                className="bg-gradient-to-r from-lime-300 to-lime-400 text-black hover:from-lime-200 hover:to-lime-300 font-medium shadow-xl hover:shadow-lime-400/20 transition-all hover:-translate-y-0.5 duration-300 h-11 w-full text-sm"
+              >
+                Become a Partner
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                className="border-white/50 text-black hover:bg-black/30 hover:border-lime-300 hover:text-lime-200 backdrop-blur-sm shadow-lg hover:shadow-lime-400/30 hover:-translate-y-0.5 hover:scale-105 transition-all duration-300 h-11 w-full text-sm"
+              >
+                View all integration partners
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </div>
           </div>
         </div>
       </div>

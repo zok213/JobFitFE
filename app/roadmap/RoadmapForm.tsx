@@ -23,7 +23,8 @@ import {
   Target, 
   Briefcase,
   BarChart3,
-  Code
+  Code,
+  CheckCircle2
 } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
@@ -257,31 +258,20 @@ export function RoadmapForm() {
                       </Button>
                     </div>
                     
-                    <motion.div 
-                      className="flex flex-wrap gap-2 mt-3 min-h-[30px]"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.2 }}
-                    >
-                      {formData.skills.map((skill, index) => (
-                        <motion.div
-                          key={index}
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.8 }}
-                          transition={{ duration: 0.2 }}
-                        >
-                          <Badge 
-                            variant="lime"
-                            className="cursor-pointer py-1.5 pl-3 pr-2 flex items-center gap-1 bg-lime-100 hover:bg-lime-200 transition-colors text-black font-medium"
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      {formData.skills.map((skill) => (
+                        <Badge key={skill} className="px-3 py-1 bg-gray-100 text-gray-800 hover:bg-gray-200 flex items-center gap-1.5">
+                          {skill}
+                          <button 
                             onClick={() => removeSkill(skill)}
+                            className="ml-1 text-gray-500 hover:text-gray-700 focus:outline-none"
+                            aria-label="Remove skill"
                           >
-                            {skill} 
-                            <X className="h-3.5 w-3.5 ml-1" />
-                          </Badge>
-                        </motion.div>
+                            <X className="h-3 w-3" />
+                          </button>
+                        </Badge>
                       ))}
-                    </motion.div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -434,6 +424,33 @@ export function RoadmapForm() {
           </motion.div>
         </div>
       </motion.div>
+
+      {/* Add Milestone Tick UI for better UX */}
+      <div className="space-y-2 mt-6 border-t border-gray-100 pt-6">
+        <Label className="text-sm font-medium flex items-center gap-2">
+          <CheckCircle2 className="h-4 w-4 text-lime-600" />
+          Track Your Progress
+        </Label>
+        <div className="bg-gray-50 rounded-md p-4 border border-gray-200">
+          <div className="text-sm text-gray-600 mb-3">Mark milestones as you complete them</div>
+          <div className="space-y-2">
+            {['Basic skill acquisition', 'Project completion', 'Certification earned', 'Role transition'].map((milestone, index) => (
+              <div key={index} className="flex items-center justify-between bg-white p-3 rounded border border-gray-200">
+                <span>{milestone}</span>
+                <Button 
+                  type="button"
+                  variant="ghost" 
+                  size="sm"
+                  className="h-8 w-8 p-0 rounded-full hover:bg-lime-100"
+                  onClick={() => console.log(`Marked "${milestone}" as complete`)}
+                >
+                  <CheckCircle2 className="h-5 w-5 text-lime-600" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </motion.div>
   );
 } 

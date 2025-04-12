@@ -7,11 +7,12 @@ import { useAuth } from "../context/AuthContext";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "./ui/button";
-import { Menu, X, User, Bell, ChevronDown, Sparkles, Gift, ListChecks, Users, Search, FileText, MessageSquare, TrendingUp, LayoutDashboard, UserIcon, Settings, LogOut, DollarSign, Info, BookOpen, Building, Badge, Briefcase, CreditCard, GanttChart, Cpu, Map } from "lucide-react";
+import { Menu, X, User, Bell, ChevronDown, Sparkles, Gift, ListChecks, Users, Search, FileText, MessageSquare, TrendingUp, LayoutDashboard, UserIcon, Settings, LogOut, DollarSign, Info, BookOpen, Building, Badge, Briefcase, CreditCard, GanttChart, Cpu, Map, Calendar } from "lucide-react";
 import { AvatarWithFallback } from "./ui/avatar-with-fallback";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Disclosure } from "@headlessui/react";
+import { AuthModal } from "./ui/auth-modal";
 
 export const Navbar = () => {
   const { user, logout } = useAuth();
@@ -20,10 +21,41 @@ export const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authView, setAuthView] = useState<"signin" | "signup">("signin");
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   
   // Create refs for the elements with ARIA attributes
   const userMenuButtonRef = useRef<HTMLButtonElement>(null);
   const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Mock notifications data
+  const notifications = [
+    {
+      id: 1,
+      title: "New job match found",
+      description: "We found a new job that matches your profile",
+      time: "5 minutes ago",
+      read: false,
+      type: "match"
+    },
+    {
+      id: 2,
+      title: "Interview preparation reminder",
+      description: "Don't forget your scheduled interview preparation session",
+      time: "2 hours ago",
+      read: false,
+      type: "reminder"
+    },
+    {
+      id: 3,
+      title: "Profile update suggestion",
+      description: "Update your skills to improve job matches",
+      time: "Yesterday",
+      read: true,
+      type: "update"
+    }
+  ];
 
   // Handle scroll event to change navbar appearance
   useEffect(() => {
@@ -66,7 +98,279 @@ export const Navbar = () => {
     setOpenDropdown(openDropdown === dropdown ? null : dropdown);
   };
 
+  const renderAuthButtons = () => (
+          <div className="hidden md:flex items-center gap-4">
+            <Link href="/employer">
+              <Button 
+                variant="outline"
+          className="border-lime-300 text-black hover:bg-lime-50 hover:border-lime-400 transition-all font-medium shadow-sm hover:shadow-md hover:scale-105"
+              >
+                <Briefcase className="h-4 w-4 mr-2" />
+                For Employers
+              </Button>
+            </Link>
+            
+            {user ? (
+              <div className="flex items-center gap-3">
+                {/* Notifications button */}
+                <div className="relative">
+                  <button 
+                    className="flex items-center justify-center p-2 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-black transition-all duration-300"
+                    onClick={() => {
+                      setIsNotificationsOpen(!isNotificationsOpen);
+                      if (isDropdownOpen) setIsDropdownOpen(false);
+                    }}
+                    aria-label="Notifications"
+                  >
+                    <div className="relative">
+                      <Bell className="h-5 w-5 text-gray-500" />
+                      <span className="absolute -top-1 -right-1 bg-red-500 rounded-full w-2 h-2 animate-ping"></span>
+                      <span className="absolute -top-1 -right-1 bg-red-500 rounded-full w-2 h-2"></span>
+                    </div>
+                  </button>
+                  
+                  <AnimatePresence>
+                    {isNotificationsOpen && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        transition={{ duration: 0.3, ease: "easeOut" }}
+                        className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-100 py-1 z-50 overflow-hidden"
+                        ref={(ref) => {
+                          // Click outside handler
+                          if (ref) {
+                            const handleClickOutside = (e: MouseEvent) => {
+                              if (ref && !ref.contains(e.target as Node)) {
+                                setIsNotificationsOpen(false);
+                              }
+                            };
+                            document.addEventListener('mousedown', handleClickOutside);
+                            return () => {
+                              document.removeEventListener('mousedown', handleClickOutside);
+                            };
+                          }
+                        }}
+                      >
+                        <div className="px-4 py-3 border-b border-gray-100 flex justify-between items-center">
+                          <p className="text-sm font-medium text-gray-900">Notifications</p>
+                          <Button variant="ghost" size="sm" className="h-8 px-2 text-xs">
+                            Mark all as read
+                          </Button>
+                        </div>
+                        
+                        <div className="py-1 max-h-[320px] overflow-y-auto">
+                          {notifications.length === 0 ? (
+                            <div className="px-4 py-6 text-center">
+                              <div className="mx-auto w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-3">
+                                <Bell className="h-6 w-6 text-gray-400" />
+                              </div>
+                              <p className="text-sm text-gray-500">No notifications yet</p>
+                            </div>
+                          ) : (
+                            notifications.map((notification) => (
+                              <div 
+                                key={notification.id}
+                                className={`px-4 py-3 hover:bg-gray-50 cursor-pointer ${!notification.read ? 'bg-lime-50/50' : ''}`}
+                              >
+                                <div className="flex items-start gap-3">
+                                  <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 
+                                    ${notification.type === 'match' ? 'bg-lime-100' : 
+                                      notification.type === 'reminder' ? 'bg-blue-100' : 'bg-gray-100'}`}>
+                                    {notification.type === 'match' ? (
+                                      <Briefcase className="h-4 w-4 text-lime-600" />
+                                    ) : notification.type === 'reminder' ? (
+                                      <Calendar className="h-4 w-4 text-blue-600" />
+                                    ) : (
+                                      <User className="h-4 w-4 text-gray-600" />
+                                    )}
+                                  </div>
+                                  <div>
+                                    <p className={`text-sm ${!notification.read ? 'font-medium' : ''}`}>
+                                      {notification.title}
+                                    </p>
+                                    <p className="text-xs text-gray-500 mt-0.5">
+                                      {notification.description}
+                                    </p>
+                                    <p className="text-xs text-gray-400 mt-1">
+                                      {notification.time}
+                                    </p>
+                                  </div>
+                                  {!notification.read && (
+                                    <div className="w-2 h-2 rounded-full bg-lime-500 ml-auto mt-1"></div>
+                                  )}
+                                </div>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                        
+                        <div className="px-4 py-2 border-t border-gray-100">
+                          <Link 
+                            href="/notifications" 
+                            className="text-sm text-lime-600 hover:text-lime-700 font-medium block text-center"
+                            onClick={() => setIsNotificationsOpen(false)}
+                          >
+                            View all notifications
+                          </Link>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+                
+                {/* User dropdown */}
+                <div className="relative">
+                  <button 
+                    ref={userMenuButtonRef}
+                    className="flex items-center gap-2.5 px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 transition-all hover:shadow-sm duration-300"
+                    onClick={() => {
+                      setIsDropdownOpen(!isDropdownOpen);
+                      if (isNotificationsOpen) setIsNotificationsOpen(false);
+                    }}
+                    aria-expanded="false"
+                    aria-haspopup="true"
+                  >
+                    <AvatarWithFallback 
+                      src={user.avatarUrl}
+                      name={user.username || "User"}
+                      alt={user.username || "User"}
+                      size="sm"
+                      className="border-2 border-lime-200 transition-transform duration-300 hover:scale-105"
+                    />
+                    <span>{user.username || "User"}</span>
+                    <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                
+                  <AnimatePresence>
+                    {isDropdownOpen && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        transition={{ duration: 0.3, ease: "easeOut" }}
+                        className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-100 py-1 z-50 overflow-hidden"
+                      >
+                        <div className="px-4 py-3 border-b border-gray-100">
+                          <p className="text-sm font-medium text-gray-900">{user.username || "User"}</p>
+                          <p className="text-xs text-gray-500 mt-1">{user.email}</p>
+                        </div>
+                        
+                        <div className="py-1">
+                          <Link 
+                            href="/dashboard" 
+                            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-lime-50 hover:text-black transition-colors duration-200 group"
+                            onClick={() => setIsDropdownOpen(false)}
+                          >
+                            <LayoutDashboard className="h-4 w-4 text-gray-500 group-hover:text-lime-600 transition-colors duration-200" />
+                            Dashboard
+                          </Link>
+                          <Link 
+                            href="/profile" 
+                            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-lime-50 hover:text-black transition-colors duration-200 group"
+                            onClick={() => setIsDropdownOpen(false)}
+                          >
+                            <UserIcon className="h-4 w-4 text-gray-500 group-hover:text-lime-600 transition-colors duration-200" />
+                            Profile
+                          </Link>
+                          <Link 
+                            href="/settings" 
+                            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-lime-50 hover:text-black transition-colors duration-200 group"
+                            onClick={() => setIsDropdownOpen(false)}
+                          >
+                            <Settings className="h-4 w-4 text-gray-500 group-hover:text-lime-600 transition-colors duration-200" />
+                            Settings
+                          </Link>
+                        </div>
+                        
+                        <div className="py-1 border-t border-gray-100">
+                          <button 
+                            onClick={handleLogout}
+                            className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 w-full text-left transition-colors duration-200 group"
+                          >
+                            <LogOut className="h-4 w-4 text-red-500 group-hover:text-red-600 transition-colors duration-200" />
+                            Logout
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+            ) : (
+        <div className="flex gap-2.5">
+                  <Button 
+                    variant="outline" 
+            className="border-gray-200 hover:bg-gray-50 transition-all hover:border-gray-300 hover:scale-105"
+                    size="sm"
+            onClick={() => {
+              setAuthView("signin");
+              setShowAuthModal(true);
+            }}
+                  >
+                    Sign In
+                </Button>
+          <Button 
+            className="bg-black text-lime-300 hover:text-lime-200 hover:bg-gray-800 transition-all shadow-sm hover:shadow hover:scale-105"
+            size="sm"
+            onClick={() => {
+              setAuthView("signup");
+              setShowAuthModal(true);
+            }}
+          >
+            Sign Up
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+
+  const renderMobileAuthButtons = () => (
+    !user && (
+      <motion.div
+        className="pt-4 border-t border-gray-100 space-y-3"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4, duration: 0.3 }}
+      >
+        <Link 
+          href="/employer" 
+          className="flex items-center justify-center gap-2 px-3 py-3 text-base font-medium text-black rounded-lg bg-lime-300 hover:bg-lime-400 shadow-sm hover:shadow transition-all duration-300 hover:scale-[1.02]"
+          onClick={() => setIsMobileMenuOpen(false)}
+        >
+          <Briefcase className="h-5 w-5" />
+          For Employers
+              </Link>
+        
+        <div className="grid grid-cols-2 gap-3 mt-3">
+          <Button 
+            variant="outline" 
+            className="w-full border-gray-200 py-3 hover:bg-gray-50 hover:border-gray-300 transition-all duration-300"
+            onClick={() => {
+              setAuthView("signin");
+              setShowAuthModal(true);
+              setIsMobileMenuOpen(false);
+            }}
+          >
+            Sign In
+          </Button>
+                  <Button 
+            className="w-full bg-black text-lime-300 hover:text-lime-200 hover:bg-gray-800 py-3 transition-all duration-300 shadow-sm hover:shadow"
+            onClick={() => {
+              setAuthView("signup");
+              setShowAuthModal(true);
+              setIsMobileMenuOpen(false);
+            }}
+                  >
+                    Sign Up
+                </Button>
+        </div>
+      </motion.div>
+    )
+  );
+
   return (
+    <>
     <header 
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         isScrolled 
@@ -109,6 +413,14 @@ export const Navbar = () => {
                 <Link 
                   href="/#hero" 
                   className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-lime-50/60 transition-all duration-200 hover:text-lime-800"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const element = document.getElementById('hero');
+                    if (element) {
+                      element.scrollIntoView({ behavior: 'smooth' });
+                    }
+                    setOpenDropdown(null);
+                  }}
                 >
                   <div className="w-8 h-8 rounded-full bg-lime-100 flex items-center justify-center shadow-sm transition-all duration-200 group-hover:scale-110 group-hover:shadow">
                     <Sparkles className="h-4 w-4 text-lime-600 transition-colors duration-200 group-hover:text-lime-700" />
@@ -119,20 +431,56 @@ export const Navbar = () => {
                   </div>
                 </Link>
                 <Link 
-                  href="/#services" 
+                  href="/#for-job-seeker" 
                   className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-lime-50/60 transition-all duration-200 hover:text-lime-800"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const element = document.getElementById('for-job-seeker');
+                    if (element) {
+                      element.scrollIntoView({ behavior: 'smooth' });
+                    }
+                    setOpenDropdown(null);
+                  }}
                 >
                   <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shadow-sm transition-all duration-200 group-hover:scale-110 group-hover:shadow">
                     <Gift className="h-4 w-4 text-blue-600 transition-colors duration-200 group-hover:text-blue-700" />
                   </div>
                   <div>
-                    <p className="font-medium">Our Services</p>
-                    <p className="text-xs text-gray-500 group-hover:text-blue-600 transition-colors duration-200">Complete career solutions</p>
+                    <p className="font-medium">For Job Seeker</p>
+                    <p className="text-xs text-gray-500 group-hover:text-blue-600 transition-colors duration-200">AI tools for job seekers</p>
+                  </div>
+                </Link>
+                <Link 
+                  href="/#for-employer" 
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-lime-50/60 transition-all duration-200 hover:text-lime-800"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const element = document.getElementById('for-employer');
+                    if (element) {
+                      element.scrollIntoView({ behavior: 'smooth' });
+                    }
+                    setOpenDropdown(null);
+                  }}
+                >
+                  <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center shadow-sm transition-all duration-200 group-hover:scale-110 group-hover:shadow">
+                    <Building className="h-4 w-4 text-green-600 transition-colors duration-200 group-hover:text-green-700" />
+                  </div>
+                  <div>
+                    <p className="font-medium">Our Services For Employer</p>
+                    <p className="text-xs text-gray-500 group-hover:text-green-600 transition-colors duration-200">Complete hiring solutions</p>
                   </div>
                 </Link>
                 <Link 
                   href="/#process" 
                   className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-lime-50/60 transition-all duration-200 hover:text-lime-800"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const element = document.getElementById('process');
+                    if (element) {
+                      element.scrollIntoView({ behavior: 'smooth' });
+                    }
+                    setOpenDropdown(null);
+                  }}
                 >
                   <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center shadow-sm transition-all duration-200 group-hover:scale-110 group-hover:shadow">
                     <ListChecks className="h-4 w-4 text-purple-600 transition-colors duration-200 group-hover:text-purple-700" />
@@ -145,12 +493,20 @@ export const Navbar = () => {
                 <Link 
                   href="/#team" 
                   className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-lime-50/60 transition-all duration-200 hover:text-lime-800"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const element = document.getElementById('team');
+                    if (element) {
+                      element.scrollIntoView({ behavior: 'smooth' });
+                    }
+                    setOpenDropdown(null);
+                  }}
                 >
                   <div className="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center shadow-sm transition-all duration-200 group-hover:scale-110 group-hover:shadow">
                     <Users className="h-4 w-4 text-pink-600 transition-colors duration-200 group-hover:text-pink-700" />
                   </div>
                   <div>
-                    <p className="font-medium">Our Team</p>
+                    <p className="font-medium">Core Operations</p>
                     <p className="text-xs text-gray-500 group-hover:text-pink-600 transition-colors duration-200">Meet the experts</p>
                   </div>
                 </Link>
@@ -171,8 +527,15 @@ export const Navbar = () => {
               
               <div className="absolute left-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-100 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 transform origin-top-left group-hover:translate-y-0 translate-y-2">
                 <Link 
-                  href="/ai-job-match" 
+                  href="/job-match" 
                   className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-lime-50/60 transition-all duration-200 hover:text-lime-800"
+                  onClick={(e) => {
+                    if (!user) {
+                      e.preventDefault();
+                      setAuthView("signin");
+                      setShowAuthModal(true);
+                    }
+                  }}
                 >
                   <div className="w-8 h-8 rounded-full bg-lime-100 flex items-center justify-center shadow-sm transition-all duration-200 group-hover:scale-110 group-hover:shadow">
                     <Search className="h-4 w-4 text-lime-600 transition-colors duration-200 group-hover:text-lime-700" />
@@ -183,8 +546,15 @@ export const Navbar = () => {
                   </div>
                 </Link>
                 <Link 
-                  href="/ai-resume-assistant" 
+                  href="/cv-assistant" 
                   className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-lime-50/60 transition-all duration-200 hover:text-lime-800"
+                  onClick={(e) => {
+                    if (!user) {
+                      e.preventDefault();
+                      setAuthView("signin");
+                      setShowAuthModal(true);
+                    }
+                  }}
                 >
                   <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shadow-sm transition-all duration-200 group-hover:scale-110 group-hover:shadow">
                     <FileText className="h-4 w-4 text-blue-600 transition-colors duration-200 group-hover:text-blue-700" />
@@ -197,6 +567,13 @@ export const Navbar = () => {
                 <Link 
                   href="/interviewer" 
                   className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-lime-50/60 transition-all duration-200 hover:text-lime-800"
+                  onClick={(e) => {
+                    if (!user) {
+                      e.preventDefault();
+                      setAuthView("signin");
+                      setShowAuthModal(true);
+                    }
+                  }}
                 >
                   <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center shadow-sm transition-all duration-200 group-hover:scale-110 group-hover:shadow">
                     <MessageSquare className="h-4 w-4 text-amber-600 transition-colors duration-200 group-hover:text-amber-700" />
@@ -209,6 +586,13 @@ export const Navbar = () => {
             <Link
                   href="/roadmap" 
                   className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-lime-50/60 transition-all duration-200 hover:text-lime-800"
+                  onClick={(e) => {
+                    if (!user) {
+                      e.preventDefault();
+                      setAuthView("signin");
+                      setShowAuthModal(true);
+                    }
+                  }}
                 >
                   <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center shadow-sm transition-all duration-200 group-hover:scale-110 group-hover:shadow">
                     <TrendingUp className="h-4 w-4 text-green-600 transition-colors duration-200 group-hover:text-green-700" />
@@ -216,6 +600,79 @@ export const Navbar = () => {
                   <div>
                     <p className="font-medium">Career Roadmap</p>
                     <p className="text-xs text-gray-500 group-hover:text-green-600 transition-colors duration-200">Plan your career path</p>
+                  </div>
+                </Link>
+              </div>
+            </div>
+            
+            {/* Employer Portal Dropdown */}
+            <div className="relative group">
+              <button 
+                className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:text-black hover:bg-gray-50 transition-colors duration-300 group"
+                aria-label="Employer Portal options"
+                aria-expanded="false"
+                aria-haspopup="true"
+              >
+                <span>Employer Portal</span>
+                <ChevronDown className="h-4 w-4 text-gray-500 group-hover:rotate-180 transition-transform duration-300" />
+              </button>
+              
+              <div className="absolute left-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-100 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 transform origin-top-left group-hover:translate-y-0 translate-y-2">
+                <Link 
+                  href="/employer/jobs" 
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-lime-50/60 transition-all duration-200 hover:text-lime-800"
+                  onClick={(e) => {
+                    if (!user) {
+                      e.preventDefault();
+                      setAuthView("signin");
+                      setShowAuthModal(true);
+                    }
+                  }}
+                >
+                  <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center shadow-sm transition-all duration-200 group-hover:scale-110 group-hover:shadow">
+                    <Briefcase className="h-4 w-4 text-purple-600 transition-colors duration-200 group-hover:text-purple-700" />
+                  </div>
+                  <div>
+                    <p className="font-medium">Manage Jobs</p>
+                    <p className="text-xs text-gray-500 group-hover:text-purple-600 transition-colors duration-200">Post and manage job listings</p>
+                  </div>
+                </Link>
+                <Link 
+                  href="/employer/candidates" 
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-lime-50/60 transition-all duration-200 hover:text-lime-800"
+                  onClick={(e) => {
+                    if (!user) {
+                      e.preventDefault();
+                      setAuthView("signin");
+                      setShowAuthModal(true);
+                    }
+                  }}
+                >
+                  <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shadow-sm transition-all duration-200 group-hover:scale-110 group-hover:shadow">
+                    <Users className="h-4 w-4 text-blue-600 transition-colors duration-200 group-hover:text-blue-700" />
+                  </div>
+                  <div>
+                    <p className="font-medium">View Candidates</p>
+                    <p className="text-xs text-gray-500 group-hover:text-blue-600 transition-colors duration-200">Review applicant profiles</p>
+                  </div>
+                </Link>
+                <Link 
+                  href="/employer/analytics" 
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-lime-50/60 transition-all duration-200 hover:text-lime-800"
+                  onClick={(e) => {
+                    if (!user) {
+                      e.preventDefault();
+                      setAuthView("signin");
+                      setShowAuthModal(true);
+                    }
+                  }}
+                >
+                  <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center shadow-sm transition-all duration-200 group-hover:scale-110 group-hover:shadow">
+                    <GanttChart className="h-4 w-4 text-indigo-600 transition-colors duration-200 group-hover:text-indigo-700" />
+                  </div>
+                  <div>
+                    <p className="font-medium">Analytics Dashboard</p>
+                    <p className="text-xs text-gray-500 group-hover:text-indigo-600 transition-colors duration-200">Track hiring performance</p>
                   </div>
             </Link>
               </div>
@@ -236,118 +693,7 @@ export const Navbar = () => {
             </NavLink>
           </nav>
           
-          {/* Auth Buttons / User Menu with enhanced styling */}
-          <div className="hidden md:flex items-center gap-4">
-            <Link href="/employer">
-              <Button 
-                variant="outline"
-                className="border-lime-300 text-black hover:bg-lime-50 hover:border-lime-400 transition-all duration-300 font-medium shadow-sm hover:shadow-md hover:scale-105"
-              >
-                <Briefcase className="h-4 w-4 mr-2" />
-                For Employers
-              </Button>
-            </Link>
-            
-            {user ? (
-              <div className="relative">
-                <button 
-                  ref={userMenuButtonRef}
-                  className="flex items-center gap-2.5 px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 transition-all hover:shadow-sm duration-300"
-                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  aria-expanded="false"
-                  aria-haspopup="true"
-                >
-                  <div className="relative">
-                    <Bell className="h-5 w-5 text-gray-500" />
-                    <span className="absolute -top-1 -right-1 bg-red-500 rounded-full w-2 h-2 animate-ping"></span>
-                    <span className="absolute -top-1 -right-1 bg-red-500 rounded-full w-2 h-2"></span>
-                  </div>
-                  <AvatarWithFallback 
-                    src={user.avatarUrl}
-                    name={user.username || "User"}
-                    alt={user.username || "User"}
-                    size="sm"
-                    className="border-2 border-lime-200 transition-transform duration-300 hover:scale-105"
-                  />
-                  <span>{user.username || "User"}</span>
-                  <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`} />
-                </button>
-                
-                <AnimatePresence>
-                  {isDropdownOpen && (
-                    <motion.div 
-                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      transition={{ duration: 0.3, ease: "easeOut" }}
-                      className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-100 py-1 z-50 overflow-hidden"
-                    >
-                      <div className="px-4 py-3 border-b border-gray-100">
-                        <p className="text-sm font-medium text-gray-900">{user.username || "User"}</p>
-                        <p className="text-xs text-gray-500 mt-1">{user.email}</p>
-                      </div>
-                      
-                      <div className="py-1">
-                        <Link 
-                          href="/dashboard" 
-                          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-lime-50 hover:text-black transition-colors duration-200 group"
-                          onClick={() => setIsDropdownOpen(false)}
-                        >
-                          <LayoutDashboard className="h-4 w-4 text-gray-500 group-hover:text-lime-600 transition-colors duration-200" />
-                          Dashboard
-                        </Link>
-                        <Link 
-                          href="/profile" 
-                          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-lime-50 hover:text-black transition-colors duration-200 group"
-                          onClick={() => setIsDropdownOpen(false)}
-                        >
-                          <UserIcon className="h-4 w-4 text-gray-500 group-hover:text-lime-600 transition-colors duration-200" />
-                          Profile
-                        </Link>
-                        <Link 
-                          href="/settings" 
-                          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-lime-50 hover:text-black transition-colors duration-200 group"
-                          onClick={() => setIsDropdownOpen(false)}
-                        >
-                          <Settings className="h-4 w-4 text-gray-500 group-hover:text-lime-600 transition-colors duration-200" />
-                          Settings
-                        </Link>
-                      </div>
-                      
-                      <div className="py-1 border-t border-gray-100">
-                        <button 
-                          onClick={handleLogout}
-                          className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 w-full text-left transition-colors duration-200 group"
-                        >
-                          <LogOut className="h-4 w-4 text-red-500 group-hover:text-red-600 transition-colors duration-200" />
-                          Logout
-                        </button>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-            </div>
-          ) : (
-              <div className="flex items-center gap-2.5">
-              <Link href="/login">
-                  <Button 
-                    variant="outline" 
-                    className="border-gray-200 hover:bg-gray-50 transition-all duration-300 hover:border-gray-300 hover:scale-105"
-                    size="sm"
-                  >
-                    Sign In
-                </Button>
-              </Link>
-              <Link href="/register">
-                  <Button 
-                    className="bg-black text-lime-300 hover:text-lime-200 hover:bg-gray-800 transition-all duration-300 shadow-sm hover:shadow hover:scale-105"
-                    size="sm"
-                  >
-                    Sign Up
-                </Button>
-              </Link>
-            </div>
-          )}
+            {renderAuthButtons()}
         </div>
 
           {/* Mobile Menu Button with improved interaction */}
@@ -378,222 +724,14 @@ export const Navbar = () => {
         </button>
           </div>
         </div>
-      </div>
-      
-      {/* Mobile Menu with enhanced animation */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="md:hidden bg-white border-t border-gray-100 shadow-lg overflow-hidden"
-          >
-            <motion.div 
-              className="px-4 py-6 space-y-2 max-h-[85vh] overflow-y-auto"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.1, duration: 0.3 }}
-            >
-              <div className="py-2">
-                <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                  Platform
-                </div>
-                
-                <div className="space-y-1">
-                  {[
-                    { 
-                      href: "/#hero", 
-                      icon: <div className="w-9 h-9 rounded-full bg-lime-100 flex items-center justify-center shadow-sm transition-transform duration-200 group-hover:scale-110">
-                        <Sparkles className="h-5 w-5 text-lime-600 group-hover:text-lime-700 transition-colors duration-200" />
-                      </div>,
-                      label: "Overview" 
-                    },
-                    { 
-                      href: "/#services", 
-                      icon: <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center shadow-sm transition-transform duration-200 group-hover:scale-110">
-                        <Gift className="h-5 w-5 text-blue-600 group-hover:text-blue-700 transition-colors duration-200" />
-                      </div>,
-                      label: "Our Services" 
-                    },
-                    { 
-                      href: "/#process", 
-                      icon: <div className="w-9 h-9 rounded-full bg-purple-100 flex items-center justify-center shadow-sm transition-transform duration-200 group-hover:scale-110">
-                        <ListChecks className="h-5 w-5 text-purple-600 group-hover:text-purple-700 transition-colors duration-200" />
-                      </div>,
-                      label: "How It Works" 
-                    },
-                    { 
-                      href: "/#team", 
-                      icon: <div className="w-9 h-9 rounded-full bg-pink-100 flex items-center justify-center shadow-sm transition-transform duration-200 group-hover:scale-110">
-                        <Users className="h-5 w-5 text-pink-600 group-hover:text-pink-700 transition-colors duration-200" />
-                      </div>,
-                      label: "Our Team" 
-                    }
-                  ].map((item, i) => (
-                    <motion.div
-                      key={`platform-${i}`}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.05, duration: 0.3 }}
-                    >
-                      <Link 
-                        href={item.href} 
-                        className="flex items-center gap-3 px-3 py-3 text-base font-medium text-gray-900 rounded-lg hover:bg-lime-50/70 transition-all duration-200 group"
-                        onClick={toggleMobileMenu}
-                      >
-                        {item.icon}
-                        <span className="group-hover:text-lime-800 transition-colors duration-200">{item.label}</span>
-                      </Link>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-              
-              <div className="py-3 border-t border-gray-100">
-                <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                  AI Tools
-                </div>
-                
-                <div className="space-y-1">
-                  {[
-                    { 
-                      href: "/ai-job-match", 
-                      icon: <div className="w-9 h-9 rounded-full bg-lime-100 flex items-center justify-center shadow-sm transition-transform duration-200 group-hover:scale-110">
-                        <Search className="h-5 w-5 text-lime-600 group-hover:text-lime-700 transition-colors duration-200" />
-                      </div>,
-                      label: "AI Job Match" 
-                    },
-                    { 
-                      href: "/ai-resume-assistant", 
-                      icon: <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center shadow-sm transition-transform duration-200 group-hover:scale-110">
-                        <FileText className="h-5 w-5 text-blue-600 group-hover:text-blue-700 transition-colors duration-200" />
-                      </div>,
-                      label: "Resume Assistant" 
-                    },
-                    { 
-                      href: "/interviewer", 
-                      icon: <div className="w-9 h-9 rounded-full bg-amber-100 flex items-center justify-center shadow-sm transition-transform duration-200 group-hover:scale-110">
-                        <MessageSquare className="h-5 w-5 text-amber-600 group-hover:text-amber-700 transition-colors duration-200" />
-                      </div>,
-                      label: "AI Interviewer" 
-                    },
-                    { 
-                      href: "/roadmap", 
-                      icon: <div className="w-9 h-9 rounded-full bg-green-100 flex items-center justify-center shadow-sm transition-transform duration-200 group-hover:scale-110">
-                        <TrendingUp className="h-5 w-5 text-green-600 group-hover:text-green-700 transition-colors duration-200" />
-                      </div>,
-                      label: "Career Roadmap" 
-                    }
-                  ].map((item, i) => (
-                    <motion.div
-                      key={`ai-tool-${i}`}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.2 + i * 0.05, duration: 0.3 }}
-                    >
-              <Link
-                        href={item.href} 
-                        className="flex items-center gap-3 px-3 py-3 text-base font-medium text-gray-900 rounded-lg hover:bg-lime-50/70 transition-all duration-200 group"
-                        onClick={toggleMobileMenu}
-                      >
-                        {item.icon}
-                        <span className="group-hover:text-lime-800 transition-colors duration-200">{item.label}</span>
-              </Link>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-              
-              <div className="py-3 border-t border-gray-100">
-                <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                  More
-                </div>
-                
-                <div className="space-y-1">
-                  {[
-                    { 
-                      href: "/pricing", 
-                      icon: <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center shadow-sm transition-transform duration-200 group-hover:scale-110">
-                        <DollarSign className="h-5 w-5 text-gray-700 group-hover:text-gray-900 transition-colors duration-200" />
-                      </div>,
-                      label: "Pricing" 
-                    },
-                    { 
-                      href: "/blog", 
-                      icon: <div className="w-9 h-9 rounded-full bg-lime-100 flex items-center justify-center shadow-sm transition-transform duration-200 group-hover:scale-110">
-                        <BookOpen className="h-5 w-5 text-lime-600 group-hover:text-lime-700 transition-colors duration-200" />
-                      </div>,
-                      label: "Resources",
-                      isActive: true
-                    }
-                  ].map((item, i) => (
-                    <motion.div
-                      key={`more-${i}`}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.3 + i * 0.05, duration: 0.3 }}
-                    >
-                <Link 
-                        href={item.href} 
-                        className={`flex items-center gap-3 px-3 py-3 text-base font-medium rounded-lg transition-all duration-200 group
-                          ${item.isActive 
-                            ? "text-black bg-gray-50/70 border-l-4 border-lime-400" 
-                            : "text-gray-900 hover:bg-lime-50/70"
-                          }`}
-                        onClick={toggleMobileMenu}
-                      >
-                        {item.icon}
-                        <span className={item.isActive ? "" : "group-hover:text-lime-800 transition-colors duration-200"}>
-                          {item.label}
-                        </span>
-                      </Link>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-              
-              {!user && (
-                <motion.div
-                  className="pt-4 border-t border-gray-100 space-y-3"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4, duration: 0.3 }}
-                >
-                  <Link 
-                    href="/employer" 
-                    className="flex items-center justify-center gap-2 px-3 py-3 text-base font-medium text-black rounded-lg bg-lime-300 hover:bg-lime-400 shadow-sm hover:shadow transition-all duration-300 hover:scale-[1.02]"
-                    onClick={toggleMobileMenu}
-                  >
-                    <Briefcase className="h-5 w-5" />
-                    For Employers
-                  </Link>
-                  
-                  <div className="grid grid-cols-2 gap-3 mt-3">
-                    <Link href="/login" onClick={toggleMobileMenu}>
-                      <Button 
-                        variant="outline" 
-                        className="w-full border-gray-200 py-3 hover:bg-gray-50 hover:border-gray-300 transition-all duration-300"
-                      >
-                        Sign In
-                      </Button>
-                    </Link>
-                    <Link href="/register" onClick={toggleMobileMenu}>
-                      <Button 
-                        className="w-full bg-black text-lime-300 hover:text-lime-200 hover:bg-gray-800 py-3 transition-all duration-300 shadow-sm hover:shadow"
-                      >
-                        Sign Up
-                      </Button>
-                    </Link>
-                  </div>
-                </motion.div>
-              )}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </header>
+      </header>
+
+      <AuthModal 
+        isOpen={showAuthModal} 
+        onClose={() => setShowAuthModal(false)}
+        initialView={authView}
+      />
+    </>
   );
 };
 

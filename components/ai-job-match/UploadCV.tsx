@@ -24,14 +24,8 @@ import { Card, CardContent } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { Progress } from "../ui/progress";
 import { motion, AnimatePresence } from "framer-motion";
-
-type CVFile = {
-  id: string;
-  name: string;
-  size: number;
-  dateAdded: string;
-  isDefault?: boolean;
-};
+import { useJobMatchStore, JobMatchStep } from "../../store/jobMatchStore";
+import { v4 as uuidv4 } from "uuid";
 
 export function UploadCV() {
   const router = useRouter();
@@ -42,22 +36,16 @@ export function UploadCV() {
   const [dragActive, setDragActive] = useState(false);
   const [activeFileId, setActiveFileId] = useState<string | null>(null);
   
-  // Mock data for existing CVs
-  const [cvFiles, setCvFiles] = useState<CVFile[]>([
-    { 
-      id: "cv1", 
-      name: "Resume_Software_Developer_2024.pdf", 
-      size: 258000, 
-      dateAdded: "2024-03-15",
-      isDefault: true
-    },
-    { 
-      id: "cv2", 
-      name: "Resume_Project_Manager.pdf", 
-      size: 312000, 
-      dateAdded: "2024-02-18"
-    }
-  ]);
+  // Use Zustand store
+  const { 
+    uploadedCVs, 
+    selectedCVId, 
+    addCV, 
+    removeCV, 
+    setDefaultCV, 
+    setSelectedCV,
+    setCurrentStep
+  } = useJobMatchStore();
 
   // Animation variants
   const containerVariants = {
@@ -90,15 +78,10 @@ export function UploadCV() {
             clearInterval(interval);
             setUploadStatus("success");
             
-            // Add the new CV to the list
+            // Set selected CV as default if it exists
             if (activeFileId) {
-              const newFile = cvFiles.find(file => file.id === activeFileId);
-              if (newFile) {
-                setCvFiles(prev => prev.map(file => ({
-                  ...file,
-                  isDefault: file.id === activeFileId
-                })));
-              }
+              setDefaultCV(activeFileId);
+              setSelectedCV(activeFileId);
             }
             
             return 100;
@@ -109,7 +92,7 @@ export function UploadCV() {
       
       return () => clearInterval(interval);
     }
-  }, [uploadStatus, activeFileId, cvFiles]);
+  }, [uploadStatus, activeFileId, setDefaultCV, setSelectedCV]);
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -144,57 +127,35 @@ export function UploadCV() {
   };
 
   const handleFile = (file: File) => {
-    // Create a new file object and add to the beginning of the list
-    const newFileId = `cv${Date.now()}`;
+    // Create a new file object and add to the store
+    const newFileId = uuidv4();
     setActiveFileId(newFileId);
     
-    const newFile: CVFile = {
+    const newCV = {
       id: newFileId,
       name: file.name,
       size: file.size,
-      dateAdded: new Date().toISOString().split('T')[0],
+      url: URL.createObjectURL(file),
+      createdAt: new Date().toISOString().split('T')[0]
     };
     
-    setCvFiles(prev => [newFile, ...prev]);
+    addCV(newCV);
     setUploadStatus("uploading");
     setUploadProgress(0);
-  };
-
-  const handleSetDefaultCV = (id: string) => {
-    setCvFiles(prev => prev.map(file => ({
-      ...file,
-      isDefault: file.id === id
-    })));
-  };
-
-  const handleDeleteCV = (id: string) => {
-    // If deleting the default CV, make the first remaining one default
-    setCvFiles(prev => {
-      const isRemovingDefault = prev.find(file => file.id === id)?.isDefault;
-      const filtered = prev.filter(file => file.id !== id);
-      
-      if (isRemovingDefault && filtered.length > 0) {
-        return filtered.map((file, index) => ({
-          ...file,
-          isDefault: index === 0 ? true : false
-        }));
-      }
-      
-      return filtered;
-    });
   };
 
   const handleContinue = () => {
     setIsLoading(true);
     
-    // Simulate processing delay
+    // Move to next step in the job match flow
     setTimeout(() => {
-      router.push("/job-match/results");
+      setCurrentStep(JobMatchStep.JOB_DETAILS);
+      router.push("/job-match/details");
     }, 1000);
   };
 
   const getDefaultCV = () => {
-    return cvFiles.find(file => file.isDefault) || cvFiles[0];
+    return uploadedCVs.find(file => file.isDefault) || uploadedCVs[0];
   };
 
   const formatFileSize = (bytes: number) => {
@@ -224,7 +185,7 @@ export function UploadCV() {
         </motion.div>
 
         {/* "Use Existing CV" notification banner */}
-        {cvFiles.find(file => file.isDefault) && (
+        {uploadedCVs.find(file => file.isDefault) && (
           <motion.div 
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -257,7 +218,7 @@ export function UploadCV() {
         <motion.div variants={itemVariants} className="mb-8">
           <div className="bg-gray-50 rounded-lg p-4 mb-6">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="font-medium text-gray-900">Your CVs ({cvFiles.length})</h3>
+              <h3 className="font-medium text-gray-900">Your CVs ({uploadedCVs.length})</h3>
               <Button 
                 variant="outline" 
                 size="sm"
@@ -285,7 +246,7 @@ export function UploadCV() {
                     <div className="w-8 h-8 rounded-full bg-lime-100 flex items-center justify-center">
                       <File className="h-4 w-4 text-lime-700" />
                     </div>
-                    <span className="text-sm font-medium">{activeFileId && cvFiles.find(f => f.id === activeFileId)?.name}</span>
+                    <span className="text-sm font-medium">{activeFileId && uploadedCVs.find(f => f.id === activeFileId)?.name}</span>
                   </div>
                   <span className="text-sm font-medium">{uploadProgress}%</span>
                 </div>
@@ -293,7 +254,7 @@ export function UploadCV() {
               </div>
             )}
 
-            {cvFiles.length === 0 ? (
+            {uploadedCVs.length === 0 ? (
               <div className="text-center py-8 bg-gray-100 rounded-lg border border-dashed border-gray-300">
                 <FileText className="h-10 w-10 text-gray-400 mx-auto mb-3" />
                 <p className="text-gray-500">You don't have any CVs yet</p>
@@ -307,7 +268,7 @@ export function UploadCV() {
               </div>
             ) : (
               <div className="space-y-3">
-                {cvFiles.map((file) => (
+                {uploadedCVs.map((file) => (
                   <motion.div 
                     key={file.id}
                     initial={{ opacity: 0, y: 10 }}
@@ -316,7 +277,8 @@ export function UploadCV() {
                       file.isDefault 
                         ? "bg-lime-50 border border-lime-200" 
                         : "bg-white border border-gray-200"
-                    } hover:shadow-md transition-all`}
+                    } hover:shadow-md transition-all cursor-pointer`}
+                    onClick={() => !file.isDefault && setDefaultCV(file.id)}
                   >
                     <div className="flex items-center gap-3 flex-1">
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
@@ -328,7 +290,7 @@ export function UploadCV() {
                         <p className="font-medium text-gray-900 truncate">{file.name}</p>
                         <div className="flex items-center gap-3 text-xs text-gray-500">
                           <span>{formatFileSize(file.size)}</span>
-                          <span>Added: {file.dateAdded}</span>
+                          <span>Added: {file.createdAt}</span>
                           {file.isDefault && (
                             <Badge variant="outline" className="bg-lime-100 text-lime-800 border-lime-200 text-[10px]">
                               Default
@@ -338,21 +300,14 @@ export function UploadCV() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      {!file.isDefault && (
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          className="text-xs text-gray-600 hover:text-lime-700 hover:bg-lime-50"
-                          onClick={() => handleSetDefaultCV(file.id)}
-                        >
-                          Use this CV
-                        </Button>
-                      )}
                       <Button 
                         variant="ghost" 
                         size="icon"
                         className="h-8 w-8 text-gray-500 hover:text-red-500 hover:bg-red-50"
-                        onClick={() => handleDeleteCV(file.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeCV(file.id);
+                        }}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -360,6 +315,7 @@ export function UploadCV() {
                         variant="ghost" 
                         size="icon"
                         className="h-8 w-8 text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                        onClick={(e) => e.stopPropagation()}
                       >
                         <Download className="h-4 w-4" />
                       </Button>
@@ -411,7 +367,7 @@ export function UploadCV() {
         </motion.div>
 
         {/* Continue button with selected CV info */}
-        {cvFiles.length > 0 && (
+        {uploadedCVs.length > 0 && (
           <motion.div 
             variants={itemVariants}
             className="mt-8 pt-6 border-t border-gray-200"
@@ -429,7 +385,7 @@ export function UploadCV() {
               <Button 
                 className="bg-lime-600 hover:bg-lime-700 text-white shadow-sm"
                 onClick={handleContinue}
-                disabled={isLoading || cvFiles.length === 0}
+                disabled={isLoading || uploadedCVs.length === 0}
               >
                 {isLoading ? (
                   <>

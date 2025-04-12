@@ -187,12 +187,9 @@ export default function BlogPage() {
         </section>
         
         {/* Resources Section */}
-        <section className="py-16 px-4 bg-gray-50">
+        <section className="py-16 px-4 bg-white">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
-              <div className="inline-block bg-lime-300 py-2 px-4 rounded-xl mb-4">
-                <h2 className="text-black font-bold">Free Resources</h2>
-              </div>
               <h2 className="text-3xl font-bold mb-4 text-zinc-900">Tools for Job Seekers</h2>
               <p className="text-gray-600 max-w-2xl mx-auto">
                 Download free templates, guides, and tools to help you in your job search journey
@@ -332,21 +329,16 @@ export default function BlogPage() {
         </section>
         
         {/* CTA Section */}
-        <section className="py-16 px-4 bg-zinc-900">
+        <section className="py-16 px-4 bg-white border-t border-gray-100">
           <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl font-bold mb-4 text-white">Ready to Advance Your Career?</h2>
-            <p className="text-gray-300 mb-8 max-w-2xl mx-auto">
+            <h2 className="text-3xl font-bold mb-4 text-zinc-900">Ready to Advance Your Career?</h2>
+            <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
               Use our AI-powered tools to match with the perfect job opportunities and optimize your application process
             </p>
             <div className="flex flex-wrap gap-4 justify-center">
               <Link href="/register">
                 <Button className="bg-lime-300 text-black hover:bg-lime-400">
                   Create Free Account
-                </Button>
-              </Link>
-              <Link href="/job-match">
-                <Button variant="outline" className="bg-transparent text-lime-300 border-lime-300 hover:bg-lime-300/10">
-                  Try AI Job Matching
                 </Button>
               </Link>
             </div>

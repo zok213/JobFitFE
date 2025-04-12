@@ -168,9 +168,6 @@ export default function PricingPage() {
             animate="visible"
             variants={fadeIn}
           >
-            <div className="inline-block bg-lime-300 py-2 px-4 rounded-xl mb-4">
-              <h2 className="text-black font-bold">Pricing</h2>
-            </div>
             <h1 className="text-4xl md:text-5xl font-bold mb-4 text-zinc-900">Simple, Transparent Pricing</h1>
             <p className="text-gray-600 max-w-2xl mx-auto text-lg">
               Choose the plan that's right for you, whether you're looking for a job or hiring talent.
@@ -243,22 +240,6 @@ export default function PricingPage() {
               </div>
 
               <TabsContent value="employee" className="mt-0">
-                <div className="bg-zinc-900 rounded-xl p-6 mb-8 flex items-center justify-center relative overflow-hidden">
-                  <div className="absolute -left-4 -bottom-8 w-24 h-24 rounded-full bg-lime-300/10 blur-xl"></div>
-                  <div className="absolute right-8 top-0 w-16 h-16 rounded-full bg-lime-300/10 blur-lg"></div>
-                  <div className="flex items-center relative z-10">
-                    <div className="mr-3">
-                      <svg width="40" height="40" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M30 0L42.5 7.5L35 15L47.5 22.5L42.5 35L55 42.5L42.5 60H17.5L5 42.5L17.5 35L12.5 22.5L25 15L17.5 7.5L30 0Z" fill="#B9FF66"/>
-                      </svg>
-                    </div>
-                    <div className="flex items-center">
-                      <p className="text-lime-300 font-bold text-xl mr-3">JobFit.AI</p>
-                      <span className="text-white font-medium">Employee</span>
-                    </div>
-                  </div>
-                </div>
-                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {employeeTiers.map((tier, i) => (
                     <motion.div

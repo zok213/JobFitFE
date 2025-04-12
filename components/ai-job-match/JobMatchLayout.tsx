@@ -2,7 +2,8 @@
 
 import React from "react";
 import { usePathname } from "next/navigation";
-import { FileText, FileCheck, Building, CheckCircle, Upload } from "lucide-react";
+import { FileText, FileCheck, Building, CheckCircle, Upload, ClipboardList } from "lucide-react";
+import { useJobMatchStore, JobMatchStep } from "../../store/jobMatchStore";
 
 export interface JobMatchLayoutProps {
   children: React.ReactNode;
@@ -18,25 +19,29 @@ interface StepIndicatorProps {
 
 export function JobMatchLayout({ children }: JobMatchLayoutProps) {
   const pathname = usePathname();
+  const { currentStep } = useJobMatchStore();
   
   const steps = [
     {
       id: 1,
-      path: "/job-match",
-      title: "Job Requirements",
-      icon: <FileText className="h-5 w-5" />
+      path: "/job-match/upload-cv",
+      title: "Upload CV",
+      icon: <Upload className="h-5 w-5" />,
+      step: JobMatchStep.CV_UPLOAD
     },
     {
       id: 2,
-      path: "/job-match/upload-cv",
-      title: "Upload CV",
-      icon: <Upload className="h-5 w-5" />
+      path: "/job-match/details",
+      title: "Job Details",
+      icon: <ClipboardList className="h-5 w-5" />,
+      step: JobMatchStep.JOB_DETAILS
     },
     {
       id: 3,
       path: "/job-match/results",
       title: "Results",
-      icon: <CheckCircle className="h-5 w-5" />
+      icon: <CheckCircle className="h-5 w-5" />,
+      step: JobMatchStep.JOB_MATCH
     }
   ];
 
@@ -44,7 +49,7 @@ export function JobMatchLayout({ children }: JobMatchLayoutProps) {
     pathname === step.path || 
     (pathname.includes(step.path) && step.path !== "/job-match")
   );
-  const currentStep = currentStepIndex !== -1 ? currentStepIndex + 1 : 1;
+  const currentStepNumber = currentStepIndex !== -1 ? currentStepIndex + 1 : 1;
 
   return (
     <div className="w-full max-w-5xl mx-auto px-4 md:px-6 py-8">
@@ -61,14 +66,14 @@ export function JobMatchLayout({ children }: JobMatchLayoutProps) {
                 <StepIndicator
                   stepNumber={step.id}
                   title={step.title}
-                  isActive={currentStep === step.id}
-                  isCompleted={currentStep > step.id}
+                  isActive={currentStepNumber === step.id}
+                  isCompleted={currentStepNumber > step.id}
                   icon={step.icon}
                 />
                 {index < steps.length - 1 && (
                   <div
                     className={`h-0.5 flex-1 mx-2 ${
-                      currentStep > index + 1 ? "bg-lime-300" : "bg-gray-200"
+                      currentStepNumber > index + 1 ? "bg-lime-300" : "bg-gray-200"
                     }`}
                   />
                 )}
@@ -78,7 +83,7 @@ export function JobMatchLayout({ children }: JobMatchLayoutProps) {
 
           <div className="flex md:hidden mb-8">
             <div className="flex items-center gap-2 text-sm font-medium">
-              <span>Step {currentStep} of {steps.length}:</span>
+              <span>Step {currentStepNumber} of {steps.length}:</span>
               <span className="text-black font-medium">
                 {steps[currentStepIndex]?.title || steps[0].title}
               </span>

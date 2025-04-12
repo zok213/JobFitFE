@@ -2,6 +2,7 @@
 
 import React from "react";
 import { DashboardShell } from "@/components/DashboardShell";
+import { RoadmapLayout } from "@/components/ai-roadmap/RoadmapLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { RoadmapForm } from "./RoadmapForm";
@@ -13,14 +14,7 @@ export default function RoadmapPage() {
 
   return (
     <DashboardShell activeNavItem="roadmap" userRole="employee">
-      <div className="w-full max-w-6xl mx-auto px-4 md:px-6 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">Career Roadmap</h1>
-          <p className="text-gray-500 mt-1">
-            Plan your career development with our AI-powered roadmap generator
-          </p>
-        </div>
-        
+      <RoadmapLayout activeStep="form" showNavigationControls={false}>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <RoadmapForm />
@@ -97,7 +91,7 @@ export default function RoadmapPage() {
             </Card>
           </div>
         </div>
-      </div>
+      </RoadmapLayout>
     </DashboardShell>
   );
 } 

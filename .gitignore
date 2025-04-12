@@ -63,3 +63,5 @@ package-lock.json
 
 # Cache
 .swc/
+
+API_ENDPOINTS.md

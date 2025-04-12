@@ -25,6 +25,7 @@ import {
   Plus
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 // Mock data for dashboard
 const stats = [
@@ -135,6 +136,8 @@ const recentCandidates = [
 ];
 
 export default function EmployerDashboardPage() {
+  const router = useRouter();
+
   return (
     <EmployerDashboardShell activeNavItem="dashboard" userRole="employer">
       <div className="space-y-8">
@@ -231,6 +234,7 @@ export default function EmployerDashboardPage() {
                         variant="ghost"
                         size="sm"
                         className="ml-2 text-gray-500 hover:text-gray-700"
+                        onClick={() => router.push(`/employer/jobs/${job.id}/edit`)}
                       >
                         <PencilLine className="h-4 w-4" />
                       </Button>

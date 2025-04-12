@@ -72,7 +72,9 @@ module.exports = {
           foreground: "hsl(var(--card-foreground))",
         },
         lime: {
-          300: "#B9FF66", // Custom lime color
+          300: "#aadb5b", // Softer lime color
+          400: "#9dd63b", // Reduced intensity
+          500: "#8ddb26", // More muted lime
         },
         zinc: {
           800: "#27272a", // Refined zinc color

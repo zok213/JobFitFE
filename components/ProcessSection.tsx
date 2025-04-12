@@ -80,7 +80,7 @@ const cardVariants = {
 
 export const ProcessSection = () => {
   return (
-    <section className="py-20 bg-gray-50 relative overflow-hidden">
+    <section id="process" className="py-20 bg-gray-50 relative overflow-hidden">
       {/* Background elements */}
       <div className="absolute top-0 right-0 w-64 h-64 bg-lime-100 rounded-full mix-blend-multiply opacity-30 -translate-y-1/2 translate-x-1/2 blur-3xl" />
       <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-100 rounded-full mix-blend-multiply opacity-30 translate-y-1/2 -translate-x-1/2 blur-3xl" />
@@ -96,7 +96,7 @@ export const ProcessSection = () => {
           <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900 tracking-tight">
             How <span className="text-lime-500">JobFit.AI</span> Works
         </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-600 whitespace-nowrap overflow-hidden text-ellipsis mx-auto">
             Our streamlined process takes you from job seeker to top candidate in five simple steps
           </p>
         </motion.div>

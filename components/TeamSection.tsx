@@ -38,7 +38,7 @@ export const TeamSection = () => {
   ];
 
   return (
-    <section id="about-us" className="px-6 md:px-12 lg:px-24 py-16 max-w-[1440px] mx-auto">
+    <section id="team" className="px-6 md:px-12 lg:px-24 py-16 max-w-[1440px] mx-auto">
       <div className="bg-lime-300 px-4 py-2 rounded-xl w-fit mb-4">
         <h2 className="text-2xl md:text-3xl font-bold text-black">
           Team

@@ -43,7 +43,11 @@ const ChooseRole = () => {
     
     console.log("Selected role:", selectedRole);
     // Redirect to confirmation page after role selection
-    window.location.href = "/confirmation";
+    if (selectedRole === "employer") {
+      window.location.href = "/employer/dashboard";
+    } else {
+      window.location.href = "/confirmation";
+    }
   };
 
   return (

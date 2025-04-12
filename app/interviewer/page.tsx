@@ -63,11 +63,13 @@ export default function InterviewerPage() {
             {interviewTypes.map((type) => (
               <div 
                 key={type.id}
-                className={`border rounded-lg p-6 transition-all hover:shadow-md ${type.color}`}
+                className={`border rounded-lg p-6 transition-all hover:shadow-md ${type.color} hover:scale-[1.02] duration-200`}
               >
                 <div className="flex flex-col h-full">
                   <div className="mb-4">
-                    {type.icon}
+                    <div className="w-12 h-12 rounded-full bg-white/80 flex items-center justify-center shadow-sm">
+                      {type.icon}
+                    </div>
                   </div>
                   <h3 className="text-lg font-bold mb-2">{type.title}</h3>
                   <p className="text-gray-600 text-sm mb-4 flex-grow">{type.description}</p>
@@ -94,21 +96,21 @@ export default function InterviewerPage() {
             <h3 className="text-xl font-bold">How It Works</h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="flex flex-col items-center text-center">
+            <div className="flex flex-col items-center text-center bg-gray-50 p-5 rounded-lg border border-gray-100">
               <div className="w-10 h-10 rounded-full bg-lime-300 flex items-center justify-center mb-3">
                 <span className="font-bold text-black">1</span>
               </div>
               <h4 className="font-medium mb-2">Choose Interview Type</h4>
               <p className="text-sm text-gray-500">Select the type of interview you want to practice</p>
             </div>
-            <div className="flex flex-col items-center text-center">
+            <div className="flex flex-col items-center text-center bg-gray-50 p-5 rounded-lg border border-gray-100">
               <div className="w-10 h-10 rounded-full bg-lime-300 flex items-center justify-center mb-3">
                 <span className="font-bold text-black">2</span>
               </div>
               <h4 className="font-medium mb-2">Answer Questions</h4>
               <p className="text-sm text-gray-500">Respond to AI-generated interview questions</p>
             </div>
-            <div className="flex flex-col items-center text-center">
+            <div className="flex flex-col items-center text-center bg-gray-50 p-5 rounded-lg border border-gray-100">
               <div className="w-10 h-10 rounded-full bg-lime-300 flex items-center justify-center mb-3">
                 <span className="font-bold text-black">3</span>
               </div>

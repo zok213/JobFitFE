@@ -8,7 +8,6 @@ import { Input } from "./ui/input";
 import { EyeIcon, EyeOffIcon, Loader2, ArrowRight } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { Alert, AlertDescription } from "./ui/alert";
-import { TestAccountModal } from "./TestAccountModal";
 import { Logo } from "./ui/logo";
 import { motion } from "framer-motion";
 
@@ -67,34 +66,14 @@ const Login = () => {
     
     try {
       await login(formData.email, formData.password);
-      // Redirect handled by useAuth login
-      window.location.href = "/";
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("An unexpected error occurred");
-      }
+      // Redirect will be handled by the auth state change
+    } catch (err: any) {
+      setError(err.message || "Failed to sign in");
     }
   };
 
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
-  };
-
-  // Demo credentials
-  const loginAsDemo = () => {
-    setFormData({
-      email: "test@example.com",
-      password: "password123"
-    });
-  };
-
-  const loginAsEmployer = () => {
-    setFormData({
-      email: "employer@example.com",
-      password: "employer123"
-    });
   };
 
   return (
@@ -133,28 +112,6 @@ const Login = () => {
                 </Alert>
               </motion.div>
             )}
-            
-            <div className="flex flex-col gap-2 mb-6">
-              <div className="text-sm text-zinc-500">Demo accounts:</div>
-              <div className="flex flex-wrap gap-2">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={loginAsDemo}
-                  className="text-xs bg-zinc-50 border-zinc-200 hover:bg-zinc-100 transition-colors"
-                >
-                  Use test@example.com
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={loginAsEmployer}
-                  className="text-xs bg-zinc-50 border-zinc-200 hover:bg-zinc-100 transition-colors"
-                >
-                  Use employer@example.com
-                </Button>
-              </div>
-            </div>
             
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
@@ -224,27 +181,7 @@ const Login = () => {
                   Create Account
                 </Link>
               </div>
-              
-              <div className="relative flex items-center justify-center mt-6 mb-2">
-                <div className="border-t border-zinc-200 w-full absolute"></div>
-                <span className="bg-white px-2 z-10 text-zinc-500 text-sm">or continue with</span>
-              </div>
-              
-              <div className="flex justify-center space-x-4">
-                {socialLogins.map((social) => (
-                  <button
-                    key={social.id}
-                    type="button"
-                    className="p-3 border border-zinc-200 rounded-lg hover:bg-zinc-50 transition-colors duration-200 shadow-sm"
-                    aria-label={social.alt}
-                  >
-                    {social.icon}
-                  </button>
-                ))}
-              </div>
             </form>
-            
-            <TestAccountModal />
           </CardContent>
         </Card>
         

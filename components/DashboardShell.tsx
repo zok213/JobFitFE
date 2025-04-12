@@ -1,6 +1,6 @@
 "use client";
 
-import React, { ReactNode, useState, useEffect } from "react";
+import React, { ReactNode, useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import { motion, AnimatePresence } from "framer-motion";
 
 type NavItem = {
   id: string;
@@ -49,6 +50,35 @@ export const DashboardShell = ({
   const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+
+  // Mock notifications for demonstration
+  const notifications = [
+    {
+      id: 1,
+      title: "New job match found",
+      description: "We found a new job that matches your profile",
+      time: "5 minutes ago",
+      read: false,
+      type: "match"
+    },
+    {
+      id: 2,
+      title: "Interview preparation reminder",
+      description: "Don't forget your scheduled interview preparation session",
+      time: "2 hours ago",
+      read: false,
+      type: "reminder"
+    },
+    {
+      id: 3,
+      title: "Profile update suggestion",
+      description: "Update your skills to improve job matches",
+      time: "Yesterday",
+      read: true,
+      type: "update"
+    }
+  ];
 
   // Handle scroll for sticky header shadow effect
   useEffect(() => {
@@ -233,6 +263,31 @@ export const DashboardShell = ({
             </Button>
           </div>
         </div>
+
+        {/* Guide Chatbot */}
+        <div className="px-5 mb-4">
+          <Button
+            onClick={() => router.push(userRole === "employer" ? "/help/employer" : "/help/employee")}
+            variant="ghost"
+            className="w-full flex items-center justify-between text-left p-3 rounded-lg hover:bg-gray-100 transition-all"
+          >
+            <div className="flex items-center">
+              <div className="w-8 h-8 rounded-full bg-lime-300 flex items-center justify-center mr-3">
+                <MessageSquare className="h-4 w-4 text-zinc-900" />
+              </div>
+              <div>
+                <p className="font-medium text-sm">Guide Bot</p>
+                <p className="text-xs text-gray-500">Ask for help anytime</p>
+              </div>
+            </div>
+            <ChevronRight className="h-4 w-4 text-gray-400" />
+          </Button>
+        </div>
+
+        {/* Version info */}
+        <div className="px-5 mb-2 text-center">
+          <p className="text-xs text-gray-400">JobFit.AI v1.2.0</p>
+        </div>
       </aside>
       
       {/* Issue indicator - positioned at the bottom left of sidebar */}
@@ -272,13 +327,109 @@ export const DashboardShell = ({
             </div>
             
             {/* Notifications */}
-            <button 
-              className="w-10 h-10 rounded-lg flex items-center justify-center bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors relative"
-              aria-label="Notifications"
-            >
-              <Bell size={18} />
-              <span className="absolute top-0 right-0 h-2.5 w-2.5 rounded-full bg-red-500 border-2 border-white"></span>
-            </button>
+            <div className="relative">
+              <button 
+                className="w-10 h-10 rounded-lg flex items-center justify-center bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors relative"
+                aria-label="Notifications"
+                onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+              >
+                <Bell size={18} />
+                <span className="absolute top-0 right-0 h-2.5 w-2.5 rounded-full bg-red-500 border-2 border-white"></span>
+              </button>
+
+              <AnimatePresence>
+                {isNotificationsOpen && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    transition={{ duration: 0.3, ease: "easeOut" }}
+                    className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-100 py-1 z-50"
+                    ref={(ref) => {
+                      // Click outside handler
+                      if (ref) {
+                        const handleClickOutside = (e: MouseEvent) => {
+                          if (ref && !ref.contains(e.target as Node)) {
+                            setIsNotificationsOpen(false);
+                          }
+                        };
+                        document.addEventListener('mousedown', handleClickOutside);
+                        return () => {
+                          document.removeEventListener('mousedown', handleClickOutside);
+                        };
+                      }
+                    }}
+                  >
+                    <div className="px-4 py-3 border-b border-gray-100 flex justify-between items-center">
+                      <p className="text-sm font-medium text-gray-900">Notifications</p>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-8 px-2 text-xs"
+                      >
+                        Mark all as read
+                      </Button>
+                    </div>
+                    
+                    <div className="py-1 max-h-[320px] overflow-y-auto">
+                      {notifications.length === 0 ? (
+                        <div className="px-4 py-6 text-center">
+                          <div className="mx-auto w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-3">
+                            <Bell className="h-6 w-6 text-gray-400" />
+                          </div>
+                          <p className="text-sm text-gray-500">No notifications yet</p>
+                        </div>
+                      ) : (
+                        notifications.map((notification) => (
+                          <div 
+                            key={notification.id}
+                            className={`px-4 py-3 hover:bg-gray-50 cursor-pointer ${!notification.read ? 'bg-lime-50/50' : ''}`}
+                          >
+                            <div className="flex items-start gap-3">
+                              <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 
+                                ${notification.type === 'match' ? 'bg-lime-100' : 
+                                notification.type === 'reminder' ? 'bg-blue-100' : 'bg-gray-100'}`}>
+                                {notification.type === 'match' ? (
+                                  <Briefcase className="h-4 w-4 text-lime-600" />
+                                ) : notification.type === 'reminder' ? (
+                                  <MessageSquare className="h-4 w-4 text-blue-600" />
+                                ) : (
+                                  <User className="h-4 w-4 text-gray-600" />
+                                )}
+                              </div>
+                              <div>
+                                <p className={`text-sm ${!notification.read ? 'font-medium' : ''}`}>
+                                  {notification.title}
+                                </p>
+                                <p className="text-xs text-gray-500 mt-0.5">
+                                  {notification.description}
+                                </p>
+                                <p className="text-xs text-gray-400 mt-1">
+                                  {notification.time}
+                                </p>
+                              </div>
+                              {!notification.read && (
+                                <div className="w-2 h-2 rounded-full bg-lime-500 ml-auto mt-1"></div>
+                              )}
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                    
+                    <div className="px-4 py-2 border-t border-gray-100">
+                      <Link 
+                        href="/notifications" 
+                        className="text-sm text-lime-600 hover:text-lime-700 font-medium block text-center"
+                        onClick={() => setIsNotificationsOpen(false)}
+                      >
+                        View all notifications
+                      </Link>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
             
             {/* User menu */}
             <div className="flex items-center gap-3">

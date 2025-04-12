@@ -22,7 +22,7 @@ export const Hero = () => {
   }, []);
   
   return (
-    <section className="relative overflow-hidden bg-gradient-to-tr from-white via-lime-50 to-white">
+    <section id="hero" className="relative overflow-hidden bg-gradient-to-tr from-white via-lime-50 to-white">
       {/* Background pattern */}
       <div className="absolute inset-0 z-0 opacity-20">
         <div className="absolute top-0 right-0 w-[40vw] h-[40vw] bg-lime-400 rounded-full blur-3xl transform translate-x-1/3 -translate-y-1/3"></div>

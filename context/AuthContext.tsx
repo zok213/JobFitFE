@@ -1,6 +1,8 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { supabase } from "../lib/supabase";
+import { User as SupabaseUser, AuthError } from '@supabase/supabase-js';
 
 type User = {
   id: string;
@@ -15,8 +17,10 @@ type AuthContextType = {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, username: string, password: string) => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
+  updatePassword: (password: string) => Promise<void>;
   setUserRole: (role: "employee" | "employer") => void;
-  logout: () => void;
+  logout: () => Promise<void>;
 };
 
 // Create a context with a default value
@@ -25,102 +29,202 @@ const AuthContext = createContext<AuthContextType>({
   isLoading: true,
   login: async () => {},
   register: async () => {},
+  resetPassword: async () => {},
+  updatePassword: async () => {},
   setUserRole: () => {},
-  logout: () => {},
+  logout: async () => {},
 });
-
-// Demo users for testing
-const DEMO_USERS = [
-  { 
-    id: "1", 
-    email: "test@example.com", 
-    password: "password123", 
-    username: "testuser",
-    avatarUrl: "/img/avatars/user1.jpg" 
-  },
-  { 
-    id: "2", 
-    email: "employer@example.com", 
-    password: "employer123", 
-    username: "employeruser",
-    avatarUrl: "/img/avatars/user2.jpg" 
-  },
-];
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Check for stored user on initial load
+  // Listen for authentication state changes
   useEffect(() => {
-    const storedUser = localStorage.getItem("jobfit_user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setIsLoading(false);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        setIsLoading(true);
+        
+        if (session?.user) {
+          // Get user profile data from the profiles table if it exists
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('username, role, avatar_url')
+            .eq('id', session.user.id)
+            .single();
+          
+          // Set user with combined auth and profile data
+          setUser({
+            id: session.user.id,
+            email: session.user.email || '',
+            username: profileData?.username,
+            role: profileData?.role as "employee" | "employer" | undefined,
+            avatarUrl: profileData?.avatar_url,
+          });
+        } else {
+          setUser(null);
+        }
+        
+        setIsLoading(false);
+      }
+    );
+
+    // Initial session check
+    const initializeAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session?.user) {
+        // Get user profile data
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('username, role, avatar_url')
+          .eq('id', session.user.id)
+          .single();
+        
+        setUser({
+          id: session.user.id,
+          email: session.user.email || '',
+          username: profileData?.username,
+          role: profileData?.role as "employee" | "employer" | undefined,
+          avatarUrl: profileData?.avatar_url,
+        });
+      }
+      
+      setIsLoading(false);
+    };
+
+    initializeAuth();
+
+    // Cleanup subscription
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const login = async (email: string, password: string) => {
-    // Simulate API call delay
     setIsLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    // Find the user with matching credentials
-    const foundUser = DEMO_USERS.find(u => u.email === email && u.password === password);
     
-    if (!foundUser) {
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      
+      if (error) throw error;
+    } catch (error) {
       setIsLoading(false);
-      throw new Error("Invalid email or password");
+      throw error;
     }
-
-    // Omit password from user object
-    const { password: _, ...userWithoutPassword } = foundUser;
     
-    // Set the user in state and localStorage
-    setUser(userWithoutPassword);
-    localStorage.setItem("jobfit_user", JSON.stringify(userWithoutPassword));
     setIsLoading(false);
   };
 
   const register = async (email: string, username: string, password: string) => {
-    // Simulate API call delay
     setIsLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    // Check if user already exists
-    if (DEMO_USERS.some(u => u.email === email)) {
+    
+    try {
+      // Create the user in Auth
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+      
+      if (error) throw error;
+      
+      if (data.user) {
+        // Create a profile record
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert([
+            { 
+              id: data.user.id, 
+              username, 
+              email,
+              created_at: new Date().toISOString(),
+            }
+          ]);
+        
+        if (profileError) throw profileError;
+      }
+    } catch (error) {
       setIsLoading(false);
-      throw new Error("Email already in use");
+      throw error;
     }
-
-    // Create a new user (in a real app this would be stored in a database)
-    const newUser = {
-      id: String(DEMO_USERS.length + 1),
-      email,
-      username,
-    };
-
-    // Set the user in state and localStorage
-    setUser(newUser);
-    localStorage.setItem("jobfit_user", JSON.stringify(newUser));
+    
     setIsLoading(false);
   };
 
-  const setUserRole = (role: "employee" | "employer") => {
-    if (user) {
-      const updatedUser = { ...user, role };
-      setUser(updatedUser);
-      localStorage.setItem("jobfit_user", JSON.stringify(updatedUser));
+  const resetPassword = async (email: string) => {
+    setIsLoading(true);
+    
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      
+      if (error) throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem("jobfit_user");
+  const updatePassword = async (password: string) => {
+    setIsLoading(true);
+    
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password,
+      });
+      
+      if (error) throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const setUserRole = async (role: "employee" | "employer") => {
+    if (user) {
+      // Update profile in database
+      const { error } = await supabase
+        .from('profiles')
+        .update({ role })
+        .eq('id', user.id);
+      
+      if (error) {
+        console.error('Error updating user role:', error);
+        return;
+      }
+      
+      // Update local state
+      const updatedUser = { ...user, role };
+      setUser(updatedUser);
+    }
+  };
+
+  const logout = async () => {
+    setIsLoading(true);
+    
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      setUser(null);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, register, setUserRole, logout }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      isLoading, 
+      login, 
+      register, 
+      resetPassword, 
+      updatePassword, 
+      setUserRole, 
+      logout 
+    }}>
       {children}
     </AuthContext.Provider>
   );
