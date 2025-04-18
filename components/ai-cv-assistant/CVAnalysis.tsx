@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   CheckCircle, XCircle, AlertTriangle, ArrowRight, Download, Edit, 
-  ArrowLeft, Sparkles, FileEdit, FileUp, MessageSquare, Zap, FileSignature
+  ArrowLeft, Sparkles, FileEdit, FileUp, MessageSquare, Zap, FileSignature, AlertCircle, FileText, Share2
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { LinkButton } from "@/components/LinkButton";
@@ -20,11 +20,51 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { useCVAssistantStore, CVAssistantStep } from "@/store/cvAssistantStore";
 
-export function CVAnalysis({ cvData = sampleCVData }) {
+export function CVAnalysis() {
   const router = useRouter();
   const [activeSection, setActiveSection] = useState("summary");
   const [openDialog, setOpenDialog] = useState<string | null>(null);
+  const [showCustomizeDialog, setShowCustomizeDialog] = useState(false);
+  const [showSummary, setShowSummary] = useState(true);
+  const [viewMode, setViewMode] = useState<"all" | "strengths" | "improvements">("all");
+  
+  // Get data from the store
+  const { 
+    analysis, 
+    setCurrentStep, 
+    isAnalyzing,
+    loadDemoData 
+  } = useCVAssistantStore(state => ({
+    analysis: state.analysis,
+    setCurrentStep: state.setCurrentStep,
+    isAnalyzing: state.isAnalyzing,
+    loadDemoData: state.loadDemoData
+  }));
+
+  // Load demo data if we don't have analysis data and we're not in the analyzing state
+  if (!analysis && !isAnalyzing) {
+    loadDemoData();
+  }
+
+  // Handle loading state
+  if (isAnalyzing || !analysis) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[500px] p-6">
+        <div className="w-16 h-16 border-4 border-lime-200 border-t-lime-500 rounded-full animate-spin mb-4"></div>
+        <h3 className="text-xl font-medium mb-2">Analyzing your CV...</h3>
+        <p className="text-sm text-gray-500 text-center max-w-md">
+          Our AI is reviewing your resume against industry standards and best practices. 
+          This may take a minute.
+        </p>
+      </div>
+    );
+  }
+
+  const handleContinue = () => {
+    setCurrentStep(CVAssistantStep.ENHANCE);
+  };
 
   // Function to get badge and icon based on strength rating
   const getStrengthIndicator = (rating: number) => {
@@ -86,12 +126,12 @@ export function CVAnalysis({ cvData = sampleCVData }) {
                 <div>
                   <div className="flex justify-between mb-1">
                     <span className="text-sm font-medium">Overall Score</span>
-                    <span className="text-sm font-medium">{cvData.overallScore}%</span>
+                    <span className="text-sm font-medium">{analysis.overallScore}%</span>
                   </div>
-                  <Progress value={cvData.overallScore} className="h-2" indicatorClassName="bg-lime-300" />
+                  <Progress value={analysis.overallScore} className="h-2" indicatorClassName="bg-lime-300" />
                 </div>
                 
-                {Object.entries(cvData.scores).map(([key, score]: [string, number]) => (
+                {Object.entries(analysis.scores).map(([key, score]: [string, number]) => (
                   <div key={key}>
                     <div className="flex justify-between mb-1">
                       <span className="text-sm font-medium">{key.charAt(0).toUpperCase() + key.slice(1)}</span>
@@ -113,21 +153,27 @@ export function CVAnalysis({ cvData = sampleCVData }) {
               </div>
             </div>
             
-            <div className="flex-1">
-              <h3 className="text-lg font-semibold mb-4">Key Insights</h3>
-              <ul className="space-y-3">
-                {cvData.insights.map((insight, index) => {
-                  const { badge, icon, text } = getStrengthIndicator(insight.strength);
-                  return (
-                    <li key={index} className="flex items-start">
-                      <Badge className={`${badge} font-normal flex items-center mt-0.5`}>
-                        {icon} {text}
-                      </Badge>
-                      <span className="ml-2 text-gray-700">{insight.text}</span>
-                    </li>
-                  );
-                })}
-              </ul>
+            <div className="flex-1 border-l pl-8 border-gray-200 hidden md:block">
+              <h3 className="text-lg font-semibold mb-4">Quick Insights</h3>
+              <div className="space-y-2">
+                {analysis.insights
+                  .sort((a, b) => b.strength - a.strength)
+                  .map((insight, index) => (
+                    <div 
+                      key={index} 
+                      className={`flex items-start gap-2 ${
+                        insight.strength >= 70 ? "text-green-700" : "text-amber-700"
+                      }`}
+                    >
+                      {insight.strength >= 70 ? (
+                        <CheckCircle className="h-5 w-5 mt-0.5 flex-shrink-0" />
+                      ) : (
+                        <AlertCircle className="h-5 w-5 mt-0.5 flex-shrink-0" />
+                      )}
+                      <p className="text-sm">{insight.text}</p>
+                    </div>
+                  ))}
+              </div>
             </div>
           </div>
         </CardContent>
@@ -160,8 +206,15 @@ export function CVAnalysis({ cvData = sampleCVData }) {
         <div className="space-y-6">
           <Card className="border border-gray-200 shadow-sm">
             <CardContent className="p-6">
-              <h3 className="text-lg font-semibold mb-3">Professional Summary</h3>
-              <p className="text-gray-700">{cvData.summary}</p>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">CV Summary</h3>
+                <Button variant="ghost" size="sm" onClick={() => setShowCustomizeDialog(true)}>
+                  Customize <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+              <p className="text-gray-700 whitespace-pre-wrap">
+                {analysis.summary}
+              </p>
             </CardContent>
           </Card>
           
@@ -169,7 +222,7 @@ export function CVAnalysis({ cvData = sampleCVData }) {
             <CardContent className="p-6">
               <h3 className="text-lg font-semibold mb-3">Skills Assessment</h3>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {cvData.skills.map((skill, index) => (
+                {analysis.skills.map((skill, index) => (
                   <div key={index} className="border rounded-md p-3">
                     <div className="flex justify-between items-center mb-1">
                       <span className="font-medium">{skill.name}</span>
@@ -204,46 +257,80 @@ export function CVAnalysis({ cvData = sampleCVData }) {
 
       {activeSection === 'suggestions' && (
         <div className="space-y-4">
-          {cvData.suggestions.map((suggestion, index) => (
-            <Card key={index} className="border border-gray-200 shadow-sm">
+          <Card className="border border-gray-200 shadow-sm">
               <CardContent className="p-6">
-                <div className="flex items-start gap-3">
-                  <div className={
-                    suggestion.priority === 'high' 
-                      ? "text-red-500" 
-                      : suggestion.priority === 'medium' 
-                      ? "text-amber-500" 
-                      : "text-green-500"
-                  }>
-                    {suggestion.priority === 'high' 
-                      ? <XCircle className="h-5 w-5" /> 
-                      : suggestion.priority === 'medium' 
-                      ? <AlertTriangle className="h-5 w-5" /> 
-                      : <CheckCircle className="h-5 w-5" />
-                    }
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold">Key Skills</h3>
+                <div className="flex items-center gap-2">
+                  <Button 
+                    variant={viewMode === "all" ? "default" : "outline"} 
+                    size="sm"
+                    onClick={() => setViewMode("all")}
+                    className="text-xs h-8"
+                  >
+                    All
+                  </Button>
+                  <Button 
+                    variant={viewMode === "strengths" ? "default" : "outline"} 
+                    size="sm"
+                    onClick={() => setViewMode("strengths")}
+                    className="text-xs h-8"
+                  >
+                    Strengths
+                  </Button>
+                  <Button 
+                    variant={viewMode === "improvements" ? "default" : "outline"} 
+                    size="sm"
+                    onClick={() => setViewMode("improvements")}
+                    className="text-xs h-8"
+                  >
+                    Needs Improvement
+                  </Button>
+                </div>
                   </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold">{suggestion.title}</h4>
-                    <p className="text-gray-700 mt-1">{suggestion.description}</p>
-                    <div className="mt-3 flex items-center gap-2">
-                      <Badge className={
-                        suggestion.priority === 'high' 
-                          ? "bg-red-100 text-red-800 border-red-200" 
-                          : suggestion.priority === 'medium' 
-                          ? "bg-amber-100 text-amber-800 border-amber-200" 
-                          : "bg-green-100 text-green-800 border-green-200"
-                      }>
-                        {suggestion.priority.charAt(0).toUpperCase() + suggestion.priority.slice(1)} Priority
-                      </Badge>
-                      <Badge className="bg-gray-100 text-gray-800 border-gray-200">
-                        {suggestion.section}
-                      </Badge>
+              
+              <div className="space-y-4">
+                {analysis.skills
+                  .filter(skill => {
+                    if (viewMode === "all") return true;
+                    if (viewMode === "strengths") return skill.level >= 75;
+                    if (viewMode === "improvements") return skill.level < 75;
+                    return true;
+                  })
+                  .map((skill, index) => (
+                    <div key={index} className="border-l-4 pl-4 py-1" 
+                      style={{ 
+                        borderColor: skill.level >= 80 
+                          ? "#84cc16" 
+                          : skill.level >= 60 
+                          ? "#f59e0b" 
+                          : "#ef4444"
+                      }}
+                    >
+                      <h4 className="font-medium mb-1 flex items-center gap-2">
+                        <span>{skill.name}</span>
+                        <span className="text-xs px-2 py-0.5 rounded-full" 
+                          style={{ 
+                            backgroundColor: skill.level >= 80 
+                              ? "#ecfccb" 
+                              : skill.level >= 60 
+                              ? "#fef3c7" 
+                              : "#fecaca",
+                            color: skill.level >= 80 
+                              ? "#3f6212" 
+                              : skill.level >= 60 
+                              ? "#b45309" 
+                              : "#b91c1c"
+                          }}
+                        >
+                          {skill.level}%
+                        </span>
+                      </h4>
                     </div>
-                  </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>
-          ))}
         </div>
       )}
 
@@ -254,13 +341,13 @@ export function CVAnalysis({ cvData = sampleCVData }) {
               <h3 className="text-lg font-semibold mb-4">Industry Keywords</h3>
               <p className="text-gray-600 mb-4">These keywords are frequently found in job postings in your industry.</p>
               <div className="flex flex-wrap gap-2">
-                {cvData.industryKeywords.map((keyword, index) => (
+                {analysis.industryKeywords.map((keyword, index) => (
                   <Badge key={index} className={
-                    cvData.presentKeywords.includes(keyword)
+                    analysis.presentKeywords.includes(keyword)
                       ? "bg-lime-100 text-black border-lime-200" 
                       : "bg-gray-100 text-gray-800 border-gray-200"
                   }>
-                    {cvData.presentKeywords.includes(keyword) && (
+                    {analysis.presentKeywords.includes(keyword) && (
                       <CheckCircle className="h-3 w-3 mr-1" />
                     )}
                     {keyword}
@@ -275,7 +362,7 @@ export function CVAnalysis({ cvData = sampleCVData }) {
               <h3 className="text-lg font-semibold mb-4">Missing Keywords</h3>
               <p className="text-gray-600 mb-4">Consider adding these relevant keywords to your CV to improve visibility.</p>
               <div className="flex flex-wrap gap-2">
-                {cvData.missingKeywords.map((keyword, index) => (
+                {analysis.missingKeywords.map((keyword, index) => (
                   <Badge key={index} className="bg-amber-100 text-amber-800 border-amber-200">
                     {keyword}
                   </Badge>
@@ -435,6 +522,97 @@ export function CVAnalysis({ cvData = sampleCVData }) {
               Optimize My CV
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      <div className="mt-8 text-center">
+        <Button
+          onClick={handleContinue}
+          className="bg-black hover:bg-gray-800 text-lime-400"
+          size="lg"
+        >
+          <FileText className="mr-2 h-5 w-5" />
+          Enhance Your CV
+        </Button>
+        
+        <div className="flex justify-center mt-4 gap-4">
+          <Button variant="outline" size="sm">
+            <Download className="mr-2 h-4 w-4" /> Download Analysis
+          </Button>
+          <Button variant="outline" size="sm">
+            <Share2 className="mr-2 h-4 w-4" /> Share Analysis
+          </Button>
+        </div>
+      </div>
+      
+      <Dialog open={showCustomizeDialog} onOpenChange={setShowCustomizeDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Summary Customization</DialogTitle>
+            <DialogDescription>
+              Customize how you want your CV summary to appear to potential employers.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <textarea 
+              className="w-full p-3 border border-gray-300 rounded-md h-40"
+              value={analysis.summary}
+              readOnly
+              aria-label="CV Summary Text"
+              id="cv-summary-text"
+            />
+            
+            <div className="flex gap-2 items-center">
+              <label htmlFor="tone-select" className="text-sm font-medium">Tone:</label>
+              <select 
+                id="tone-select"
+                className="p-2 border border-gray-300 rounded-md text-sm"
+                aria-label="Select tone for CV summary"
+              >
+                <option>Professional</option>
+                <option>Confident</option>
+                <option>Innovative</option>
+                <option>Leadership-focused</option>
+              </select>
+            </div>
+            
+            <div className="flex gap-2 items-center">
+              <label htmlFor="length-select" className="text-sm font-medium">Length:</label>
+              <select 
+                id="length-select"
+                className="p-2 border border-gray-300 rounded-md text-sm"
+                aria-label="Select length for CV summary"
+              >
+                <option>Brief (50 words)</option>
+                <option>Standard (100 words)</option>
+                <option>Detailed (150+ words)</option>
+              </select>
+            </div>
+            
+            <div className="flex gap-2 items-center">
+              <label htmlFor="focus-select" className="text-sm font-medium">Focus:</label>
+              <select 
+                id="focus-select"
+                className="p-2 border border-gray-300 rounded-md text-sm"
+                aria-label="Select focus for CV summary"
+              >
+                <option>Skills & Expertise</option>
+                <option>Achievements</option>
+                <option>Experience</option>
+                <option>Balanced</option>
+              </select>
+            </div>
+          </div>
+          
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setShowCustomizeDialog(false)}>
+              Cancel
+            </Button>
+            <Button className="bg-black text-lime-400" onClick={() => setShowCustomizeDialog(false)}>
+              Apply Changes
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

@@ -26,6 +26,7 @@ import { Progress } from "../ui/progress";
 import { motion, AnimatePresence } from "framer-motion";
 import { useJobMatchStore, JobMatchStep } from "../../store/jobMatchStore";
 import { v4 as uuidv4 } from "uuid";
+import { api } from "../../lib/api";
 
 export function UploadCV() {
   const router = useRouter();
@@ -35,6 +36,7 @@ export function UploadCV() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [dragActive, setDragActive] = useState(false);
   const [activeFileId, setActiveFileId] = useState<string | null>(null);
+  const [error, setError] = useState("");
   
   // Use Zustand store
   const { 
@@ -126,10 +128,11 @@ export function UploadCV() {
     }
   };
 
-  const handleFile = (file: File) => {
+  const handleFile = async (file: File) => {
     // Create a new file object and add to the store
     const newFileId = uuidv4();
     setActiveFileId(newFileId);
+    setError("");
     
     const newCV = {
       id: newFileId,
@@ -139,9 +142,29 @@ export function UploadCV() {
       createdAt: new Date().toISOString().split('T')[0]
     };
     
+    // Add to local store first to show progress
     addCV(newCV);
     setUploadStatus("uploading");
     setUploadProgress(0);
+    
+    try {
+      // Upload to backend API
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      // This will handle the actual upload to the backend
+      const response = await api.uploadCV(formData);
+      
+      // If successful, update the CV with any additional data from the backend
+      if (response && response.id) {
+        // Update the CV in the store with backend data if needed
+        // For now we'll just use the local one
+      }
+    } catch (err) {
+      console.error("Error uploading CV:", err);
+      setError("Failed to upload CV to server. Your CV is saved locally only.");
+      // Still keep the CV in the local store, so the user can continue
+    }
   };
 
   const handleContinue = () => {
@@ -400,6 +423,19 @@ export function UploadCV() {
                 )}
               </Button>
             </div>
+          </motion.div>
+        )}
+
+        {/* Error message when API upload fails */}
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="mt-4 p-4 bg-yellow-50 rounded-lg border border-yellow-100 text-yellow-800 flex items-center gap-2"
+          >
+            <Info className="h-5 w-5 text-yellow-600" />
+            <p className="text-sm">{error}</p>
           </motion.div>
         )}
 

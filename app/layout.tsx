@@ -2,12 +2,21 @@ import type { Metadata } from 'next';
 import { Space_Grotesk } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '../context/AuthContext';
+import dynamic from 'next/dynamic';
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-space-grotesk',
 });
+
+// Dynamically import the debug panel (only loaded in development)
+const DebugPanel = dynamic(() => 
+  process.env.NODE_ENV === 'development' 
+    ? import('../components/debug/DebugPanel')
+    : Promise.resolve(() => null),
+  { ssr: false }
+);
 
 export const metadata: Metadata = {
   title: 'JobFit.AI - AI-Powered Job Matching Platform',
@@ -25,6 +34,7 @@ export default function RootLayout({
         <AuthProvider>
           {children}
         </AuthProvider>
+        <DebugPanel />
       </body>
     </html>
   );

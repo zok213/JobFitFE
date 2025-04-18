@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Switch } from "../ui/switch";
 import { Separator } from "../ui/separator";
-import { ShieldCheck, EyeOff, Eye, BellRing, Lock } from "lucide-react";
+import { ShieldCheck, EyeOff, Eye, BellRing, Lock, AlertCircle, CheckCircle } from "lucide-react";
 
 export const Security = () => {
   const [securitySettings, setSecuritySettings] = useState({
@@ -22,6 +22,10 @@ export const Security = () => {
   });
 
   const [passwordError, setPasswordError] = useState("");
+  const [passwordStrength, setPasswordStrength] = useState<{
+    score: number;
+    feedback: string;
+  }>({ score: 0, feedback: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -36,27 +40,79 @@ export const Security = () => {
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setPasswordData((prev) => ({ ...prev, [name]: value }));
+    
+    if (name === "newPassword") {
+      validatePasswordStrength(value);
+    }
+    
     setPasswordError("");
+  };
+  
+  const validatePasswordStrength = (password: string) => {
+    // Start with a score of 0
+    let score = 0;
+    let feedback = "";
+    
+    if (password.length >= 8) score += 1;
+    if (password.length >= 12) score += 1;
+    if (/[A-Z]/.test(password)) score += 1;
+    if (/[a-z]/.test(password)) score += 1;
+    if (/[0-9]/.test(password)) score += 1;
+    if (/[^A-Za-z0-9]/.test(password)) score += 1;
+    
+    // Provide feedback based on score
+    if (score === 0) {
+      feedback = "Enter a password";
+    } else if (score <= 2) {
+      feedback = "Password is weak";
+    } else if (score <= 4) {
+      feedback = "Password is moderate";
+    } else {
+      feedback = "Password is strong";
+    }
+    
+    setPasswordStrength({ score, feedback });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Simple validation
+    // Required fields
+    if (!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
+      setPasswordError("All password fields are required");
+      return;
+    }
+    
+    // Password matching
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       setPasswordError("Passwords do not match");
       return;
     }
     
-    if (passwordData.newPassword && passwordData.newPassword.length < 8) {
-      setPasswordError("Password must be at least 8 characters");
+    // Password complexity
+    if (passwordStrength.score < 4) {
+      setPasswordError("Please use a stronger password");
+      return;
+    }
+    
+    // Prevent reusing current password
+    if (passwordData.currentPassword === passwordData.newPassword) {
+      setPasswordError("New password cannot be the same as current password");
       return;
     }
 
     setIsSubmitting(true);
     
+    try {
+      // Here you would make an actual API call to update the password
+      // const response = await api.updatePassword({
+      //   currentPassword: passwordData.currentPassword,
+      //   newPassword: passwordData.newPassword
+      // });
+    
     // Simulate API call
-    setTimeout(() => {
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
       setIsSubmitting(false);
       setShowSuccess(true);
       setPasswordData({
@@ -64,11 +120,23 @@ export const Security = () => {
         newPassword: "",
         confirmPassword: ""
       });
+      setPasswordStrength({ score: 0, feedback: "" });
       
       setTimeout(() => {
         setShowSuccess(false);
-      }, 3000);
-    }, 1500);
+      }, 5000);
+    } catch (error) {
+      setIsSubmitting(false);
+      setPasswordError("Failed to update password. Please try again.");
+      console.error("Password update error:", error);
+    }
+  };
+
+  // Password strength indicator colors
+  const getStrengthColor = () => {
+    if (passwordStrength.score <= 2) return "bg-red-500";
+    if (passwordStrength.score <= 4) return "bg-yellow-500";
+    return "bg-green-500";
   };
 
   return (
@@ -93,6 +161,7 @@ export const Security = () => {
                     value={passwordData.currentPassword}
                     onChange={handlePasswordChange}
                     className="bg-gray-50 border-gray-200 pr-10 focus:border-lime-300 focus:ring-lime-300 transition-all"
+                    required
                   />
                   <button
                     type="button"
@@ -119,6 +188,8 @@ export const Security = () => {
                     value={passwordData.newPassword}
                     onChange={handlePasswordChange}
                     className="bg-gray-50 border-gray-200 pr-10 focus:border-lime-300 focus:ring-lime-300 transition-all"
+                    required
+                    aria-describedby="password-requirements"
                   />
                   <button
                     type="button"
@@ -132,6 +203,53 @@ export const Security = () => {
                     )}
                   </button>
                 </div>
+                
+                {passwordData.newPassword && (
+                  <div className="mt-2">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full ${getStrengthColor()}`} 
+                          style={{ width: `${Math.min(100, (passwordStrength.score / 6) * 100)}%` }}
+                        ></div>
+                      </div>
+                      <span className="text-xs text-gray-600">{passwordStrength.feedback}</span>
+                    </div>
+                    
+                    <ul className="text-xs text-gray-500 mt-2 space-y-1" id="password-requirements">
+                      <li className="flex items-center gap-1">
+                        {passwordData.newPassword.length >= 8 ? 
+                          <CheckCircle className="h-3 w-3 text-green-500" /> : 
+                          <AlertCircle className="h-3 w-3 text-gray-400" />}
+                        At least 8 characters
+                      </li>
+                      <li className="flex items-center gap-1">
+                        {/[A-Z]/.test(passwordData.newPassword) ? 
+                          <CheckCircle className="h-3 w-3 text-green-500" /> : 
+                          <AlertCircle className="h-3 w-3 text-gray-400" />}
+                        Upper case letter
+                      </li>
+                      <li className="flex items-center gap-1">
+                        {/[a-z]/.test(passwordData.newPassword) ? 
+                          <CheckCircle className="h-3 w-3 text-green-500" /> : 
+                          <AlertCircle className="h-3 w-3 text-gray-400" />}
+                        Lower case letter
+                      </li>
+                      <li className="flex items-center gap-1">
+                        {/[0-9]/.test(passwordData.newPassword) ? 
+                          <CheckCircle className="h-3 w-3 text-green-500" /> : 
+                          <AlertCircle className="h-3 w-3 text-gray-400" />}
+                        Number
+                      </li>
+                      <li className="flex items-center gap-1">
+                        {/[^A-Za-z0-9]/.test(passwordData.newPassword) ? 
+                          <CheckCircle className="h-3 w-3 text-green-500" /> : 
+                          <AlertCircle className="h-3 w-3 text-gray-400" />}
+                        Special character
+                      </li>
+                    </ul>
+                  </div>
+                )}
               </div>
               
               <div className="space-y-2">
@@ -144,11 +262,18 @@ export const Security = () => {
                   value={passwordData.confirmPassword}
                   onChange={handlePasswordChange}
                   className="bg-gray-50 border-gray-200 focus:border-lime-300 focus:ring-lime-300 transition-all"
+                  required
                 />
+                {passwordData.newPassword && passwordData.confirmPassword && passwordData.newPassword !== passwordData.confirmPassword && (
+                  <p className="text-xs text-red-500 mt-1">Passwords don't match</p>
+                )}
               </div>
               
               {passwordError && (
-                <div className="text-red-500 text-sm py-1">{passwordError}</div>
+                <div className="text-red-500 text-sm py-1 bg-red-50 border border-red-200 rounded px-3 flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4" />
+                  {passwordError}
+                </div>
               )}
               
               <div className="flex justify-end mt-2">

@@ -65,3 +65,6 @@ package-lock.json
 .swc/
 
 API_ENDPOINTS.md
+
+__mocks__/
+__tests__/
