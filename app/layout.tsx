@@ -10,8 +10,8 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: 'JobFit.AI - AI-Powered Job Matching Platform',
-  description: 'Find the perfect job match with our AI-powered platform. Smart job searching and recruiting made easy.',
+  title: 'JobFit AI - Find Your Perfect Career Path',
+  description: 'AI-powered career guidance and job matching platform',
 };
 
 export default function RootLayout({

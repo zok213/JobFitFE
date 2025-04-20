@@ -22,6 +22,7 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -45,10 +46,12 @@ const Register = () => {
     }
     
     try {
-      await register(formData.email, formData.username, formData.password);
+      await register(formData.email, formData.password);
       // Redirect will be handled by auth state change or confirmation email
     } catch (err: any) {
       setError(err.message || "Failed to create account");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 

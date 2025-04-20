@@ -69,7 +69,7 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
           src={illustration}
           alt={`${title} illustration`}
           fill
-          className="object-contain"
+          style={{ objectFit: "contain" }}
           sizes="(max-width: 768px) 120px, 140px"
         />
       </div>

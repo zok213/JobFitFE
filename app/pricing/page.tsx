@@ -7,7 +7,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Check, X, Zap, ArrowRight, Users, Building, Briefcase, Star, Shield, Clock } from "lucide-react";
+import { Check, X, Zap, ArrowRight, Users, Building, Briefcase, Star, Shield, Clock, Trophy } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -24,13 +24,12 @@ export default function PricingPage() {
         monthly: 0,
         annual: 0,
       },
-      description: "Basic features for students and job seekers",
+      description: "Ideal for individuals starting their job search journey.",
       features: [
-        "3 Job matches per month",
-        "Basic CV analysis",
-        "5 AI interview practice sessions",
-        "Basic career roadmap",
-        "Community support",
+        "Up to 5 job matches per month",
+        "Basic CV feedback",
+        "Access to job search tips",
+        "Limited access to interview preparation",
       ],
       limitations: [
         "Limited job matches",
@@ -41,31 +40,66 @@ export default function PricingPage() {
       ],
       cta: "Get Started Free",
       ctaLink: "/register",
-      icon: <Briefcase className="h-5 w-5" />,
+      icon: <Briefcase size={20} />,
     },
     {
       name: "Pro",
       popular: true,
       price: {
-        monthly: 19.99,
-        annual: 14.99,
+        monthly: 19,
+        annual: 199,
       },
-      description: "Advanced features for serious career advancement",
+      description: "Perfect for active job seekers who need comprehensive tools.",
       features: [
         "Unlimited job matches",
-        "Advanced CV analysis & optimization",
+        "Advanced CV analysis and improvement",
         "Unlimited AI interview practice",
         "Personalized career roadmap",
         "Priority support",
-        "Performance tracking & analytics",
-        "Industry insights & salary data",
-        "Resume export in multiple formats",
-        "Personal career coach AI",
       ],
       limitations: [],
       cta: "Upgrade to Pro",
       ctaLink: "/register?plan=pro",
-      icon: <Star className="h-5 w-5" />,
+      icon: <Star size={20} />,
+    },
+    {
+      name: "Teams",
+      description: "For career centers and educational institutions.",
+      price: {
+        monthly: 99,
+        annual: 999,
+      },
+      features: [
+        "Everything in Pro plan",
+        "Up to 50 team members",
+        "Team analytics dashboard",
+        "Bulk CV processing",
+        "Dedicated account manager",
+        "Custom integrations",
+      ],
+      cta: "Contact Sales",
+      ctaLink: "/contact",
+      icon: <Users size={20} />,
+    },
+    {
+      name: "Enterprise",
+      price: {
+        monthly: "Custom",
+        annual: "Custom",
+      },
+      description: "Customized solutions for large organizations.",
+      features: [
+        "Everything in Teams plan",
+        "Unlimited team members",
+        "Advanced analytics & reporting",
+        "Custom AI training",
+        "API access",
+        "SLA agreement",
+        "White-label options",
+      ],
+      cta: "Contact Sales",
+      ctaLink: "/contact",
+      icon: <Building size={20} />,
     },
   ];
 
@@ -94,7 +128,7 @@ export default function PricingPage() {
       ],
       cta: "Start Recruiting",
       ctaLink: "/register?role=employer&plan=starter",
-      icon: <Building className="h-5 w-5" />,
+      icon: <Building size={20} />,
     },
     {
       name: "Business",
@@ -119,7 +153,7 @@ export default function PricingPage() {
       limitations: [],
       cta: "Choose Business",
       ctaLink: "/register?role=employer&plan=business",
-      icon: <Star className="h-5 w-5" />,
+      icon: <Star size={20} />,
     },
     {
       name: "Enterprise",
@@ -144,12 +178,19 @@ export default function PricingPage() {
       limitations: [],
       cta: "Contact Sales",
       ctaLink: "/contact?enterprise=true",
-      icon: <Shield className="h-5 w-5" />,
+      icon: <Shield size={20} />,
     },
   ];
 
-  const employeeAnnualDiscount = Math.round(((employeeTiers[1].price.monthly * 12) - (employeeTiers[1].price.annual * 12)) / (employeeTiers[1].price.monthly * 12) * 100);
-  const employerAnnualDiscount = Math.round(((employerTiers[1].price.monthly * 12) - (employerTiers[1].price.annual * 12)) / (employerTiers[1].price.monthly * 12) * 100);
+  const employeeAnnualDiscount = Math.round(
+    ((Number(employeeTiers[1].price.monthly) * 12) - Number(employeeTiers[1].price.annual)) / 
+    (Number(employeeTiers[1].price.monthly) * 12) * 100
+  );
+  
+  const employerAnnualDiscount = Math.round(
+    ((Number(employerTiers[1].price.monthly) * 12) - Number(employerTiers[1].price.annual)) / 
+    (Number(employerTiers[1].price.monthly) * 12) * 100
+  );
 
   const fadeIn = {
     hidden: { opacity: 0, y: 20 },
@@ -191,14 +232,14 @@ export default function PricingPage() {
                     value="employee" 
                     className="data-[state=active]:bg-zinc-900 data-[state=active]:text-lime-300 rounded-full p-3 transition-all"
                   >
-                    <Users className="mr-2 h-4 w-4" />
+                    <Users size={20} className="mr-2 h-4 w-4" />
                     Job Seekers
                   </TabsTrigger>
                   <TabsTrigger 
                     value="employer" 
                     className="data-[state=active]:bg-zinc-900 data-[state=active]:text-lime-300 rounded-full p-3 transition-all"
                   >
-                    <Building className="mr-2 h-4 w-4" />
+                    <Building size={20} className="mr-2 h-4 w-4" />
                     Employers
                   </TabsTrigger>
                 </TabsList>
@@ -260,7 +301,7 @@ export default function PricingPage() {
                         {tier.popular && (
                           <div className="bg-lime-300 py-2 text-center relative">
                             <span className="font-medium text-black text-sm flex items-center justify-center">
-                              <Star className="h-4 w-4 mr-1 fill-black" /> MOST POPULAR
+                              <Star size={20} className="h-4 w-4 mr-1 fill-black" /> MOST POPULAR
                             </span>
                             <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[8px] border-t-lime-300"></div>
                           </div>
@@ -274,13 +315,19 @@ export default function PricingPage() {
                           <h2 className="text-2xl font-bold text-zinc-900 text-center">{tier.name}</h2>
                           <div className="mt-4 mb-2 text-center">
                             <span className="text-4xl font-bold text-zinc-900">
-                              ${tier.price[billingCycle].toFixed(2)}
+                              ${typeof tier.price[billingCycle] === 'number' 
+                                ? (tier.price[billingCycle] as number).toFixed(2)
+                                : tier.price[billingCycle]}
                             </span>
                             <span className="text-gray-500">/month</span>
                           </div>
-                          {billingCycle === "annual" && tier.price[billingCycle] > 0 && (
+                          {billingCycle === "annual" && 
+                            (typeof tier.price[billingCycle] === 'number' && 
+                             Number(tier.price[billingCycle]) > 0) && (
                             <p className="text-sm text-gray-500 text-center">
-                              Billed as ${(tier.price[billingCycle] * 12).toFixed(2)} per year
+                              Billed as ${typeof tier.price[billingCycle] === 'number' ? 
+                                (Number(tier.price[billingCycle]) * 12).toFixed(2) : 
+                                tier.price[billingCycle]} per year
                             </p>
                           )}
                           <p className="text-gray-600 mt-2 text-center">{tier.description}</p>
@@ -300,17 +347,15 @@ export default function PricingPage() {
                             ))}
                           </ul>
                           
-                          {tier.limitations.length > 0 && (
+                          {tier.limitations && tier.limitations.length > 0 && (
                             <>
                               <h3 className="font-semibold mb-3 mt-6 text-zinc-900 flex items-center">
-                                <X className="h-4 w-4 text-gray-400 mr-2" /> Limitations:
+                                <X size={16} className="text-gray-400 mr-2" /> Limitations:
                               </h3>
-                              <ul className="space-y-3">
-                                {tier.limitations.map((limitation, j) => (
-                                  <li key={j} className="flex items-start text-gray-500">
-                                    <div className="h-5 w-5 rounded-full bg-gray-100 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
-                                      <X className="h-3 w-3 text-gray-400" />
-                                    </div>
+                              <ul className="space-y-2 text-gray-500 text-sm">
+                                {tier.limitations.map((limitation, i) => (
+                                  <li key={i} className="flex items-start">
+                                    <X size={16} className="text-gray-400 mr-2 mt-0.5" />
                                     <span>{limitation}</span>
                                   </li>
                                 ))}
@@ -449,7 +494,7 @@ export default function PricingPage() {
                         {tier.popular && (
                           <div className="bg-lime-300 py-2 text-center relative">
                             <span className="font-medium text-black text-sm flex items-center justify-center">
-                              <Star className="h-4 w-4 mr-1 fill-black" /> MOST POPULAR
+                              <Star size={20} className="h-4 w-4 mr-1 fill-black" /> MOST POPULAR
                             </span>
                             <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[8px] border-t-lime-300"></div>
                           </div>
@@ -463,13 +508,19 @@ export default function PricingPage() {
                           <h2 className="text-2xl font-bold text-zinc-900 text-center">{tier.name}</h2>
                           <div className="mt-4 mb-2 text-center">
                             <span className="text-4xl font-bold text-zinc-900">
-                              ${tier.price[billingCycle]}
+                              ${typeof tier.price[billingCycle] === 'number' 
+                                ? (tier.price[billingCycle] as number).toFixed(2)
+                                : tier.price[billingCycle]}
                             </span>
                             <span className="text-gray-500">/month</span>
                           </div>
-                          {billingCycle === "annual" && tier.price[billingCycle] > 0 && (
+                          {billingCycle === "annual" && 
+                            (typeof tier.price[billingCycle] === 'number' && 
+                             Number(tier.price[billingCycle]) > 0) && (
                             <p className="text-sm text-gray-500 text-center">
-                              Billed as ${(tier.price[billingCycle] * 12)} per year
+                              Billed as ${typeof tier.price[billingCycle] === 'number' ? 
+                                (Number(tier.price[billingCycle]) * 12).toFixed(2) : 
+                                tier.price[billingCycle]} per year
                             </p>
                           )}
                           <p className="text-gray-600 mt-2 text-center">{tier.description}</p>
@@ -492,14 +543,12 @@ export default function PricingPage() {
                           {tier.limitations && tier.limitations.length > 0 && (
                             <>
                               <h3 className="font-semibold mb-3 mt-6 text-zinc-900 flex items-center">
-                                <X className="h-4 w-4 text-gray-400 mr-2" /> Limitations:
+                                <X size={16} className="text-gray-400 mr-2" /> Limitations:
                               </h3>
-                              <ul className="space-y-3">
-                                {tier.limitations.map((limitation, j) => (
-                                  <li key={j} className="flex items-start text-gray-500">
-                                    <div className="h-5 w-5 rounded-full bg-gray-100 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
-                                      <X className="h-3 w-3 text-gray-400" />
-                                    </div>
+                              <ul className="space-y-2 text-gray-500 text-sm">
+                                {tier.limitations.map((limitation, i) => (
+                                  <li key={i} className="flex items-start">
+                                    <X size={16} className="text-gray-400 mr-2 mt-0.5" />
                                     <span>{limitation}</span>
                                   </li>
                                 ))}

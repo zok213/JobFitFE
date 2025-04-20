@@ -17,7 +17,7 @@ export const ColleagueFinderSection = () => {
             Contact us today to discover how our AI-powered hiring platform can connect you with the right talent effortlessly!
           </p>
           <Link href="/register" className="mt-4">
-            <Button className="bg-zinc-900 text-lime-300 hover:bg-lime-300 hover:text-zinc-900 transition-all px-6 py-3">
+            <Button variant="default">
               Get your free trial
             </Button>
           </Link>
@@ -28,7 +28,7 @@ export const ColleagueFinderSection = () => {
             src="/img/Find_Your_Perfect_Colleague.png"
             alt="Find Your Perfect Colleague"
             fill
-            className="object-contain"
+            style={{ objectFit: "contain" }}
             sizes="(max-width: 768px) 100vw, 50vw"
           />
         </div>

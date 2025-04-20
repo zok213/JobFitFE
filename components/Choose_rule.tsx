@@ -6,11 +6,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import Image from "next/image";
 import { useAuth } from "../context/AuthContext";
 import { Loader2 } from "lucide-react";
+import { useRouter } from 'next/navigation';
+import { UserRole } from '@/lib/auth-types';
 
 const ChooseRole = () => {
-  const { setUserRole, isLoading } = useAuth();
+  const { setUser, user, isLoading } = useAuth();
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
 
   // Data for role options
   const roleOptions = [
@@ -30,23 +33,30 @@ const ChooseRole = () => {
     setSelectedRole(roleId);
   };
 
-  const handleContinue = () => {
-    if (!selectedRole) {
-      alert("Please select a role to continue");
-      return;
-    }
+  const handleSubmit = async () => {
+    if (!selectedRole) return;
     
     setIsSubmitting(true);
     
-    // Update the user's role in the auth context
-    setUserRole(selectedRole as "employee" | "employer");
-    
-    console.log("Selected role:", selectedRole);
-    // Redirect to confirmation page after role selection
-    if (selectedRole === "employer") {
-      window.location.href = "/employer/dashboard";
-    } else {
-      window.location.href = "/confirmation";
+    try {
+      // Update the user's role using the setUser function
+      if (user) {
+        setUser({
+          ...user,
+          role: selectedRole as UserRole
+        });
+      }
+      
+      // Redirect based on role
+      if (selectedRole === UserRole.EMPLOYER) {
+        router.push('/employer/dashboard');
+      } else {
+        router.push('/dashboard');
+      }
+    } catch (error) {
+      console.error('Error setting user role:', error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -108,7 +118,7 @@ const ChooseRole = () => {
           </div>
           
           <Button
-            onClick={handleContinue}
+            onClick={handleSubmit}
             className="mt-10 px-8 py-3 bg-zinc-900 text-lime-300 hover:bg-lime-300 hover:text-zinc-900 transition-all w-1/2"
             disabled={isLoading || isSubmitting || !selectedRole}
           >

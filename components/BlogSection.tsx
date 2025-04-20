@@ -50,9 +50,9 @@ export const BlogSection = () => {
       {/* Single Learn More button */}
       <div className="flex justify-center mt-8">
         <Link href="/blog">
-          <Button className="bg-lime-300 hover:bg-lime-400 text-zinc-900 font-medium">
+          <Button variant="default">
             Learn more
-            <ArrowRight className="ml-2 h-4 w-4" />
+            <ArrowRight size={16} />
           </Button>
         </Link>
       </div>

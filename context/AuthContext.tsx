@@ -288,49 +288,53 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [updateAuthState, showToast, redirectToRolePage]);
 
-  // Register function
-  const register = useCallback(async (email: string, username: string, password: string, preferredRole?: UserRole) => {
+  // Register a new user
+  const register = async (
+    email: string, 
+    password: string,
+    role?: UserRole
+  ): Promise<{success: boolean, error?: string}> => {
     try {
       updateAuthState({ isLoading: true, error: null });
       
+      // For development/testing
       if (isMockAuthEnabled) {
-        // For testing only - simulate registration
-        const newId = Math.random().toString(36).substring(2, 15);
-        const newUser = {
-          id: newId,
+        const mockUser = {
+          id: Math.random().toString(36).substring(2),
           email,
           password,
-          username,
-          role: preferredRole || UserRole.JOBSEEKER,
-          avatarUrl: `https://ui-avatars.com/api/?name=${username.replace(' ', '+')}`
+          role: role || UserRole.JOBSEEKER
         };
         
-        // Add the mock user to local storage
-        localStorage.setItem('mock_user', JSON.stringify(newUser));
+        // Store mock user and auth state
+        localStorage.setItem('mock_user', JSON.stringify(mockUser));
         
-        updateAuthState({ user: {
-          id: newId,
-          email,
-          username,
-          role: preferredRole || UserRole.JOBSEEKER,
-          avatarUrl: `https://ui-avatars.com/api/?name=${username.replace(' ', '+')}`,
-          emailConfirmed: true,
-          isNewUser: true
-        } });
+        const username = email.split('@')[0];
+        
+        updateAuthState({ 
+          user: { 
+            id: mockUser.id, 
+            email: mockUser.email, 
+            role: mockUser.role,
+            username,
+            avatarUrl: `https://ui-avatars.com/api/?name=${username.replace(' ', '+')}`,
+            emailConfirmed: true,
+            isNewUser: true
+          } 
+        });
         
         updateAuthState({ isLoading: false });
+        
         showToast('Registration successful', 'Your account has been created!', 'success');
         
-        // Direct to choose role page by default, unless a role was specified
-        if (preferredRole) {
-          if (preferredRole === UserRole.EMPLOYER) {
-            router.push('/employer/dashboard');
-          } else {
-            router.push('/dashboard');
-          }
-        } else {
-          router.push('/choose-role');
-        }
+        // Redirect based on role
+        redirectToRolePage({ 
+          id: mockUser.id, 
+          email: mockUser.email, 
+          role: mockUser.role,
+          username,
+          emailConfirmed: true
+        });
         
         return { success: true };
       }
@@ -341,8 +345,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         password,
         options: {
           data: {
-            username,
-            role: preferredRole || UserRole.JOBSEEKER,
+            username: email.split('@')[0],
+            role: role || UserRole.JOBSEEKER,
             is_new_user: true
           }
         }
@@ -382,16 +386,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           updateAuthState({ isLoading: false });
           showToast('Registration successful', 'Your account has been created!', 'success');
           
-          // Direct to choose role page by default, unless a role was specified
-          if (preferredRole) {
-            if (preferredRole === UserRole.EMPLOYER) {
-              router.push('/employer/dashboard');
-            } else {
-              router.push('/dashboard');
-            }
-          } else {
-            router.push('/choose-role');
-          }
+          // Redirect based on role
+          redirectToRolePage(appUser);
           
           return { success: true };
         }
@@ -407,7 +403,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       showToast('Registration failed', errorMessage, 'error');
       return { success: false, error: errorMessage };
     }
-  }, [updateAuthState, showToast, router]);
+  };
 
   // Reset password function
   const resetPassword = useCallback(async (email: string) => {
@@ -581,71 +577,33 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return userRole === requiredRoles;
   }, [user]);
 
-  // Refresh session function
-  const refreshSession = useCallback(async (): Promise<boolean> => {
+  // Function to refresh the session
+  const refreshSession = async (): Promise<{success: boolean, error?: string}> => {
     try {
-      if (isMockAuthEnabled && !session) {
-        // If using mock auth and no session, just return true
-        return true;
+      const { data, error } = await supabase.auth.refreshSession();
+      
+      if (error) {
+        console.error('Error refreshing session:', error);
+        return { success: false, error: error.message };
       }
       
-      // Get current session
-      const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError) {
-        console.error('Error getting current session:', sessionError);
-        return false;
-      }
-      
-      if (!currentSession) {
-        console.log('No active session to refresh');
-        return false;
-      }
-      
-      // Check if we need to refresh the token
-      const expiryTime = getSessionExpiryTime(currentSession);
-      const currentTime = Date.now();
-      const timeToExpiry = expiryTime - currentTime;
-      
-      // If token expires in less than 5 minutes, refresh it
-      if (timeToExpiry < 5 * 60 * 1000) {
-        console.log('Token expiring soon, refreshing...');
+      if (data && data.session) {
+        updateAuthState({ session: data.session });
         
-        const { data, error } = await supabase.auth.refreshSession();
-        
-        if (error) {
-          console.error('Error refreshing session:', error);
-          
-          // If we couldn't refresh the token and it's expired, log the user out
-          if (expiryTime <= currentTime) {
-            await logout();
-            showToast('Session expired', 'Please log in again', 'info');
-          }
-          
-          return false;
+        if (data.user) {
+          const appUser = mapSupabaseUser(data.user);
+          updateAuthState({ user: appUser });
         }
         
-        if (data.session) {
-          // Update session state
-          updateAuthState({ session: data.session });
-          persistSession(data.session);
-          
-          // Update user state if user data changed
-          if (data.user) {
-            const updatedUser = mapSupabaseUser(data.user);
-            updateAuthState({ user: updatedUser });
-          }
-          
-          return true;
-        }
+        return { success: true };
       }
       
-      return true;
-    } catch (error) {
-      console.error('Error refreshing session:', error);
-      return false;
+      return { success: false, error: 'No session data returned' };
+    } catch (error: any) {
+      console.error('Error in refreshSession:', error);
+      return { success: false, error: error.message || 'Failed to refresh session' };
     }
-  }, [updateAuthState, isMockAuthEnabled, session, logout, showToast]);
+  };
 
   // Setup auth state listener
   useEffect(() => {
@@ -717,8 +675,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
   }, [initializeAuth, setupSessionRefresher, updateAuthState, refreshSession]);
 
-  // Create memoized context value to prevent unnecessary re-renders
-  const contextValue = useMemo<AuthContextType>(() => ({
+  // Set the current user - used for external updates
+  const setUser = (newUser: User) => {
+    updateAuthState({ user });
+  };
+
+  // Computed property for authentication status
+  const isAuthenticated = !!user;
+
+  // Create the context value object with all required properties
+  const contextValue: AuthContextType = {
     user,
     session,
     isLoading,
@@ -728,15 +694,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     register,
     resetPassword,
     updatePassword,
-    setUserRole,
     logout,
-    checkRole,
+    setUser,
+    isAuthenticated,
     refreshSession
-  }), [
-    user, session, isLoading, isInitialized, error,
-    login, register, resetPassword, updatePassword, 
-    setUserRole, logout, checkRole, refreshSession
-  ]);
+  };
 
   return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
 };

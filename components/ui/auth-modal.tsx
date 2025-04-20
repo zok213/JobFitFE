@@ -19,6 +19,7 @@ export function AuthModal({ isOpen, onClose, initialView = "signin" }: AuthModal
   const [showPassword, setShowPassword] = useState(false);
   const { login, register, isLoading } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState({ general: "" });
 
   const [formData, setFormData] = useState({
     email: "",
@@ -47,11 +48,11 @@ export function AuthModal({ isOpen, onClose, initialView = "signin" }: AuthModal
         return;
       }
       try {
-        await register(formData.email, formData.username, formData.password);
+        await register(formData.email, formData.password);
         onClose();
       } catch (error: any) {
         console.error("Registration error:", error);
-        alert(error.message || "Failed to create account");
+        setErrors({ ...errors, general: error.message || "Registration failed" });
       } finally {
         setIsSubmitting(false);
       }
