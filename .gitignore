@@ -63,8 +63,11 @@ package-lock.json
 
 # Cache
 .swc/
+<<<<<<< HEAD
 
 API_ENDPOINTS.md
 
 __mocks__/
 __tests__/
+=======
+>>>>>>> 4fe7240 (Remove API_ENDPOINTS.md from .gitignore and clean up whitespace)
