@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { DashboardShell } from "@/components/DashboardShell";
 import { RoadmapLayout } from "@/components/ai-roadmap/RoadmapLayout";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ export default function RoadmapVisualizerPage() {
   const [roadmapData, setRoadmapData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Fetch the roadmap data from localStorage
@@ -60,6 +61,14 @@ export default function RoadmapVisualizerPage() {
     fetchRoadmap();
   }, []);
 
+  // Sử dụng useEffect để kích hoạt scripts sau khi HTML được render
+  useEffect(() => {
+    if (roadmapData?.htmlContent && contentRef.current) {
+      // Đã chuyển sang HTML tĩnh không cần scripts
+      console.log("Roadmap content loaded successfully");
+    }
+  }, [roadmapData]);
+
   return (
     <DashboardShell activeNavItem="roadmap" userRole="employee">
       <RoadmapLayout activeStep="visualizer">
@@ -96,13 +105,14 @@ export default function RoadmapVisualizerPage() {
           // Success state - render the roadmap
           <div className="relative bg-white shadow-md rounded-lg max-w-6xl mx-auto p-6 md:p-8">
             {roadmapData.htmlContent ? (
-              // Hiển thị nội dung HTML nếu có sẵn
+              // Hiển thị nội dung HTML
               <div
-                className="prose prose-lg max-w-full dark:prose-invert prose-headings:font-medium prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-li:marker:text-lime-500 prose-a:text-lime-600 prose-a:no-underline hover:prose-a:underline"
+                ref={contentRef}
+                className="prose prose-lg max-w-full dark:prose-invert"
                 dangerouslySetInnerHTML={{ __html: roadmapData.htmlContent }}
               ></div>
             ) : (
-              // Fallback sang Markdown nếu không có HTML
+              // Fallback sang Markdown
               <div className="prose prose-lg max-w-full dark:prose-invert prose-headings:font-medium prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-li:marker:text-lime-500 prose-a:text-lime-600 prose-a:no-underline hover:prose-a:underline">
                 <ReactMarkdown>{roadmapData.markdownContent}</ReactMarkdown>
               </div>

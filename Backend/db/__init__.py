@@ -1,1 +1,0 @@
-# JobFit.AI Database configuration 
