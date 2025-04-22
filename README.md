@@ -20,6 +20,31 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Python API Server (For Roadmap Generation)
+
+To use the roadmap generation feature which connects to Jina AI API, you need to run the Python backend:
+
+```bash
+# Navigate to Backend directory
+cd Backend
+
+# Install Python dependencies
+pip install -r requirements.txt
+
+# Run the API server
+python run_simple_server.py
+```
+
+The Python API server will run on [http://localhost:8000](http://localhost:8000) and will handle requests from the frontend to communicate with Jina AI API.
+
+## Environment Variables
+
+Create a `.env.local` file in the root directory with the following variables:
+
+```
+NEXT_PUBLIC_API_URL=http://localhost:8000
+```
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

@@ -1,13 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import { DashboardShell } from "@/components/DashboardShell";
-import { RoadmapVisualizer } from "@/components/ai-roadmap/RoadmapVisualizer";
 import { RoadmapLayout } from "@/components/ai-roadmap/RoadmapLayout";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { LinkButton } from "@/components/LinkButton";
+import ReactMarkdown from "react-markdown";
 
 export default function RoadmapVisualizerPage() {
   const router = useRouter();
@@ -16,71 +15,48 @@ export default function RoadmapVisualizerPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Fetch the roadmap data from the API or local storage
-    // In a real app, this would retrieve the data from the API response
-    // For now, we'll simulate a loading delay and use mock data
+    // Fetch the roadmap data from localStorage
     const fetchRoadmap = async () => {
       try {
-        setIsLoading(true);
-        
-        // In a real implementation, this would be:
-        // const response = await fetch('/api/roadmap/get-latest');
-        // const data = await response.json();
-        
-        // Simulate API call delay
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        
-        // Mock data
-        const mockData = {
-          roadmapTitle: "Frontend Developer to Senior Engineer Career Path",
-          steps: [
-            {
-              id: "step1",
-              title: "Foundation Building",
-              description: "Strengthen your core frontend development skills and build a solid foundation",
-              timeframe: "0-6 months",
-              estimatedDuration: "6 months",
-              type: "learning",
-              skills: [
-                { name: "HTML5", level: 85, type: "technical" },
-                { name: "CSS3", level: 80, type: "technical" },
-                { name: "JavaScript", level: 75, type: "technical" },
-                { name: "Responsive Design", level: 70, type: "technical" },
-                { name: "Web Accessibility", level: 60, type: "technical" },
-                { name: "Self-Learning", level: 85, type: "soft" },
-              ],
-              resources: [
-                { 
-                  title: "Modern JavaScript Course",
-                  link: "https://example.com/js-course",
-                  type: "course"
-                },
-                {
-                  title: "Frontend Developer Handbook",
-                  link: "https://example.com/fe-handbook",
-                  type: "book"
-                }
-              ],
-              milestones: [
-                { title: "Build a responsive portfolio website", completed: false },
-                { title: "Complete JavaScript fundamentals course", completed: false },
-                { title: "Implement accessibility standards in projects", completed: false }
-              ]
-            },
-            // Additional steps excluded for brevity but would be included in the actual data
-          ],
-          currentProgress: 35
-        };
-        
-        setRoadmapData(mockData);
+        const data = localStorage.getItem("roadmapData");
+
+        if (!data) {
+          setError(
+            "Không tìm thấy dữ liệu lộ trình. Vui lòng tạo lộ trình trước."
+          );
+          setIsLoading(false);
+          return;
+        }
+
+        const parsedData = JSON.parse(data);
+
+        if (parsedData.error) {
+          setError(`Lỗi: ${parsedData.error}`);
+          setIsLoading(false);
+          return;
+        }
+
+        if (!parsedData.text && !parsedData.html) {
+          setError("Dữ liệu lộ trình không hợp lệ hoặc trống.");
+          setIsLoading(false);
+          return;
+        }
+
+        console.log("Displaying roadmap data:", parsedData);
+
+        setRoadmapData({
+          markdownContent: parsedData.text,
+          htmlContent: parsedData.html,
+        });
+
         setIsLoading(false);
       } catch (error) {
-        console.error('Error fetching roadmap data:', error);
-        setError('Failed to load your career roadmap. Please try again.');
+        console.error("Error processing roadmap data:", error);
+        setError("Không thể tải dữ liệu lộ trình. Vui lòng thử lại.");
         setIsLoading(false);
       }
     };
-    
+
     fetchRoadmap();
   }, []);
 
@@ -93,30 +69,64 @@ export default function RoadmapVisualizerPage() {
             <div className="flex items-center justify-center bg-lime-100 rounded-full w-16 h-16 mb-4">
               <Loader2 className="h-8 w-8 text-lime-600 animate-spin" />
             </div>
-            <h3 className="text-xl font-semibold mb-2">Generating Your Career Roadmap</h3>
+            <h3 className="text-xl font-semibold mb-2">
+              Đang tạo lộ trình sự nghiệp của bạn
+            </h3>
             <p className="text-gray-500 text-center max-w-md">
-              We're analyzing your goals and creating a personalized development path with milestones and resources.
+              Chúng tôi đang phân tích mục tiêu của bạn và tạo lộ trình phát
+              triển cá nhân với các mốc quan trọng và tài nguyên.
             </p>
           </div>
         ) : error ? (
           // Error state
           <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
-            <div className="bg-red-100 text-red-800 p-4 rounded-lg max-w-md mb-6">
+            <div className="bg-red-100 text-red-800 p-6 rounded-lg max-w-md mb-6 flex items-start">
+              <AlertTriangle className="h-6 w-6 mr-3 mt-0.5 flex-shrink-0" />
               <p>{error}</p>
             </div>
-            <Button onClick={() => router.push('/roadmap')}>
-              Go Back & Try Again
+            <Button
+              onClick={() => router.push("/roadmap")}
+              className="bg-black text-lime-300 hover:bg-gray-800"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Quay lại và thử lại
             </Button>
           </div>
         ) : (
           // Success state - render the roadmap
-          <RoadmapVisualizer 
-            roadmapTitle={roadmapData.roadmapTitle} 
-            steps={roadmapData.steps}
-            currentProgress={roadmapData.currentProgress}
-          />
+          <div className="relative bg-white shadow-md rounded-lg max-w-6xl mx-auto p-6 md:p-8">
+            {roadmapData.htmlContent ? (
+              // Hiển thị nội dung HTML nếu có sẵn
+              <div
+                className="prose prose-lg max-w-full dark:prose-invert prose-headings:font-medium prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-li:marker:text-lime-500 prose-a:text-lime-600 prose-a:no-underline hover:prose-a:underline"
+                dangerouslySetInnerHTML={{ __html: roadmapData.htmlContent }}
+              ></div>
+            ) : (
+              // Fallback sang Markdown nếu không có HTML
+              <div className="prose prose-lg max-w-full dark:prose-invert prose-headings:font-medium prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-li:marker:text-lime-500 prose-a:text-lime-600 prose-a:no-underline hover:prose-a:underline">
+                <ReactMarkdown>{roadmapData.markdownContent}</ReactMarkdown>
+              </div>
+            )}
+
+            <div className="mt-8 flex justify-end">
+              <Button
+                onClick={() => router.push("/roadmap")}
+                variant="outline"
+                className="mr-2"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Quay lại
+              </Button>
+              <Button
+                onClick={() => window.print()}
+                className="bg-black text-lime-300 hover:bg-gray-800"
+              >
+                Lưu lộ trình
+              </Button>
+            </div>
+          </div>
         )}
       </RoadmapLayout>
     </DashboardShell>
   );
-} 
+}
