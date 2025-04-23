@@ -3,10 +3,10 @@
 import React from "react";
 import { useAuth } from "@/context/AuthContext";
 import { redirect } from "next/navigation";
-import EmployerSidebar from "@/components/EmployerSidebar";
+import EmployeeSidebar from "@/components/EmployeeSidebar";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
-export default function EmployerLayout({
+export default function EmployeeLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -22,15 +22,15 @@ export default function EmployerLayout({
     );
   }
 
-  // Check if user is authenticated and has employer role
-  if (!user || (user.role !== "employer" && user.role !== "admin")) {
+  // Check if user is authenticated and has employee role
+  if (!user || (user.role !== "employee" && user.role !== "admin")) {
     redirect("/unauthorized");
   }
 
   return (
-    <div className="flex h-screen bg-gray-900">
-      <EmployerSidebar />
-      <main className="flex-1 overflow-y-auto p-8 bg-gray-100">
+    <div className="flex h-screen bg-gray-50">
+      <EmployeeSidebar />
+      <main className="flex-1 overflow-y-auto p-8">
         {children}
       </main>
     </div>

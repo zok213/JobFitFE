@@ -1,36 +1,117 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# JobFit.AI - AI-Powered Job Matching Platform
+
+JobFit.AI is a modern job matching platform that uses AI to connect job seekers with their ideal roles and employers with their perfect candidates.
+
+## Features
+
+- **AI Job Matching**: Smart algorithms to match candidates with job postings
+- **CV Assistant**: AI-powered resume optimization
+- **AI Interviewer**: Practice interviews with AI feedback
+- **Career Roadmap**: Personalized career development paths
+- **Role-Based Access Control**: Separate dashboards for employees, employers, and administrators
+
+## Role-Based Access Control (RBAC)
+
+JobFit.AI implements RBAC with Supabase for authentication and authorization with three distinct user roles:
+
+1. **Admin**: Full access to the admin dashboard with system management capabilities
+2. **Employee**: Access to job seeking features including AI job matching, CV assistance, interviewing, and career roadmap
+3. **Employer**: Access to recruitment tools including job posting, candidate matching, and analytics
+
+### Demo Accounts
+
+The system comes with pre-configured demo accounts for testing:
+
+- **Admin Account**
+  - Email: admin@jobfit.com
+  - Password: Admin@123456
+
+- **Employer Account**
+  - Email: employer@jobfit.com
+  - Password: Employer@123456
+
+- **Employee Account**
+  - Email: employee@jobfit.com
+  - Password: Employee@123456
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Node.js 16.x or higher
+- Supabase account
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Clone the repository:
+   ```
+   git clone https://github.com/yourusername/jobfit-ai.git
+   cd jobfit-ai
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2. Install dependencies:
+   ```
+   npm install
+   ```
 
-## Learn More
+3. Create a Supabase project at [https://app.supabase.com](https://app.supabase.com)
 
-To learn more about Next.js, take a look at the following resources:
+4. Set up your Supabase database with the required tables:
+   ```sql
+   -- Create profiles table
+   CREATE TABLE profiles (
+     id UUID REFERENCES auth.users NOT NULL PRIMARY KEY,
+     username TEXT,
+     role TEXT,
+     avatar_url TEXT,
+     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+   );
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+   -- Set up Row Level Security (RLS)
+   ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+   
+   -- Create policies for profiles
+   CREATE POLICY "Public profiles are viewable by everyone."
+     ON profiles FOR SELECT
+     USING (true);
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+   CREATE POLICY "Users can insert their own profile."
+     ON profiles FOR INSERT
+     WITH CHECK (auth.uid() = id);
 
-## Deploy on Vercel
+   CREATE POLICY "Users can update their own profile."
+     ON profiles FOR UPDATE
+     USING (auth.uid() = id);
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+5. Create a `.env.local` file with your Supabase credentials:
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+6. Run the development server:
+   ```
+   npm run dev
+   ```
+
+7. Open [http://localhost:3000](http://localhost:3000) in your browser
+
+## Deployment
+
+This project can be easily deployed on platforms like Vercel or Netlify:
+
+1. Push your code to GitHub
+2. Connect your repository to Vercel or Netlify
+3. Set the environment variables in the deployment platform
+4. Deploy the application
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+- Next.js Team for the amazing framework
+- Supabase for the auth and database solutions
+- TailwindCSS for the styling utilities
