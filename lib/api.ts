@@ -375,8 +375,7 @@ class ApiClient {
 
     try {
       // Sử dụng JinaAI để tạo roadmap
-      const jina_api_key =
-        "jina_6849ca29ece94fda8e4266c14764c40dTky_rfQjF8-aRKKXzbnSkJwgfYUc";
+      const jina_api_key = process.env.JINA_API_KEY || "";
       const jina_api_url = "https://deepsearch.jina.ai/v1/chat/completions";
 
       const currentSkillsText =

@@ -12,6 +12,10 @@ import traceback
 import json
 import httpx
 import asyncio
+from dotenv import load_dotenv
+
+# Tải biến môi trường từ file .env hoặc .env.local
+load_dotenv()
 
 app = FastAPI(title="JobFit API", version="1.0.0")
 
@@ -24,8 +28,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Khóa API của Jina AI DeepSearch
-JINA_API_KEY = "jina_bafb743236fb458fb79db0dcaca4dd6cOcq6cZEzckw2sGbJgdvuy4fNvqHR"
+# Khóa API của Jina AI DeepSearch từ biến môi trường
+JINA_API_KEY = os.getenv("JINA_API_KEY", "")
+if not JINA_API_KEY:
+    print("Warning: JINA_API_KEY không được cấu hình trong biến môi trường")
+
 
 # Models
 class CVUploadResponse(BaseModel):
@@ -35,22 +42,27 @@ class CVUploadResponse(BaseModel):
     extracted_text: Optional[str] = None
     message: Optional[str] = None
 
+
 class JobMatchRequest(BaseModel):
     cv_text: str
     job_description: str
+
 
 class JobMatchResponse(BaseModel):
     analysis: str
     match_score: int
     timestamp: str
 
+
 @app.get("/")
 async def root():
     return {"message": "JobFit API is running", "version": "1.0.0"}
 
+
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
+
 
 @app.post("/api/resumes/upload", response_model=CVUploadResponse)
 async def upload_cv(file: UploadFile = File(...)):
@@ -60,41 +72,49 @@ async def upload_cv(file: UploadFile = File(...)):
     try:
         # Tạo ID duy nhất cho CV
         cv_id = str(uuid.uuid4())
-        
+
         # Kiểm tra định dạng file
         filename = file.filename
         file_extension = os.path.splitext(filename)[1].lower()
-        
-        if file_extension not in ['.pdf', '.docx', '.doc']:
-            raise HTTPException(status_code=400, detail="Unsupported file format. Please upload PDF, DOCX, or DOC files.")
-        
+
+        if file_extension not in [".pdf", ".docx", ".doc"]:
+            raise HTTPException(
+                status_code=400,
+                detail="Unsupported file format. Please upload PDF, DOCX, or DOC files.",
+            )
+
         # Tạo thư mục tạm để lưu file
         temp_dir = tempfile.mkdtemp()
         temp_file_path = os.path.join(temp_dir, filename)
-        
+
         # Lưu file tải lên vào thư mục tạm
         with open(temp_file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
-        
+
         # Giả định trích xuất văn bản từ file CV
         # Trong môi trường thực, bạn sẽ sử dụng thư viện như pdf-parse, mammoth...
         extracted_text = extract_text_from_cv(temp_file_path, file_extension)
-        
+
         # Xóa file tạm sau khi xử lý
         shutil.rmtree(temp_dir)
-        
+
         return {
             "id": cv_id,
             "filename": filename,
             "status": "success",
-            "extracted_text": extracted_text[:500] + "..." if len(extracted_text) > 500 else extracted_text,
-            "message": "CV uploaded and processed successfully"
+            "extracted_text": (
+                extracted_text[:500] + "..."
+                if len(extracted_text) > 500
+                else extracted_text
+            ),
+            "message": "CV uploaded and processed successfully",
         }
-    
+
     except Exception as e:
         print(f"Error processing CV: {str(e)}")
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Failed to process CV: {str(e)}")
+
 
 @app.post("/api/cv/analyze")
 async def analyze_cv(cv_text: str = Body(..., embed=True)):
@@ -118,13 +138,13 @@ async def analyze_cv(cv_text: str = Body(..., embed=True)):
                     6. Areas for Improvement: Constructive feedback on potential gaps
                     7. Job Fit Assessment: Types of roles this candidate would be suitable for
                     
-                    Format the result in Markdown with clear headings and bullet points."""
+                    Format the result in Markdown with clear headings and bullet points.""",
                 }
             ],
             "stream": False,
             "temperature": 0.7,
         }
-        
+
         async with httpx.AsyncClient() as client:
             response = await client.post(
                 "https://deepsearch.jina.ai/v1/chat/completions",
@@ -135,16 +155,18 @@ async def analyze_cv(cv_text: str = Body(..., embed=True)):
                     "User-Agent": "Mozilla/5.0",
                 },
                 json=payload,
-                timeout=120.0
+                timeout=120.0,
             )
-            
+
             if response.status_code != 200:
                 print(f"Error from Jina AI: {response.text}")
-                raise HTTPException(status_code=response.status_code, 
-                                  detail=f"Jina AI error: {response.text}")
-            
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=f"Jina AI error: {response.text}",
+                )
+
             result = response.json()
-            
+
             # Trích xuất nội dung
             content = ""
             if "choices" in result and len(result["choices"]) > 0:
@@ -153,16 +175,19 @@ async def analyze_cv(cv_text: str = Body(..., embed=True)):
                     content = choice["message"]["content"]
                 elif "text" in choice:
                     content = choice["text"]
-            
+
             if not content:
-                raise HTTPException(status_code=500, detail="No content found in Jina AI response")
-            
+                raise HTTPException(
+                    status_code=500, detail="No content found in Jina AI response"
+                )
+
             return {"analysis": content, "timestamp": get_current_timestamp()}
-    
+
     except Exception as e:
         print(f"Error analyzing CV: {str(e)}")
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Failed to analyze CV: {str(e)}")
+
 
 @app.post("/api/jobs/match", response_model=JobMatchResponse)
 async def match_job(data: JobMatchRequest):
@@ -179,14 +204,14 @@ async def match_job(data: JobMatchRequest):
                     "content": f"""Analyze how well this candidate's CV matches the job description:
                     
 CV Text:
-"""
+\"\"\"
 {data.cv_text}
-"""
+\"\"\"
 
 Job Description:
-"""
+\"\"\"
 {data.job_description}
-"""
+\"\"\"
 
 Please provide a comprehensive job match analysis with the following sections:
 1. Match Score: Give an overall match percentage (0-100%) and brief explanation
@@ -197,13 +222,13 @@ Please provide a comprehensive job match analysis with the following sections:
 6. Improvement Areas: Skills or experiences the candidate could develop to better match
 7. Recommendations: Specific advice for the candidate to improve their fit for this role
 
-Format the response in Markdown with clear headings and organized information."""
+Format the response in Markdown with clear headings and organized information.""",
                 }
             ],
             "stream": False,
             "temperature": 0.5,
         }
-        
+
         async with httpx.AsyncClient() as client:
             response = await client.post(
                 "https://deepsearch.jina.ai/v1/chat/completions",
@@ -214,16 +239,18 @@ Format the response in Markdown with clear headings and organized information.""
                     "User-Agent": "Mozilla/5.0",
                 },
                 json=payload,
-                timeout=120.0
+                timeout=120.0,
             )
-            
+
             if response.status_code != 200:
                 print(f"Error from Jina AI: {response.text}")
-                raise HTTPException(status_code=response.status_code, 
-                                  detail=f"Jina AI error: {response.text}")
-            
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=f"Jina AI error: {response.text}",
+                )
+
             result = response.json()
-            
+
             # Trích xuất nội dung
             content = ""
             if "choices" in result and len(result["choices"]) > 0:
@@ -232,23 +259,26 @@ Format the response in Markdown with clear headings and organized information.""
                     content = choice["message"]["content"]
                 elif "text" in choice:
                     content = choice["text"]
-            
+
             if not content:
-                raise HTTPException(status_code=500, detail="No content found in Jina AI response")
-            
+                raise HTTPException(
+                    status_code=500, detail="No content found in Jina AI response"
+                )
+
             # Phân tích nội dung để lấy điểm match
             match_score = extract_match_score(content)
-            
+
             return {
-                "analysis": content, 
+                "analysis": content,
                 "match_score": match_score,
-                "timestamp": get_current_timestamp()
+                "timestamp": get_current_timestamp(),
             }
-    
+
     except Exception as e:
         print(f"Error matching job: {str(e)}")
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Failed to match job: {str(e)}")
+
 
 # Helper functions
 def extract_text_from_cv(file_path, file_extension):
@@ -259,7 +289,7 @@ def extract_text_from_cv(file_path, file_extension):
     try:
         # Mô phỏng việc trích xuất văn bản - trong thực tế sẽ sử dụng thư viện thích hợp
         # Ví dụ: PyPDF2, pdfminer.six cho PDF, python-docx cho DOCX
-        
+
         # Trong bản demo này, chỉ trả về text giả lập
         return """DEMO CV CONTENT:
         
@@ -293,6 +323,7 @@ University of Technology | 2013 - 2017
         print(f"Error extracting text from file: {str(e)}")
         return "Error extracting text from CV"
 
+
 def extract_match_score(content):
     """
     Trích xuất điểm match từ nội dung phân tích
@@ -300,24 +331,30 @@ def extract_match_score(content):
     try:
         # Tìm phần trăm match trong nội dung
         import re
-        match_pattern = re.compile(r'match(?:\s+score)?(?:\s*:?\s*)(\d{1,3})(?:\s*%)?', re.IGNORECASE)
+
+        match_pattern = re.compile(
+            r"match(?:\s+score)?(?:\s*:?\s*)(\d{1,3})(?:\s*%)?", re.IGNORECASE
+        )
         match = match_pattern.search(content)
-        
+
         if match and match.group(1):
             score = int(match.group(1))
             return score if 0 <= score <= 100 else 0
     except Exception as e:
         print(f"Error extracting match score: {str(e)}")
-    
+
     # Nếu không tìm thấy hoặc có lỗi, trả về 0
     return 0
+
 
 def get_current_timestamp():
     """
     Trả về timestamp hiện tại dưới dạng chuỗi ISO
     """
     from datetime import datetime
+
     return datetime.now().isoformat()
 
+
 if __name__ == "__main__":
-    uvicorn.run("run_simple_server:app", host="0.0.0.0", port=8000, reload=True) 
+    uvicorn.run("run_simple_server:app", host="0.0.0.0", port=8000, reload=True)

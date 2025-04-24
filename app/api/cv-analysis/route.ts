@@ -65,8 +65,7 @@ export async function POST(req: NextRequest) {
     console.log("🔌 Connecting to Jina AI DeepSearch API");
 
     try {
-      const jinaApiKey =
-        "jina_bafb743236fb458fb79db0dcaca4dd6cOcq6cZEzckw2sGbJgdvuy4fNvqHR";
+      const jinaApiKey = process.env.JINA_API_KEY || "";
 
       // Cấu trúc payload cho API
       const payload = {

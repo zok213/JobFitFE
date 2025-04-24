@@ -1,9 +1,12 @@
 fastapi==0.103.1
 uvicorn==0.23.2
-httpx==0.24.1
+httpx==0.25.0
 python-multipart==0.0.6
-python-dotenv==1.0.0
 pydantic==2.3.0
+starlette==0.27.0
+uuid==1.30
+asyncio==3.4.3
+python-dotenv==1.0.0
 aiofiles==23.2.1
 # Thư viện trích xuất văn bản từ file
 # pdfminer.six==20221105
