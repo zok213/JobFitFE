@@ -6,15 +6,17 @@ import { CVAnalysis } from "@/components/ai-cv-assistant/CVAnalysis";
 
 export default function CVAnalysisPage() {
   return (
-    <DashboardShell activeNavItem="cvassistant" userRole="employee">
+    <DashboardShell activeNavItem="cv-assistant" userRole="employee">
       <div className="w-full max-w-5xl mx-auto px-4 md:px-6 py-8">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold tracking-tight">CV Analysis</h1>
-          <p className="text-gray-500 mt-1">Review your CV analysis and get suggestions for improvement</p>
+          <h1 className="text-2xl font-bold tracking-tight">Phân tích CV</h1>
+          <p className="text-gray-500 mt-1">
+            Xem kết quả phân tích CV và nhận đề xuất cải thiện
+          </p>
         </div>
-        
+
         <CVAnalysis />
       </div>
     </DashboardShell>
   );
-} 
+}

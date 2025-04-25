@@ -2,107 +2,211 @@
 
 import React from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import { ArrowRight, Github, Linkedin, Twitter, Users } from "lucide-react";
+import Image from "next/image";
 
 export const TeamSection = () => {
   const teamMembers = [
     {
       name: "Huỳnh Ngọc Hân",
       role: "Project Manager",
+      bio: "Experienced project manager with expertise in leading cross-functional teams and delivering complex software projects on time and within budget.",
+      image: "/img/team/huynhngochan.jpg",
       initials: "HNH",
-      linkedin: "#",
+      social: {
+        linkedin: "#",
+        github: "#",
+        twitter: "#",
+      },
     },
     {
       name: "Nguyễn Bắc Bảo Khang",
       role: "Game Developer",
+      bio: "Creative game developer with a passion for building immersive experiences and a strong background in Unity and game mechanics.",
+      image: "/img/team/nguyenbacbaokhang.jpg",
       initials: "NBBK",
-      linkedin: "#",
+      social: {
+        linkedin: "#",
+        github: "#",
+      },
     },
     {
       name: "Nguyễn Xuân Việt",
       role: "AI/ML Engineer",
+      bio: "Machine learning expert focused on natural language processing and neural networks with experience implementing AI solutions at scale.",
+      image: "/img/team/nguyenxuanviet.jpg",
       initials: "NXV",
-      linkedin: "#",
+      social: {
+        linkedin: "#",
+        github: "#",
+        twitter: "#",
+      },
     },
     {
       name: "Nguyễn Lê Khánh An",
       role: "Tech Lead",
+      bio: "Passionate tech lead with a strong background in software architecture and team leadership, specializing in React and Node.js applications.",
+      image: "/img/team/nguyenlekhanhan.jpg",
       initials: "NLKA",
-      linkedin: "#",
+      social: {
+        linkedin: "#",
+        github: "#",
+      },
     },
     {
       name: "Mai Phước Minh Tài",
       role: "MLOps Engineer",
+      bio: "Skilled MLOps engineer with experience building and deploying machine learning pipelines and infrastructure at scale.",
+      image: "/img/team/maiphuocminhtai.jpg",
       initials: "MPMT",
-      linkedin: "#",
+      social: {
+        linkedin: "#",
+        github: "#",
+        twitter: "#",
+      },
     },
   ];
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5 },
+    },
+  };
+
   return (
-    <section id="team" className="px-6 md:px-12 lg:px-24 py-16 max-w-[1440px] mx-auto">
-      <div className="bg-lime-300 px-4 py-2 rounded-xl w-fit mb-4">
-        <h2 className="text-2xl md:text-3xl font-bold text-black">
-          Team
+    <motion.section
+      id="team"
+      className="px-6 md:px-12 lg:px-24 py-20 max-w-[1440px] mx-auto"
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.6 }}
+    >
+      <motion.div
+        className="text-center max-w-2xl mx-auto mb-16"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+      >
+        <Badge className="bg-purple-100 text-purple-800 mb-3">
+          OUR EXPERTS
+        </Badge>
+        <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">
+          Meet Our Team
         </h2>
-      </div>
-      <p className="text-base md:text-lg text-black mb-8">
-        Meet our skilled and experienced team of professionals
-      </p>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {teamMembers.map((member) => (
-          <article
+        <p className="text-base md:text-lg text-gray-600">
+          Our talented team of professionals brings together expertise in AI,
+          development, and recruitment to create the perfect job matching
+          platform.
+        </p>
+      </motion.div>
+
+      <motion.div
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+        variants={containerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-50px" }}
+      >
+        {teamMembers.map((member, index) => (
+          <motion.div
             key={member.initials}
-            className="flex items-center gap-4 p-6 bg-lime-300 rounded-3xl"
+            variants={itemVariants}
+            whileHover={{ y: -10, transition: { duration: 0.2 } }}
+            className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 flex flex-col"
           >
-            <div className="rounded-full bg-black w-12 h-12 flex items-center justify-center text-lime-300 text-lg font-bold shrink-0">
-              {member.initials}
-            </div>
-            <div className="flex flex-col">
-              <h3 className="text-base font-medium text-black">
-                {member.name}
-              </h3>
-              <p className="text-sm text-black/80">{member.role}</p>
-            </div>
-            <Link href={member.linkedin} aria-label={`${member.name}'s LinkedIn profile`} className="ml-auto">
-              <div className="rounded-full bg-black p-2 hover:bg-opacity-80 transition-colors">
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"
-                    stroke="#B9FF66"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <rect
-                    x="2"
-                    y="9"
-                    width="4"
-                    height="12"
-                    stroke="#B9FF66"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <circle
-                    cx="4"
-                    cy="4"
-                    r="2"
-                    stroke="#B9FF66"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+            <div className="p-6">
+              <div className="flex items-center gap-5 mb-4">
+                <div className="relative w-20 h-20 rounded-full overflow-hidden bg-gradient-to-br from-lime-300 to-lime-400">
+                  {member.image ? (
+                    <Image
+                      src={member.image}
+                      alt={member.name}
+                      fill
+                      className="object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = "none";
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-black text-xl font-bold">
+                      {member.initials}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900">
+                    {member.name}
+                  </h3>
+                  <p className="text-lime-600 font-medium">{member.role}</p>
+                </div>
               </div>
-            </Link>
-          </article>
+
+              <p className="text-gray-600 text-sm mb-6">{member.bio}</p>
+
+              <div className="flex items-center gap-3">
+                {member.social.linkedin && (
+                  <Link
+                    href={member.social.linkedin}
+                    className="bg-gray-100 p-2 rounded-full hover:bg-blue-100 transition-colors"
+                  >
+                    <Linkedin className="h-4 w-4 text-gray-600 hover:text-blue-600" />
+                  </Link>
+                )}
+                {member.social.github && (
+                  <Link
+                    href={member.social.github}
+                    className="bg-gray-100 p-2 rounded-full hover:bg-gray-200 transition-colors"
+                  >
+                    <Github className="h-4 w-4 text-gray-600 hover:text-gray-900" />
+                  </Link>
+                )}
+                {member.social.twitter && (
+                  <Link
+                    href={member.social.twitter}
+                    className="bg-gray-100 p-2 rounded-full hover:bg-blue-100 transition-colors"
+                  >
+                    <Twitter className="h-4 w-4 text-gray-600 hover:text-blue-500" />
+                  </Link>
+                )}
+              </div>
+            </div>
+          </motion.div>
         ))}
-      </div>
-    </section>
+      </motion.div>
+
+      <motion.div
+        className="flex justify-center mt-12"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+        viewport={{ once: true }}
+      >
+        <Link href="/careers">
+          <Button className="bg-lime-500 hover:bg-lime-600 text-white font-medium px-6 py-2.5 shadow-md hover:shadow-xl transition-all">
+            Join our team
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        </Link>
+      </motion.div>
+    </motion.section>
   );
 };

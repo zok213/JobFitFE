@@ -1,136 +1,190 @@
 "use client";
 
-import React from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import React, { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { 
-  Award, 
-  BookOpen, 
-  Briefcase, 
-  Code, 
-  Globe, 
-  HeartHandshake, 
-  Languages, 
-  Medal, 
-  MessageCircle, 
-  Podcast, 
-  PlusCircle
+import {
+  Award,
+  BookOpen,
+  Briefcase,
+  Code,
+  Globe,
+  HeartHandshake,
+  Languages,
+  Medal,
+  MessageCircle,
+  Podcast,
+  PlusCircle,
+  Trash2,
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Separator } from "@/components/ui/separator";
 
-interface CustomSectionItem {
+interface CustomSection {
   id: string;
-  type: string;
   title: string;
-  content: any[];
+  content: string;
 }
 
 interface CustomSectionsPanelProps {
-  data: Record<string, CustomSectionItem>;
-  updateData: (data: Record<string, CustomSectionItem>) => void;
+  sections: CustomSection[];
+  onUpdate: (sections: CustomSection[]) => void;
 }
 
-export function CustomSectionsPanel({ data, updateData }: CustomSectionsPanelProps) {
-  const sectionTypes = [
-    { id: "courses", title: "Courses", icon: BookOpen, description: "Add relevant courses you've completed" },
-    { id: "languages", title: "Languages", icon: Languages, description: "Highlight languages you speak" },
-    { id: "certificates", title: "Certificates", icon: Award, description: "Show off your professional certifications" },
-    { id: "projects", title: "Projects", icon: Code, description: "Highlight relevant projects you've worked on" },
-    { id: "publications", title: "Publications", icon: Podcast, description: "Add any articles, papers, or books you've published" },
-    { id: "references", title: "References", icon: MessageCircle, description: "List individuals who can recommend you" },
-    { id: "hobbies", title: "Hobbies", icon: HeartHandshake, description: "Show your personality with activities you enjoy" },
-    { id: "achievements", title: "Achievements", icon: Medal, description: "Highlight awards and notable accomplishments" },
-    { id: "volunteering", title: "Volunteering", icon: Globe, description: "Show your commitment to helping others" },
-    { id: "internships", title: "Internships", icon: Briefcase, description: "Include relevant internship experiences" }
-  ];
-  
-  const addSection = (type: string, title: string) => {
-    const newSection: CustomSectionItem = {
+export function CustomSectionsPanel({
+  sections = [],
+  onUpdate,
+}: CustomSectionsPanelProps) {
+  const [customSections, setCustomSections] =
+    useState<CustomSection[]>(sections);
+
+  const handleAddSection = () => {
+    const newSection: CustomSection = {
       id: `section-${Date.now()}`,
-      type,
-      title,
-      content: []
+      title: "",
+      content: "",
     };
-    
-    updateData({
-      ...data,
-      [type]: newSection
-    });
+
+    const updatedSections = [...customSections, newSection];
+    setCustomSections(updatedSections);
+    onUpdate(updatedSections);
   };
-  
-  const isSectionAdded = (type: string) => {
-    return Object.values(data).some(section => section.type === type);
+
+  const handleRemoveSection = (id: string) => {
+    const updatedSections = customSections.filter(
+      (section) => section.id !== id
+    );
+    setCustomSections(updatedSections);
+    onUpdate(updatedSections);
+  };
+
+  const handleUpdateSection = (
+    id: string,
+    field: keyof CustomSection,
+    value: string
+  ) => {
+    const updatedSections = customSections.map((section) => {
+      if (section.id === id) {
+        return {
+          ...section,
+          [field]: value,
+        };
+      }
+      return section;
+    });
+
+    setCustomSections(updatedSections);
+    onUpdate(updatedSections);
   };
 
   return (
     <Card className="shadow-sm border-gray-200">
       <CardHeader className="pb-4">
-        <CardTitle className="text-xl font-bold">Add Section</CardTitle>
+        <CardTitle className="text-xl font-bold">Các phần tùy chỉnh</CardTitle>
         <CardDescription>
-          Enhance your resume with additional sections to showcase more of your qualifications
+          Enhance your resume with additional sections to showcase more of your
+          qualifications
         </CardDescription>
       </CardHeader>
-      
+
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {sectionTypes.map((sectionType) => {
-            const isAdded = isSectionAdded(sectionType.id);
-            
-            return (
-              <Card 
-                key={sectionType.id} 
-                className={`border ${
-                  isAdded ? 'border-blue-200 bg-blue-50' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                } transition-colors overflow-hidden`}
-              >
-                <CardContent className="p-4 flex flex-col h-full">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className={`p-2 rounded-full ${
-                      isAdded ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600'
-                    }`}>
-                      <sectionType.icon className="h-5 w-5" />
-                    </div>
-                    <h3 className="font-medium">{sectionType.title}</h3>
-                  </div>
-                  
-                  <p className="text-sm text-gray-600 mb-4 flex-grow">
-                    {sectionType.description}
-                  </p>
-                  
-                  <Button 
-                    variant={isAdded ? "outline" : "default"}
-                    className={isAdded 
-                      ? "w-full border-blue-300 text-blue-600 cursor-default" 
-                      : "w-full bg-lime-600 hover:bg-lime-700 text-white"
-                    }
-                    disabled={isAdded}
-                    onClick={() => addSection(sectionType.id, sectionType.title)}
-                  >
-                    {isAdded ? (
-                      <span>Added</span>
-                    ) : (
-                      <>
-                        <PlusCircle className="h-4 w-4 mr-2" />
-                        Add Section
-                      </>
-                    )}
-                  </Button>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-        
-        <div className="flex flex-col items-center justify-center mt-6 p-4 border border-dashed border-gray-300 rounded-lg bg-gray-50">
-          <h3 className="font-medium text-gray-800 mb-2">Need something more specific?</h3>
-          <p className="text-sm text-gray-600 text-center mb-4">
-            You can create a custom section with your own title and content
-          </p>
-          <Button className="bg-black hover:bg-gray-800 text-white">
-            <PlusCircle className="h-4 w-4 mr-2" />
-            Create Custom Section
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold">Các phần tùy chỉnh</h3>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleAddSection}
+            className="flex items-center gap-1.5"
+          >
+            <PlusCircle className="h-4 w-4" />
+            <span>Thêm phần</span>
           </Button>
         </div>
+
+        {customSections.length === 0 ? (
+          <div className="text-center py-10 border-2 border-dashed border-gray-200 rounded-lg">
+            <p className="text-gray-500 mb-4">Chưa có phần tùy chỉnh nào</p>
+            <Button
+              variant="outline"
+              onClick={handleAddSection}
+              className="flex items-center gap-1.5"
+            >
+              <PlusCircle className="h-4 w-4" />
+              <span>Thêm phần tùy chỉnh</span>
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {customSections.map((section, index) => (
+              <div
+                key={section.id}
+                className="space-y-4 border border-gray-200 rounded-lg p-4"
+              >
+                <div className="flex items-center justify-between">
+                  <h4 className="font-medium">Phần tùy chỉnh {index + 1}</h4>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleRemoveSection(section.id)}
+                    className="h-8 w-8 p-0 text-gray-500 hover:text-red-500"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor={`section-title-${section.id}`}>
+                    Tiêu đề phần
+                  </Label>
+                  <Input
+                    id={`section-title-${section.id}`}
+                    value={section.title}
+                    onChange={(e) =>
+                      handleUpdateSection(section.id, "title", e.target.value)
+                    }
+                    placeholder="Ví dụ: Giải thưởng, Ấn phẩm, Chứng chỉ..."
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor={`section-content-${section.id}`}>
+                    Nội dung
+                  </Label>
+                  <Textarea
+                    id={`section-content-${section.id}`}
+                    value={section.content}
+                    onChange={(e) =>
+                      handleUpdateSection(section.id, "content", e.target.value)
+                    }
+                    placeholder="Thêm nội dung cho phần này..."
+                    rows={5}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {customSections.length > 0 && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleAddSection}
+            className="flex items-center gap-1.5 mt-4"
+          >
+            <PlusCircle className="h-4 w-4" />
+            <span>Thêm phần tùy chỉnh khác</span>
+          </Button>
+        )}
       </CardContent>
     </Card>
   );
-} 
+}

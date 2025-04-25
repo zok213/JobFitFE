@@ -2,19 +2,20 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { 
-  ChevronRight, 
-  Briefcase, 
-  Building, 
-  FileText, 
-  ArrowLeft, 
-  Loader2, 
-  Check, 
+import {
+  ChevronRight,
+  Briefcase,
+  Building,
+  FileText,
+  ArrowLeft,
+  Loader2,
+  Check,
   List,
   MapPin,
   DollarSign,
   Monitor,
-  Link
+  Link,
+  Info,
 } from "lucide-react";
 import { useJobMatchStore, JobMatchStep } from "../../store/jobMatchStore";
 import { Button } from "../ui/button";
@@ -31,40 +32,40 @@ export function JobDetailsForm() {
   const [requirementText, setRequirementText] = useState("");
   const [showAddedRequirement, setShowAddedRequirement] = useState(false);
   const [error, setError] = useState("");
-  
+
   // Use Zustand store
-  const { 
-    jobDetails, 
-    updateJobDetails, 
-    setCurrentStep, 
+  const {
+    jobDetails,
+    updateJobDetails,
+    setCurrentStep,
     setMatchResult,
     uploadedCVs,
-    selectedCVId
+    selectedCVId,
   } = useJobMatchStore();
 
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: { 
+    visible: {
       opacity: 1,
-      transition: { 
+      transition: {
         staggerChildren: 0.1,
-        delayChildren: 0.1
-      }
-    }
+        delayChildren: 0.1,
+      },
+    },
   };
-  
+
   const itemVariants = {
     hidden: { y: 20, opacity: 0 },
-    visible: { 
-      y: 0, 
+    visible: {
+      y: 0,
       opacity: 1,
-      transition: { type: 'spring', stiffness: 300, damping: 24 }
-    }
+      transition: { type: "spring", stiffness: 300, damping: 24 },
+    },
   };
 
   const handleGoBack = () => {
-    router.push("/job-match/upload-cv");
+    router.push("/job-match");
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -74,7 +75,10 @@ export function JobDetailsForm() {
   const handleAddRequirement = () => {
     if (requirementText.trim()) {
       updateJobDetails({
-        requirements: [...(jobDetails.requirements || []), requirementText.trim()]
+        requirements: [
+          ...(jobDetails.requirements || []),
+          requirementText.trim(),
+        ],
       });
       setRequirementText("");
       setShowAddedRequirement(true);
@@ -89,7 +93,7 @@ export function JobDetailsForm() {
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       e.preventDefault();
       handleAddRequirement();
     }
@@ -99,63 +103,22 @@ export function JobDetailsForm() {
     if (!jobDetails.title || !jobDetails.company || !jobDetails.description) {
       return;
     }
-    
+
     setIsLoading(true);
     setError("");
-    
+
     try {
-      // Get the selected CV
-      const selectedCV = uploadedCVs.find(cv => cv.id === selectedCVId || cv.isDefault);
-      
-      if (!selectedCV) {
-        throw new Error("No CV selected");
-      }
-      
-      // Prepare job match criteria
-      const matchCriteria = {
-        jobDetails: {
-          ...jobDetails,
-        },
-        cvId: selectedCV.id
-      };
-      
-      // Call backend API
-      try {
-        // Try to use our backend API
-        const result = await api.findJobMatches(matchCriteria);
-        setMatchResult(result);
-      } catch (apiError) {
-        console.error("API error:", apiError);
-        
-        // Fallback to mock data if the API call fails
-        // This allows the app to work even if the backend is not running
-        const mockMatchResult = {
-          score: 78,
-          matchPercentage: 78,
-          strengths: [
-            "Strong software development experience",
-            "Experience with React and Next.js",
-            "Good understanding of TypeScript"
-          ],
-          weaknesses: [
-            "Limited experience with cloud platforms",
-            "No mention of testing frameworks"
-          ],
-          recommendations: [
-            "Highlight any cloud platform experience",
-            "Add examples of test-driven development"
-          ],
-          analysis: "Overall, your profile matches well with this job. Your frontend development skills are especially relevant, but you may want to emphasize any cloud experience you have."
-        };
-        
-        setMatchResult(mockMatchResult);
-      }
-      
-      setCurrentStep(JobMatchStep.JOB_MATCH);
-      router.push("/job-match/results");
+      // Lưu thông tin công việc đã chọn
+      updateJobDetails({
+        ...jobDetails,
+      });
+
+      // Chuyển đến trang tải CV lên
+      setCurrentStep(JobMatchStep.CV_UPLOAD);
+      router.push("/job-match/upload-cv");
     } catch (error: any) {
       console.error("Error:", error);
-      setError(error.message || "An error occurred while processing your job match");
+      setError(error.message || "Đã xảy ra lỗi khi xử lý thông tin công việc");
     } finally {
       setIsLoading(false);
     }
@@ -163,26 +126,29 @@ export function JobDetailsForm() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <motion.div 
+      <motion.div
         initial="hidden"
         animate="visible"
         variants={containerVariants}
         className="bg-white rounded-xl p-8 shadow-sm border border-gray-100 hover:shadow-md transition-all mb-6"
       >
-        <motion.div variants={itemVariants} className="flex items-center gap-3 mb-8">
+        <motion.div
+          variants={itemVariants}
+          className="flex items-center gap-3 mb-8"
+        >
           <div className="w-12 h-12 rounded-full bg-lime-300 flex items-center justify-center">
             <Briefcase className="h-6 w-6 text-black" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-black">Job Details</h2>
+            <h2 className="text-xl font-bold text-black">Chọn công việc</h2>
             <p className="text-gray-600 text-sm mt-1">
-              Provide information about the job you want to apply for
+              Nhập thông tin công việc bạn muốn ứng tuyển
             </p>
           </div>
         </motion.div>
 
         {uploadedCVs.length > 0 && (
-          <motion.div 
+          <motion.div
             variants={itemVariants}
             className="bg-lime-50 border border-lime-200 rounded-lg p-4 mb-6 flex items-start gap-4"
           >
@@ -190,21 +156,44 @@ export function JobDetailsForm() {
               <Check className="h-5 w-5 text-lime-700" />
             </div>
             <div className="flex-1">
-              <h3 className="font-medium text-black">CV ready for matching</h3>
+              <h3 className="font-medium text-black">CV đã sẵn sàng</h3>
               <p className="text-sm text-gray-700 mb-1">
-                Now enter the job details to match against your CV
+                Bước tiếp theo, hãy nhập chi tiết công việc bạn muốn ứng tuyển
               </p>
               <div className="flex items-center gap-2 mt-2 text-sm">
                 <div className="h-7 w-7 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
                   <FileText className="h-3.5 w-3.5 text-gray-600" />
                 </div>
                 <span className="font-medium text-gray-800 truncate">
-                  {uploadedCVs.find(cv => cv.id === selectedCVId || cv.isDefault)?.name}
+                  {
+                    uploadedCVs.find(
+                      (cv) => cv.id === selectedCVId || cv.isDefault
+                    )?.name
+                  }
                 </span>
               </div>
             </div>
           </motion.div>
         )}
+
+        <motion.div variants={itemVariants} className="mb-6">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-full bg-blue-100 flex-shrink-0 flex items-center justify-center mt-1">
+                <Info className="h-5 w-5 text-blue-600" />
+              </div>
+              <div>
+                <h3 className="font-medium text-gray-900 mb-1">Lời khuyên</h3>
+                <p className="text-sm text-gray-700">
+                  Bạn có thể nhập một mô tả công việc thực tế từ các nền tảng
+                  tuyển dụng như LinkedIn, Indeed, TopCV hoặc từ website của
+                  công ty. Điều này sẽ giúp AI phân tích chính xác hơn mức độ
+                  phù hợp của CV với vị trí công việc.
+                </p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
 
         <motion.div variants={itemVariants} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -215,11 +204,11 @@ export function JobDetailsForm() {
                   Job Title <span className="text-red-500">*</span>
                 </span>
               </Label>
-              <Input 
-                id="jobTitle" 
+              <Input
+                id="jobTitle"
                 placeholder="e.g. Software Engineer"
-                value={jobDetails.title || ''}
-                onChange={(e) => handleInputChange('title', e.target.value)}
+                value={jobDetails.title || ""}
+                onChange={(e) => handleInputChange("title", e.target.value)}
               />
             </div>
 
@@ -230,11 +219,11 @@ export function JobDetailsForm() {
                   Company <span className="text-red-500">*</span>
                 </span>
               </Label>
-              <Input 
-                id="company" 
+              <Input
+                id="company"
                 placeholder="e.g. Acme Corp"
-                value={jobDetails.company || ''}
-                onChange={(e) => handleInputChange('company', e.target.value)}
+                value={jobDetails.company || ""}
+                onChange={(e) => handleInputChange("company", e.target.value)}
               />
             </div>
           </div>
@@ -246,12 +235,12 @@ export function JobDetailsForm() {
                 Job Description <span className="text-red-500">*</span>
               </span>
             </Label>
-            <Textarea 
-              id="description" 
+            <Textarea
+              id="description"
               placeholder="Paste the job description here"
               className="min-h-[150px]"
-              value={jobDetails.description || ''}
-              onChange={(e) => handleInputChange('description', e.target.value)}
+              value={jobDetails.description || ""}
+              onChange={(e) => handleInputChange("description", e.target.value)}
             />
           </div>
 
@@ -263,11 +252,11 @@ export function JobDetailsForm() {
                   Location
                 </span>
               </Label>
-              <Input 
-                id="location" 
+              <Input
+                id="location"
                 placeholder="e.g. New York, NY"
-                value={jobDetails.location || ''}
-                onChange={(e) => handleInputChange('location', e.target.value)}
+                value={jobDetails.location || ""}
+                onChange={(e) => handleInputChange("location", e.target.value)}
               />
             </div>
 
@@ -278,11 +267,11 @@ export function JobDetailsForm() {
                   Work Mode
                 </span>
               </Label>
-              <Input 
-                id="mode" 
+              <Input
+                id="mode"
                 placeholder="e.g. Remote, Hybrid, On-site"
-                value={jobDetails.mode || ''}
-                onChange={(e) => handleInputChange('mode', e.target.value)}
+                value={jobDetails.mode || ""}
+                onChange={(e) => handleInputChange("mode", e.target.value)}
               />
             </div>
           </div>
@@ -295,11 +284,13 @@ export function JobDetailsForm() {
                   Salary Range
                 </span>
               </Label>
-              <Input 
-                id="salary" 
+              <Input
+                id="salary"
                 placeholder="e.g. $80,000 - $100,000"
-                value={jobDetails.salaryRange || ''}
-                onChange={(e) => handleInputChange('salaryRange', e.target.value)}
+                value={jobDetails.salaryRange || ""}
+                onChange={(e) =>
+                  handleInputChange("salaryRange", e.target.value)
+                }
               />
             </div>
 
@@ -310,11 +301,11 @@ export function JobDetailsForm() {
                   Job URL
                 </span>
               </Label>
-              <Input 
-                id="jobUrl" 
+              <Input
+                id="jobUrl"
                 placeholder="e.g. https://example.com/jobs/123"
-                value={jobDetails.jobUrl || ''}
-                onChange={(e) => handleInputChange('jobUrl', e.target.value)}
+                value={jobDetails.jobUrl || ""}
+                onChange={(e) => handleInputChange("jobUrl", e.target.value)}
               />
             </div>
           </div>
@@ -328,12 +319,12 @@ export function JobDetailsForm() {
             </Label>
             <div className="flex flex-wrap gap-2 mb-2">
               {jobDetails.requirements?.map((req, index) => (
-                <Badge 
-                  key={index} 
+                <Badge
+                  key={index}
                   className="bg-lime-100 text-lime-800 border border-lime-300 flex items-center gap-1.5 py-1.5 px-3"
                 >
                   {req}
-                  <button 
+                  <button
                     className="ml-1 text-lime-800 hover:text-red-500"
                     onClick={() => handleRemoveRequirement(index)}
                   >
@@ -343,14 +334,14 @@ export function JobDetailsForm() {
               ))}
             </div>
             <div className="flex gap-2">
-              <Input 
+              <Input
                 placeholder="Add a key requirement (e.g. 3+ years React experience)"
                 value={requirementText}
                 onChange={(e) => setRequirementText(e.target.value)}
                 onKeyPress={handleKeyPress}
               />
-              <Button 
-                type="button" 
+              <Button
+                type="button"
                 variant="outline"
                 className="flex-shrink-0"
                 onClick={handleAddRequirement}
@@ -367,7 +358,7 @@ export function JobDetailsForm() {
         </motion.div>
 
         {error && (
-          <motion.div 
+          <motion.div
             variants={itemVariants}
             className="mt-4 bg-red-50 text-red-700 p-3 rounded-md border border-red-200"
           >
@@ -375,23 +366,24 @@ export function JobDetailsForm() {
           </motion.div>
         )}
 
-        <motion.div 
+        <motion.div
           variants={itemVariants}
           className="mt-8 pt-6 border-t border-gray-200 flex justify-between"
         >
-          <Button 
-            variant="outline"
-            onClick={handleGoBack}
-            className="gap-1"
-          >
+          <Button variant="outline" onClick={handleGoBack} className="gap-1">
             <ArrowLeft className="h-4 w-4" />
             Back
           </Button>
-          
-          <Button 
+
+          <Button
             className="bg-lime-600 hover:bg-lime-700 text-white shadow-sm"
             onClick={handleContinue}
-            disabled={isLoading || !jobDetails.title || !jobDetails.company || !jobDetails.description}
+            disabled={
+              isLoading ||
+              !jobDetails.title ||
+              !jobDetails.company ||
+              !jobDetails.description
+            }
           >
             {isLoading ? (
               <>
@@ -409,4 +401,4 @@ export function JobDetailsForm() {
       </motion.div>
     </div>
   );
-} 
+}

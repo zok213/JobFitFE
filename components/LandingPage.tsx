@@ -16,6 +16,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Badge } from "./ui/badge";
 import { ChatWidget } from "./ui/chat-widget";
+import Image from "next/image";
 
 export const LandingPage = () => {
   return (
@@ -63,6 +64,165 @@ export const LandingPage = () => {
       </motion.section>
 
       <LogoStrip />
+
+      {/* Why Partner With Us? section */}
+      <motion.section
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7 }}
+        viewport={{ once: true }}
+        className="bg-gradient-to-r from-black to-gray-900 py-16 px-6 overflow-hidden relative"
+      >
+        <div className="absolute inset-0 bg-grid-white/[0.05] bg-[length:20px_20px]"></div>
+        <div className="absolute right-0 top-0 -mr-16 -mt-16 w-32 h-32 bg-lime-400 rounded-full blur-3xl opacity-20"></div>
+        <div className="absolute left-0 bottom-0 -ml-16 -mb-16 w-32 h-32 bg-lime-300 rounded-full blur-3xl opacity-20"></div>
+
+        <div className="max-w-6xl mx-auto relative z-10">
+          <div className="text-center mb-10">
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              viewport={{ once: true }}
+              className="text-3xl md:text-4xl font-bold mb-4 text-white"
+            >
+              Why Partner With Us?
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              viewport={{ once: true }}
+              className="text-gray-300 text-lg max-w-3xl mx-auto"
+            >
+              Enhance your recruitment process with advanced AI-matching
+              technology and gain access to a qualified pool of candidates
+            </motion.p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              viewport={{ once: true }}
+            >
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/10 shadow-xl">
+                <h3 className="text-2xl font-bold text-lime-300 mb-6">
+                  Partner Benefits
+                </h3>
+                <ul className="space-y-4">
+                  <li className="flex items-start gap-3 text-white">
+                    <div className="bg-lime-300/20 p-1.5 rounded-full mt-0.5">
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M20 6L9 17L4 12"
+                          stroke="#aadb5b"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="font-medium">AI-Powered Matching</p>
+                      <p className="text-gray-400 text-sm">
+                        Leverage cutting-edge technology to find the perfect fit
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3 text-white">
+                    <div className="bg-lime-300/20 p-1.5 rounded-full mt-0.5">
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M20 6L9 17L4 12"
+                          stroke="#aadb5b"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="font-medium">Expanded Reach</p>
+                      <p className="text-gray-400 text-sm">
+                        Connect with thousands of qualified job seekers
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3 text-white">
+                    <div className="bg-lime-300/20 p-1.5 rounded-full mt-0.5">
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M20 6L9 17L4 12"
+                          stroke="#aadb5b"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="font-medium">Seamless Integration</p>
+                      <p className="text-gray-400 text-sm">
+                        Easy integration with your existing recruitment systems
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+                <div className="mt-8 flex flex-col sm:flex-row gap-4">
+                  <Button className="bg-gradient-to-r from-lime-300 to-lime-400 text-black hover:from-lime-200 hover:to-lime-300 font-medium shadow-xl hover:shadow-lime-400/20 transition-all hover:-translate-y-0.5 duration-300">
+                    Become a Partner
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="border-white/50 text-lime-300 hover:bg-white/10 hover:border-lime-300 backdrop-blur-sm shadow-lg hover:shadow-lime-400/30 transition-all duration-300"
+                  >
+                    View all integration partners
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              viewport={{ once: true }}
+              className="relative aspect-video md:aspect-square max-w-md mx-auto"
+            >
+              <Image
+                src="/img/partner-graphic.png"
+                alt="Partner with JobFit.AI"
+                width={500}
+                height={500}
+                className="object-contain"
+              />
+            </motion.div>
+          </div>
+        </div>
+      </motion.section>
+
       <ServicesSection />
       <ColleagueFinderSection />
 
@@ -187,7 +347,7 @@ export const LandingPage = () => {
         viewport={{ once: true }}
         className="bg-slate-50 py-20 px-6"
       >
-        <div className="max-w-5xl mx-auto text-center">
+        <div className="max-w-4xl mx-auto text-center">
           <Badge variant="lime" className="mb-4">
             SUCCESS STORIES
           </Badge>
@@ -222,15 +382,19 @@ export const LandingPage = () => {
               position!"
             </p>
 
-            {/* <div className="flex items-center justify-center">
+            <div className="flex items-center justify-center">
               <div className="w-14 h-14 rounded-full bg-gray-200 overflow-hidden mr-4">
-                <img src="https://randomuser.me/api/portraits/women/45.jpg" alt="Testimonial author" className="w-full h-full object-cover" />
+                <img
+                  src="https://randomuser.me/api/portraits/women/45.jpg"
+                  alt="Testimonial author"
+                  className="w-full h-full object-cover"
+                />
               </div>
               <div className="text-left">
                 <p className="font-bold text-gray-900">Sarah Johnson</p>
                 <p className="text-gray-600">Software Developer at TechCorp</p>
               </div>
-            </div> */}
+            </div>
           </div>
         </div>
       </motion.section>

@@ -21,29 +21,39 @@ export default function CVBuilderPage() {
               className="flex items-center gap-1 text-gray-600 hover:text-black"
               onClick={() => router.push("/cv-assistant")}
             >
-              <ArrowLeft className="h-4 w-4" /> Back
+              <ArrowLeft className="h-4 w-4" /> Quay lại
             </Button>
             <div>
-              <h1 className="text-2xl font-bold">Create Your CV</h1>
-              <p className="text-gray-600">Build a professional CV step by step</p>
+              <h1 className="text-2xl font-bold">Tạo CV của bạn</h1>
+              <p className="text-gray-600">
+                Xây dựng CV chuyên nghiệp từng bước một
+              </p>
             </div>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-1"
+            >
               <Save className="h-4 w-4" />
-              Save Draft
+              Lưu nháp
             </Button>
-            <Button variant="outline" size="sm" className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-1"
+            >
               <Download className="h-4 w-4" />
-              Export PDF
+              Xuất PDF
             </Button>
           </div>
         </div>
-        
+
         <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
           <CVBuilder />
         </div>
       </div>
     </DashboardShell>
   );
-} 
+}
