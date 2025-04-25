@@ -17,6 +17,7 @@ export * from "./page-transition";
 export * from "./progress";
 export * from "./radio-group";
 export * from "./redirect-loader";
+export * from "./scroll-area";
 export * from "./select";
 export * from "./separator";
 export * from "./switch";
