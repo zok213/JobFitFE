@@ -8,7 +8,7 @@ type User = {
   id: string;
   email: string;
   username?: string;
-  role?: "employee" | "employer";
+  role?: "employee" | "employer" | "admin";
   avatarUrl?: string;
 };
 
@@ -23,7 +23,7 @@ type AuthContextType = {
   ) => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   updatePassword: (password: string) => Promise<void>;
-  setUserRole: (role: "employee" | "employer") => void;
+  setUserRole: (role: "employee" | "employer" | "admin") => void;
   logout: () => Promise<void>;
 };
 
@@ -63,7 +63,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           id: session.user.id,
           email: session.user.email || "",
           username: profileData?.username,
-          role: profileData?.role as "employee" | "employer" | undefined,
+          role: profileData?.role as "employee" | "employer" | "admin" | undefined,
           avatarUrl: profileData?.avatar_url,
         });
       } else {
@@ -110,7 +110,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             id: session.user.id,
             email: session.user.email || "",
             username: profileData?.username,
-            role: profileData?.role as "employee" | "employer" | undefined,
+            role: profileData?.role as "employee" | "employer" | "admin" | undefined,
             avatarUrl: profileData?.avatar_url,
           });
         } else {
@@ -242,7 +242,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const setUserRole = async (role: "employee" | "employer") => {
+  const setUserRole = async (role: "employee" | "employer" | "admin") => {
     if (user) {
       // Update profile in database
       const { error } = await supabase
@@ -256,8 +256,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       // Update local state
-      const updatedUser = { ...user, role };
-      setUser(updatedUser);
+      setUser({ ...user, role });
+
+      // For mock user, also update localStorage
+      if (user.email === "test@example.com") {
+        const mockUser = { ...user, role };
+        localStorage.setItem("jobfit_user", JSON.stringify(mockUser));
+      }
     }
   };
 

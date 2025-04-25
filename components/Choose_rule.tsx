@@ -24,6 +24,11 @@ const ChooseRole = () => {
       title: "Employer",
       description: "Looking for candidates",
     },
+    {
+      id: "admin",
+      title: "Admin",
+      description: "Site administration",
+    },
   ];
 
   const handleRoleSelect = (roleId: string) => {
@@ -39,14 +44,17 @@ const ChooseRole = () => {
     setIsSubmitting(true);
     
     // Update the user's role in the auth context
-    setUserRole(selectedRole as "employee" | "employer");
+    setUserRole(selectedRole as "employee" | "employer" | "admin");
     
     console.log("Selected role:", selectedRole);
-    // Redirect to confirmation page after role selection
+    
+    // Redirect to role-specific dashboard
     if (selectedRole === "employer") {
       window.location.href = "/employer/dashboard";
+    } else if (selectedRole === "admin") {
+      window.location.href = "/admin/dashboard";
     } else {
-      window.location.href = "/confirmation";
+      window.location.href = "/employee/dashboard";
     }
   };
 

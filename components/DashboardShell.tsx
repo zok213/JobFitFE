@@ -37,7 +37,7 @@ type NavItem = {
 interface DashboardShellProps {
   children: ReactNode;
   activeNavItem?: string;
-  userRole?: "employee" | "employer";
+  userRole?: "employee" | "employer" | "admin";
   accountType?: "pro" | "free";
 }
 
@@ -90,34 +90,66 @@ export const DashboardShell = ({
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Navigation items
-  const navItems: NavItem[] = [
+  // Navigation items for admin role
+  const adminNavItems: NavItem[] = [
     {
       id: "dashboard",
       label: "Dashboard",
       icon: Home,
-      route: "/dashboard",
+      route: "/admin/dashboard",
+      active: activeNavItem === "dashboard",
+    },
+    {
+      id: "settings",
+      label: "Settings",
+      icon: Settings,
+      route: "/admin/settings",
+      active: activeNavItem === "settings",
+    },
+    {
+      id: "resources",
+      label: "Resources",
+      icon: FileText,
+      route: "/admin/resources",
+      active: activeNavItem === "resources",
+    },
+    {
+      id: "help",
+      label: "Help",
+      icon: HelpCircle,
+      route: "/shared/help",
+      active: activeNavItem === "help",
+    },
+  ];
+
+  // Navigation items for employee role
+  const employeeNavItems: NavItem[] = [
+    {
+      id: "dashboard",
+      label: "Dashboard",
+      icon: Home,
+      route: "/employee/dashboard",
       active: activeNavItem === "dashboard",
     },
     {
       id: "profile",
       label: "Profile",
       icon: User,
-      route: "/profile",
+      route: "/employee/profile",
       active: activeNavItem === "profile",
     },
     {
       id: "job-match",
       label: "AI Job Match",
       icon: Briefcase,
-      route: "/job-match",
+      route: "/employee/job-match",
       active: activeNavItem === "job-match" || activeNavItem === "jobmatch",
     },
     {
       id: "cv-assistant",
       label: "AI CV Assistant",
       icon: FileText,
-      route: "/cv-assistant",
+      route: "/employee/cv-assistant",
       active:
         activeNavItem === "cv-assistant" || activeNavItem === "cvassistant",
     },
@@ -125,31 +157,71 @@ export const DashboardShell = ({
       id: "interviewer",
       label: "AI Interviewer",
       icon: MessageSquare,
-      route: "/interviewer",
+      route: "/employee/interviewer",
       active: activeNavItem === "interviewer",
     },
     {
       id: "roadmap",
       label: "AI Roadmap",
       icon: LineChart,
-      route: "/roadmap",
+      route: "/employee/roadmap",
       active: activeNavItem === "roadmap",
     },
     {
       id: "settings",
       label: "Settings",
       icon: Settings,
-      route: "/settings",
+      route: "/employee/settings",
       active: activeNavItem === "settings",
     },
     {
       id: "help",
       label: "Help",
       icon: HelpCircle,
-      route: "/help",
+      route: "/shared/help",
       active: activeNavItem === "help",
     },
   ];
+
+  // Navigation items for employer role
+  const employerNavItems: NavItem[] = [
+    {
+      id: "dashboard",
+      label: "Dashboard",
+      icon: Home,
+      route: "/employer/dashboard",
+      active: activeNavItem === "dashboard",
+    },
+    {
+      id: "profile",
+      label: "Company Profile",
+      icon: User,
+      route: "/employer/profile",
+      active: activeNavItem === "profile",
+    },
+    {
+      id: "settings",
+      label: "Settings",
+      icon: Settings,
+      route: "/employer/settings",
+      active: activeNavItem === "settings",
+    },
+    {
+      id: "help",
+      label: "Help",
+      icon: HelpCircle,
+      route: "/shared/help",
+      active: activeNavItem === "help",
+    },
+  ];
+
+  // Get the appropriate navigation items based on user role
+  const navItems = 
+    userRole === "admin" 
+      ? adminNavItems 
+      : userRole === "employer" 
+        ? employerNavItems 
+        : employeeNavItems;
 
   const handleLogout = () => {
     logout();
@@ -203,7 +275,7 @@ export const DashboardShell = ({
               />
               <div className="flex items-center">
                 <span className="mt-6 text-sm text-gray-600 font-medium">
-                  {userRole === "employer" ? "Employer" : "Employee"}
+                  {userRole === "employer" ? "Employer" : userRole === "admin" ? "Admin" : "Employee"}
                 </span>
               </div>
             </div>
@@ -243,7 +315,7 @@ export const DashboardShell = ({
 
           <div className="px-5 mb-6">
             <p className="text-xs uppercase text-gray-400 font-medium mb-3 ml-1">
-              AI TOOLS
+              {userRole === "admin" ? "ADMIN TOOLS" : userRole === "employer" ? "EMPLOYER TOOLS" : "AI TOOLS"}
             </p>
             <ul className="space-y-1">
               {navItems.slice(2, 6).map((item) => (
@@ -270,34 +342,37 @@ export const DashboardShell = ({
             </ul>
           </div>
 
-          <div className="px-5">
-            <p className="text-xs uppercase text-gray-400 font-medium mb-3 ml-1">
-              PREFERENCES
-            </p>
-            <ul className="space-y-1">
-              {navItems.slice(6).map((item) => (
-                <li key={item.id}>
-                  <button
-                    onClick={() => handleNavigation(item)}
-                    className={`flex items-center w-full px-4 py-3 rounded-lg transition-all duration-200 text-left ${
-                      item.active
-                        ? "text-black font-medium bg-lime-300"
-                        : "text-gray-600 hover:text-black hover:bg-lime-50"
-                    }`}
-                  >
-                    {item.icon && (
-                      <item.icon
-                        className={`w-5 h-5 mr-4 ${
-                          item.active ? "text-black" : "text-gray-500"
-                        }`}
-                      />
-                    )}
-                    <span>{item.label}</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {/* Display the rest of the navigation items */}
+          {navItems.length > 6 && (
+            <div className="px-5">
+              <p className="text-xs uppercase text-gray-400 font-medium mb-3 ml-1">
+                SETTINGS
+              </p>
+              <ul className="space-y-1">
+                {navItems.slice(6).map((item) => (
+                  <li key={item.id}>
+                    <button
+                      onClick={() => handleNavigation(item)}
+                      className={`flex items-center w-full px-4 py-3 rounded-lg transition-all duration-200 text-left ${
+                        item.active
+                          ? "text-black font-medium bg-lime-300"
+                          : "text-gray-600 hover:text-black hover:bg-lime-50"
+                      }`}
+                    >
+                      {item.icon && (
+                        <item.icon
+                          className={`w-5 h-5 mr-4 ${
+                            item.active ? "text-black" : "text-gray-500"
+                          }`}
+                        />
+                      )}
+                      <span>{item.label}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </nav>
 
         {/* Pro upgrade banner */}
