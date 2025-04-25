@@ -2,27 +2,27 @@
 
 import React, { useState } from "react";
 import { EmployerDashboardShell } from "@/components/employer/EmployerDashboardShell";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { 
-  BarChart, 
-  Briefcase, 
-  Users, 
-  Eye, 
-  ArrowUpRight, 
-  ArrowDownRight, 
+import {
+  BarChart,
+  Briefcase,
+  Users,
+  Eye,
+  ArrowUpRight,
+  ArrowDownRight,
   Clock,
   Calendar,
   CheckCircle2,
   PencilLine,
-  Plus
+  Plus,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -150,11 +150,20 @@ export default function EmployerDashboardPage() {
                 <CardContent className="p-6">
                   <div className="flex justify-between items-start">
                     <div>
-                      <p className="text-sm font-medium text-gray-500">{stat.title}</p>
+                      <p className="text-sm font-medium text-gray-500">
+                        {stat.title}
+                      </p>
                       <h3 className="text-2xl font-bold mt-1">{stat.value}</h3>
                     </div>
-                    <div className={`p-3 rounded-lg ${stat.color} bg-opacity-10 text-opacity-100`}>
-                      <Icon className={`h-5 w-5 ${stat.color.replace('bg-', 'text-')}`} />
+                    <div
+                      className={`p-3 rounded-lg ${stat.color} bg-opacity-10 text-opacity-100`}
+                    >
+                      <Icon
+                        className={`h-5 w-5 ${stat.color.replace(
+                          "bg-",
+                          "text-"
+                        )}`}
+                      />
                     </div>
                   </div>
                   <div className="mt-4 flex items-center text-sm">
@@ -191,10 +200,10 @@ export default function EmployerDashboardPage() {
                   Monitor your active job postings
                 </CardDescription>
               </div>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="text-lime-700 border-lime-600 hover:bg-lime-50"
-                onClick={() => window.location.href = "/employer/jobs"}
+                onClick={() => (window.location.href = "/employer/jobs")}
               >
                 View All
               </Button>
@@ -234,7 +243,9 @@ export default function EmployerDashboardPage() {
                         variant="ghost"
                         size="sm"
                         className="ml-2 text-gray-500 hover:text-gray-700"
-                        onClick={() => router.push(`/employer/jobs/${job.id}/edit`)}
+                        onClick={() =>
+                          router.push(`/employer/jobs/${job.id}/edit`)
+                        }
                       >
                         <PencilLine className="h-4 w-4" />
                       </Button>
@@ -243,7 +254,7 @@ export default function EmployerDashboardPage() {
                 ))}
                 <Button
                   className="w-full mt-4 bg-black text-lime-300 hover:bg-gray-800"
-                  onClick={() => window.location.href = "/employer/jobs/new"}
+                  onClick={() => (window.location.href = "/employer/jobs/new")}
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Post New Job
@@ -296,11 +307,16 @@ export default function EmployerDashboardPage() {
                   }
 
                   return (
-                    <div key={candidate.id} className="p-4 rounded-lg bg-gray-50 hover:bg-gray-100">
+                    <div
+                      key={candidate.id}
+                      className="p-4 rounded-lg bg-gray-50 hover:bg-gray-100"
+                    >
                       <div className="flex items-start justify-between">
                         <div>
                           <h3 className="font-medium">{candidate.name}</h3>
-                          <p className="text-sm text-gray-500 mt-0.5">{candidate.role}</p>
+                          <p className="text-sm text-gray-500 mt-0.5">
+                            {candidate.role}
+                          </p>
                           <div className="flex items-center text-xs text-gray-500 mt-1">
                             <Clock className="h-3 w-3 mr-1" />
                             <span>{candidate.appliedDate}</span>
@@ -319,7 +335,9 @@ export default function EmployerDashboardPage() {
                 <Button
                   variant="outline"
                   className="w-full mt-4 border-gray-300"
-                  onClick={() => window.location.href = "/employer/candidates"}
+                  onClick={() =>
+                    (window.location.href = "/employer/candidates")
+                  }
                 >
                   View All Candidates
                 </Button>
@@ -341,7 +359,9 @@ export default function EmployerDashboardPage() {
             <CardContent className="px-6">
               <div className="h-[240px] flex items-center justify-center bg-gray-50 rounded-lg">
                 <BarChart className="h-10 w-10 text-gray-300" />
-                <p className="ml-3 text-gray-500">Activity chart visualization</p>
+                <p className="ml-3 text-gray-500">
+                  Activity chart visualization
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -360,7 +380,9 @@ export default function EmployerDashboardPage() {
                   <div className="flex justify-between items-start">
                     <div>
                       <h3 className="font-medium">Sarah Johnson</h3>
-                      <p className="text-sm text-gray-500">Senior Frontend Developer</p>
+                      <p className="text-sm text-gray-500">
+                        Senior Frontend Developer
+                      </p>
                     </div>
                     <div className="bg-lime-100 text-lime-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
                       Today
@@ -408,7 +430,9 @@ export default function EmployerDashboardPage() {
                   <Button
                     variant="ghost"
                     className="text-gray-500"
-                    onClick={() => window.location.href = "/employer/calendar"}
+                    onClick={() =>
+                      (window.location.href = "/employer/calendar")
+                    }
                   >
                     <Plus className="h-4 w-4 mr-2" />
                     Schedule New Interview
@@ -421,4 +445,4 @@ export default function EmployerDashboardPage() {
       </div>
     </EmployerDashboardShell>
   );
-} 
+}

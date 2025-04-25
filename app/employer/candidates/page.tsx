@@ -2,23 +2,23 @@
 
 import React, { useState } from "react";
 import { EmployerDashboardShell } from "@/components/employer/EmployerDashboardShell";
-import { 
-  Card, 
+import {
+  Card,
   CardContent,
   CardHeader,
   CardTitle,
-  CardDescription
+  CardDescription,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Search, 
-  Filter, 
-  ChevronDown, 
-  Eye, 
-  Clock, 
-  Download, 
+import {
+  Search,
+  Filter,
+  ChevronDown,
+  Eye,
+  Clock,
+  Download,
   Star,
   FileText,
   Mail,
@@ -26,7 +26,7 @@ import {
   MessageSquare,
   Briefcase,
   CheckCircle,
-  XCircle
+  XCircle,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -47,11 +47,11 @@ const CANDIDATES = [
     jobPreferences: {
       salary: "$120,000 - $150,000",
       remote: "Remote only",
-      type: "Full-time"
+      type: "Full-time",
     },
     resumeUrl: "#",
     coverLetterUrl: "#",
-    interviewStage: "initial"
+    interviewStage: "initial",
   },
   {
     id: 2,
@@ -68,11 +68,11 @@ const CANDIDATES = [
     jobPreferences: {
       salary: "$90,000 - $120,000",
       remote: "Hybrid",
-      type: "Full-time"
+      type: "Full-time",
     },
     resumeUrl: "#",
     coverLetterUrl: "#",
-    interviewStage: "phone"
+    interviewStage: "phone",
   },
   {
     id: 3,
@@ -87,13 +87,13 @@ const CANDIDATES = [
     appliedDate: "2023-03-16",
     skills: ["Node.js", "MongoDB", "AWS", "Python", "Docker"],
     jobPreferences: {
-      salary: "$130,000 - $160,000", 
+      salary: "$130,000 - $160,000",
       remote: "Remote preferred",
-      type: "Full-time"
+      type: "Full-time",
     },
     resumeUrl: "#",
     coverLetterUrl: "#",
-    interviewStage: "technical"
+    interviewStage: "technical",
   },
   {
     id: 4,
@@ -110,11 +110,11 @@ const CANDIDATES = [
     jobPreferences: {
       salary: "$110,000 - $140,000",
       remote: "On-site",
-      type: "Full-time"
+      type: "Full-time",
     },
     resumeUrl: "#",
     coverLetterUrl: "#",
-    interviewStage: "rejected"
+    interviewStage: "rejected",
   },
   {
     id: 5,
@@ -131,11 +131,11 @@ const CANDIDATES = [
     jobPreferences: {
       salary: "$80,000 - $100,000",
       remote: "Remote only",
-      type: "Full-time"
+      type: "Full-time",
     },
     resumeUrl: "#",
     coverLetterUrl: "#",
-    interviewStage: "offer"
+    interviewStage: "offer",
   },
   {
     id: 6,
@@ -152,18 +152,22 @@ const CANDIDATES = [
     jobPreferences: {
       salary: "$125,000 - $155,000",
       remote: "Hybrid",
-      type: "Full-time"
+      type: "Full-time",
     },
     resumeUrl: "#",
     coverLetterUrl: "#",
-    interviewStage: "final"
-  }
+    interviewStage: "final",
+  },
 ];
 
 // Helper function to format date
 const formatDate = (dateString: string) => {
-  const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric' };
-  return new Date(dateString).toLocaleDateString('en-US', options);
+  const options: Intl.DateTimeFormatOptions = {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  };
+  return new Date(dateString).toLocaleDateString("en-US", options);
 };
 
 export default function EmployerCandidatesPage() {
@@ -180,7 +184,7 @@ export default function EmployerCandidatesPage() {
       if (
         searchQuery &&
         !candidate.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
-        !candidate.skills.some(skill => 
+        !candidate.skills.some((skill) =>
           skill.toLowerCase().includes(searchQuery.toLowerCase())
         )
       ) {
@@ -202,9 +206,15 @@ export default function EmployerCandidatesPage() {
         case "matchScore":
           return b.matchScore - a.matchScore;
         case "latest":
-          return new Date(b.appliedDate).getTime() - new Date(a.appliedDate).getTime();
+          return (
+            new Date(b.appliedDate).getTime() -
+            new Date(a.appliedDate).getTime()
+          );
         case "oldest":
-          return new Date(a.appliedDate).getTime() - new Date(b.appliedDate).getTime();
+          return (
+            new Date(a.appliedDate).getTime() -
+            new Date(b.appliedDate).getTime()
+          );
         case "nameAsc":
           return a.name.localeCompare(b.name);
         case "nameDesc":
@@ -329,10 +339,7 @@ export default function EmployerCandidatesPage() {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button
-              variant="outline"
-              className="border-gray-300 text-gray-700"
-            >
+            <Button variant="outline" className="border-gray-300 text-gray-700">
               <Download className="h-4 w-4 mr-2" />
               Export CSV
             </Button>
@@ -380,11 +387,15 @@ export default function EmployerCandidatesPage() {
                     aria-label="Filter by job"
                   >
                     <option value="">All Jobs</option>
-                    <option value="Senior Frontend Developer">Frontend Developer</option>
+                    <option value="Senior Frontend Developer">
+                      Frontend Developer
+                    </option>
                     <option value="UX/UI Designer">UX/UI Designer</option>
                     <option value="Backend Engineer">Backend Engineer</option>
                     <option value="Product Manager">Product Manager</option>
-                    <option value="Marketing Specialist">Marketing Specialist</option>
+                    <option value="Marketing Specialist">
+                      Marketing Specialist
+                    </option>
                     <option value="DevOps Engineer">DevOps Engineer</option>
                   </select>
                   <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 pointer-events-none" />
@@ -417,11 +428,13 @@ export default function EmployerCandidatesPage() {
                 <div className="mx-auto w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-4">
                   <Search className="h-6 w-6 text-gray-400" />
                 </div>
-                <h3 className="text-lg font-medium mb-2">No candidates found</h3>
+                <h3 className="text-lg font-medium mb-2">
+                  No candidates found
+                </h3>
                 <p className="text-gray-500 mb-6">
                   Try adjusting your search or filters to find candidates.
                 </p>
-                <Button 
+                <Button
                   variant="outline"
                   onClick={() => {
                     setSearchQuery("");
@@ -436,7 +449,10 @@ export default function EmployerCandidatesPage() {
             </Card>
           ) : (
             filteredCandidates.map((candidate) => (
-              <Card key={candidate.id} className="border-0 shadow-sm hover:shadow-md transition-shadow">
+              <Card
+                key={candidate.id}
+                className="border-0 shadow-sm hover:shadow-md transition-shadow"
+              >
                 <CardContent className="p-0">
                   <div className="flex flex-col lg:flex-row">
                     {/* Candidate info */}
@@ -444,10 +460,15 @@ export default function EmployerCandidatesPage() {
                       <div className="flex items-start justify-between">
                         <div className="flex items-center">
                           <div className="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 font-medium">
-                            {candidate.name.split(' ').map(n => n[0]).join('')}
+                            {candidate.name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")}
                           </div>
                           <div className="ml-4">
-                            <h3 className="font-semibold text-lg">{candidate.name}</h3>
+                            <h3 className="font-semibold text-lg">
+                              {candidate.name}
+                            </h3>
                             <div className="flex items-center text-sm text-gray-500">
                               <span>{candidate.role}</span>
                               <span className="mx-2">•</span>
@@ -462,11 +483,14 @@ export default function EmployerCandidatesPage() {
                           </div>
                         </div>
                       </div>
-                      
+
                       <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-y-2 text-sm">
                         <div className="flex items-center text-gray-700">
                           <Mail className="h-4 w-4 mr-2 text-gray-400" />
-                          <a href={`mailto:${candidate.email}`} className="hover:text-lime-700">
+                          <a
+                            href={`mailto:${candidate.email}`}
+                            className="hover:text-lime-700"
+                          >
                             {candidate.email}
                           </a>
                         </div>
@@ -476,10 +500,12 @@ export default function EmployerCandidatesPage() {
                         </div>
                         <div className="flex items-center text-gray-700">
                           <Calendar className="h-4 w-4 mr-2 text-gray-400" />
-                          <span>Applied {formatDate(candidate.appliedDate)}</span>
+                          <span>
+                            Applied {formatDate(candidate.appliedDate)}
+                          </span>
                         </div>
                       </div>
-                      
+
                       <div className="mt-4">
                         <div className="text-sm font-medium mb-1">Skills</div>
                         <div className="flex flex-wrap gap-1">
@@ -493,31 +519,37 @@ export default function EmployerCandidatesPage() {
                           ))}
                         </div>
                       </div>
-                      
+
                       <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-xs text-gray-500">
                         <div className="flex items-center">
                           <span className="mr-2">Salary:</span>
-                          <span className="font-medium text-gray-700">{candidate.jobPreferences.salary}</span>
+                          <span className="font-medium text-gray-700">
+                            {candidate.jobPreferences.salary}
+                          </span>
                         </div>
                         <div className="flex items-center">
                           <span className="mr-2">Type:</span>
-                          <span className="font-medium text-gray-700">{candidate.jobPreferences.type}</span>
+                          <span className="font-medium text-gray-700">
+                            {candidate.jobPreferences.type}
+                          </span>
                         </div>
                         <div className="flex items-center">
                           <span className="mr-2">Remote:</span>
-                          <span className="font-medium text-gray-700">{candidate.jobPreferences.remote}</span>
+                          <span className="font-medium text-gray-700">
+                            {candidate.jobPreferences.remote}
+                          </span>
                         </div>
                       </div>
                     </div>
-                    
+
                     {/* Actions - right side */}
                     <div className="bg-gray-50 p-6 lg:w-64 border-t lg:border-t-0 lg:border-l border-gray-200">
                       <div className="mb-4">
                         {getInterviewStageBadge(candidate.interviewStage)}
                       </div>
-                      
+
                       <div className="space-y-2">
-                        <Button 
+                        <Button
                           className="w-full bg-gray-100 text-gray-800 hover:bg-gray-200 border border-gray-300"
                           variant="outline"
                           size="sm"
@@ -543,25 +575,36 @@ export default function EmployerCandidatesPage() {
                           variant="outline"
                           size="sm"
                           className="w-full border-gray-300 text-gray-700"
-                          onClick={() => handleStatusChange(
-                            candidate.id, 
-                            candidate.status === "new" ? "reviewed" : 
-                            candidate.status === "reviewed" ? "interview" : 
-                            candidate.status === "interview" ? "offer" : "new"
-                          )}
-                        >
-                          Move to {
-                            candidate.status === "new" ? "Reviewed" : 
-                            candidate.status === "reviewed" ? "Interview" : 
-                            candidate.status === "interview" ? "Offer" : "New"
+                          onClick={() =>
+                            handleStatusChange(
+                              candidate.id,
+                              candidate.status === "new"
+                                ? "reviewed"
+                                : candidate.status === "reviewed"
+                                ? "interview"
+                                : candidate.status === "interview"
+                                ? "offer"
+                                : "new"
+                            )
                           }
+                        >
+                          Move to{" "}
+                          {candidate.status === "new"
+                            ? "Reviewed"
+                            : candidate.status === "reviewed"
+                            ? "Interview"
+                            : candidate.status === "interview"
+                            ? "Offer"
+                            : "New"}
                         </Button>
                         {candidate.status !== "rejected" && (
                           <Button
                             variant="outline"
                             size="sm"
                             className="w-full border-red-200 text-red-600 hover:bg-red-50"
-                            onClick={() => handleStatusChange(candidate.id, "rejected")}
+                            onClick={() =>
+                              handleStatusChange(candidate.id, "rejected")
+                            }
                           >
                             <XCircle className="h-4 w-4 mr-2" />
                             Reject
@@ -578,4 +621,4 @@ export default function EmployerCandidatesPage() {
       </div>
     </EmployerDashboardShell>
   );
-} 
+}

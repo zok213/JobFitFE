@@ -7,7 +7,7 @@ interface DeepseekResponse {
 }
 
 // Function to call DeepSeek API
-async function callDeepseekAPI(prompt: string): Promise<string> {
+export async function callDeepseekAPI(prompt: string): Promise<string> {
   try {
     const config = apiConfig.deepseek;
     console.log("Sending prompt to Deepseek API:", prompt);

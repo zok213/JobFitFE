@@ -7,13 +7,19 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Briefcase, 
-  PlusCircle, 
-  Search, 
+import {
+  Briefcase,
+  PlusCircle,
+  Search,
   Filter,
   MapPin,
   Clock,
@@ -29,7 +35,8 @@ import {
   CalendarClock,
   Check,
   CheckCircle,
-  CheckSquare
+  CheckSquare,
+  Wand2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -110,10 +117,10 @@ const MOCK_JOBS = [
 // Helper function to format date
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
-  return new Intl.DateTimeFormat('en-US', { 
-    month: 'short', 
-    day: 'numeric', 
-    year: 'numeric' 
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
   }).format(date);
 };
 
@@ -133,30 +140,38 @@ export default function EmployerJobsPage() {
   const [filterType, setFilterType] = useState("all");
   const [activeTab, setActiveTab] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
-  
+
   // Function to create a new job
   const handleCreateJob = () => {
     router.push("/employer/jobs/new");
   };
-  
+
+  // Function to create a job description with AI
+  const handleCreateJD = () => {
+    router.push("/employer/jobs/create-jd");
+  };
+
   // Function to filter jobs
-  const filteredJobs = MOCK_JOBS.filter(job => {
+  const filteredJobs = MOCK_JOBS.filter((job) => {
     // Search filter
-    if (searchQuery && !job.title.toLowerCase().includes(searchQuery.toLowerCase()) && 
-        !job.department.toLowerCase().includes(searchQuery.toLowerCase())) {
+    if (
+      searchQuery &&
+      !job.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
+      !job.department.toLowerCase().includes(searchQuery.toLowerCase())
+    ) {
       return false;
     }
-    
+
     // Status filter
     if (filterStatus !== "all" && job.status !== filterStatus) {
       return false;
     }
-    
+
     // Type filter
     if (filterType !== "all" && job.type !== filterType) {
       return false;
     }
-    
+
     // Tab filter
     if (activeTab === "active" && job.status !== "active") {
       return false;
@@ -167,16 +182,20 @@ export default function EmployerJobsPage() {
     } else if (activeTab === "remote" && !job.isRemote) {
       return false;
     }
-    
+
     return true;
   });
-  
+
   // Function to sort jobs
   const sortedJobs = [...filteredJobs].sort((a, b) => {
     if (sortBy === "newest") {
-      return new Date(b.postedDate).getTime() - new Date(a.postedDate).getTime();
+      return (
+        new Date(b.postedDate).getTime() - new Date(a.postedDate).getTime()
+      );
     } else if (sortBy === "oldest") {
-      return new Date(a.postedDate).getTime() - new Date(b.postedDate).getTime();
+      return (
+        new Date(a.postedDate).getTime() - new Date(b.postedDate).getTime()
+      );
     } else if (sortBy === "applicants-high") {
       return b.applicants - a.applicants;
     } else if (sortBy === "applicants-low") {
@@ -192,18 +211,30 @@ export default function EmployerJobsPage() {
     }
     return 0;
   });
-  
+
   return (
     <EmployerDashboardShell activeNavItem="jobs" userRole="employer">
       <div className="space-y-6">
         {/* Header with title and actions */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Manage Jobs</h1>
-            <p className="text-gray-500 mt-1">Create, edit, and manage your job listings</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+              Manage Jobs
+            </h1>
+            <p className="text-gray-500 mt-1">
+              Create, edit, and manage your job listings
+            </p>
           </div>
-          
+
           <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              onClick={handleCreateJD}
+              className="flex items-center gap-1 text-gray-700 border-gray-300 hover:bg-gray-50"
+            >
+              <Wand2 className="mr-2 h-4 w-4" />
+              Tạo JD bằng AI
+            </Button>
             <Button
               onClick={handleCreateJob}
               className="bg-lime-600 text-white hover:bg-lime-700 shadow-sm"
@@ -213,7 +244,7 @@ export default function EmployerJobsPage() {
             </Button>
           </div>
         </div>
-        
+
         {/* Filters and search */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
           <div className="flex flex-col md:flex-row gap-4">
@@ -230,20 +261,21 @@ export default function EmployerJobsPage() {
                 />
               </div>
             </div>
-            
+
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="w-full sm:w-48">
-                <Select
-                  value={filterStatus}
-                  onValueChange={setFilterStatus}
-                >
+                <Select value={filterStatus} onValueChange={setFilterStatus}>
                   <SelectTrigger>
                     <div className="flex items-center">
                       <Filter className="mr-2 h-4 w-4 text-gray-400" />
                       <span className="truncate">
-                        {filterStatus === "all" ? "All Statuses" : 
-                         filterStatus === "active" ? "Active Jobs" :
-                         filterStatus === "paused" ? "Paused Jobs" : "Expired Jobs"}
+                        {filterStatus === "all"
+                          ? "All Statuses"
+                          : filterStatus === "active"
+                          ? "Active Jobs"
+                          : filterStatus === "paused"
+                          ? "Paused Jobs"
+                          : "Expired Jobs"}
                       </span>
                     </div>
                   </SelectTrigger>
@@ -255,21 +287,24 @@ export default function EmployerJobsPage() {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div className="w-full sm:w-48">
-                <Select
-                  value={filterType}
-                  onValueChange={setFilterType}
-                >
+                <Select value={filterType} onValueChange={setFilterType}>
                   <SelectTrigger>
                     <div className="flex items-center">
                       <Clock className="mr-2 h-4 w-4 text-gray-400" />
                       <span className="truncate">
-                        {filterType === "all" ? "All Types" : 
-                         filterType === "full-time" ? "Full-time" :
-                         filterType === "part-time" ? "Part-time" : 
-                         filterType === "contract" ? "Contract" : 
-                         filterType === "temporary" ? "Temporary" : "Internship"}
+                        {filterType === "all"
+                          ? "All Types"
+                          : filterType === "full-time"
+                          ? "Full-time"
+                          : filterType === "part-time"
+                          ? "Part-time"
+                          : filterType === "contract"
+                          ? "Contract"
+                          : filterType === "temporary"
+                          ? "Temporary"
+                          : "Internship"}
                       </span>
                     </div>
                   </SelectTrigger>
@@ -283,12 +318,9 @@ export default function EmployerJobsPage() {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div className="w-full sm:w-48">
-                <Select
-                  value={sortBy}
-                  onValueChange={setSortBy}
-                >
+                <Select value={sortBy} onValueChange={setSortBy}>
                   <SelectTrigger>
                     <div className="flex items-center">
                       <ArrowUpDown className="mr-2 h-4 w-4 text-gray-400" />
@@ -298,8 +330,12 @@ export default function EmployerJobsPage() {
                   <SelectContent>
                     <SelectItem value="newest">Newest First</SelectItem>
                     <SelectItem value="oldest">Oldest First</SelectItem>
-                    <SelectItem value="applicants-high">Most Applicants</SelectItem>
-                    <SelectItem value="applicants-low">Least Applicants</SelectItem>
+                    <SelectItem value="applicants-high">
+                      Most Applicants
+                    </SelectItem>
+                    <SelectItem value="applicants-low">
+                      Least Applicants
+                    </SelectItem>
                     <SelectItem value="views-high">Most Views</SelectItem>
                     <SelectItem value="views-low">Least Views</SelectItem>
                     <SelectItem value="title-az">Title (A-Z)</SelectItem>
@@ -309,35 +345,53 @@ export default function EmployerJobsPage() {
               </div>
             </div>
           </div>
-          
+
           {/* Tabs */}
           <div className="mt-5">
-            <Tabs 
-              value={activeTab} 
+            <Tabs
+              value={activeTab}
               onValueChange={setActiveTab}
               className="w-full"
             >
               <TabsList className="w-full flex justify-start overflow-x-auto bg-gray-100 p-0.5">
-                <TabsTrigger value="all" className="flex-1 max-w-[120px] data-[state=active]:bg-white data-[state=active]:shadow-sm py-2">
+                <TabsTrigger
+                  value="all"
+                  className="flex-1 max-w-[120px] data-[state=active]:bg-white data-[state=active]:shadow-sm py-2"
+                >
                   All Jobs ({MOCK_JOBS.length})
                 </TabsTrigger>
-                <TabsTrigger value="active" className="flex-1 max-w-[120px] data-[state=active]:bg-white data-[state=active]:shadow-sm py-2">
-                  Active ({MOCK_JOBS.filter(job => job.status === "active").length})
+                <TabsTrigger
+                  value="active"
+                  className="flex-1 max-w-[120px] data-[state=active]:bg-white data-[state=active]:shadow-sm py-2"
+                >
+                  Active (
+                  {MOCK_JOBS.filter((job) => job.status === "active").length})
                 </TabsTrigger>
-                <TabsTrigger value="paused" className="flex-1 max-w-[120px] data-[state=active]:bg-white data-[state=active]:shadow-sm py-2">
-                  Paused ({MOCK_JOBS.filter(job => job.status === "paused").length})
+                <TabsTrigger
+                  value="paused"
+                  className="flex-1 max-w-[120px] data-[state=active]:bg-white data-[state=active]:shadow-sm py-2"
+                >
+                  Paused (
+                  {MOCK_JOBS.filter((job) => job.status === "paused").length})
                 </TabsTrigger>
-                <TabsTrigger value="expired" className="flex-1 max-w-[120px] data-[state=active]:bg-white data-[state=active]:shadow-sm py-2">
-                  Expired ({MOCK_JOBS.filter(job => job.status === "expired").length})
+                <TabsTrigger
+                  value="expired"
+                  className="flex-1 max-w-[120px] data-[state=active]:bg-white data-[state=active]:shadow-sm py-2"
+                >
+                  Expired (
+                  {MOCK_JOBS.filter((job) => job.status === "expired").length})
                 </TabsTrigger>
-                <TabsTrigger value="remote" className="flex-1 max-w-[120px] data-[state=active]:bg-white data-[state=active]:shadow-sm py-2">
-                  Remote ({MOCK_JOBS.filter(job => job.isRemote).length})
+                <TabsTrigger
+                  value="remote"
+                  className="flex-1 max-w-[120px] data-[state=active]:bg-white data-[state=active]:shadow-sm py-2"
+                >
+                  Remote ({MOCK_JOBS.filter((job) => job.isRemote).length})
                 </TabsTrigger>
               </TabsList>
             </Tabs>
           </div>
         </div>
-        
+
         {/* Job listings */}
         <div className="space-y-4">
           {sortedJobs.length === 0 ? (
@@ -345,9 +399,11 @@ export default function EmployerJobsPage() {
               <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
                 <Briefcase className="h-8 w-8 text-gray-400" />
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No jobs found</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No jobs found
+              </h3>
               <p className="text-gray-500 mb-4">
-                {searchQuery || filterStatus !== "all" || filterType !== "all" 
+                {searchQuery || filterStatus !== "all" || filterType !== "all"
                   ? "Try changing your filters or search term"
                   : "You haven't posted any jobs yet"}
               </p>
@@ -362,7 +418,7 @@ export default function EmployerJobsPage() {
             </div>
           ) : (
             sortedJobs.map((job) => (
-              <div 
+              <div
                 key={job.id}
                 className="bg-white rounded-lg shadow-sm border border-gray-200 p-5 hover:shadow-md transition-shadow"
               >
@@ -370,16 +426,23 @@ export default function EmployerJobsPage() {
                   {/* Job info */}
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <h3 className="text-lg font-semibold text-gray-900">{job.title}</h3>
-                      <Badge 
+                      <h3 className="text-lg font-semibold text-gray-900">
+                        {job.title}
+                      </h3>
+                      <Badge
                         className={
-                          job.status === "active" ? "bg-green-100 text-green-800 hover:bg-green-100" :
-                          job.status === "paused" ? "bg-amber-100 text-amber-800 hover:bg-amber-100" :
-                          "bg-gray-100 text-gray-800 hover:bg-gray-100"
+                          job.status === "active"
+                            ? "bg-green-100 text-green-800 hover:bg-green-100"
+                            : job.status === "paused"
+                            ? "bg-amber-100 text-amber-800 hover:bg-amber-100"
+                            : "bg-gray-100 text-gray-800 hover:bg-gray-100"
                         }
                       >
-                        {job.status === "active" ? "Active" :
-                         job.status === "paused" ? "Paused" : "Expired"}
+                        {job.status === "active"
+                          ? "Active"
+                          : job.status === "paused"
+                          ? "Paused"
+                          : "Expired"}
                       </Badge>
                       {job.newApplicants > 0 && (
                         <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">
@@ -387,7 +450,7 @@ export default function EmployerJobsPage() {
                         </Badge>
                       )}
                     </div>
-                    
+
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-500">
                       <div>{job.department}</div>
                       <div className="flex items-center">
@@ -405,10 +468,15 @@ export default function EmployerJobsPage() {
                       </div>
                       <div className="flex items-center">
                         <Clock className="h-3.5 w-3.5 mr-1" />
-                        {job.type === "full-time" ? "Full-time" :
-                         job.type === "part-time" ? "Part-time" :
-                         job.type === "contract" ? "Contract" :
-                         job.type === "temporary" ? "Temporary" : "Internship"}
+                        {job.type === "full-time"
+                          ? "Full-time"
+                          : job.type === "part-time"
+                          ? "Part-time"
+                          : job.type === "contract"
+                          ? "Contract"
+                          : job.type === "temporary"
+                          ? "Temporary"
+                          : "Internship"}
                       </div>
                       <div className="flex items-center">
                         <Calendar className="h-3.5 w-3.5 mr-1" />
@@ -416,69 +484,82 @@ export default function EmployerJobsPage() {
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Stats */}
                   <div className="flex flex-wrap gap-4 md:gap-6">
                     <div className="text-center">
-                      <div className="text-2xl font-semibold text-gray-900">{job.applicants}</div>
+                      <div className="text-2xl font-semibold text-gray-900">
+                        {job.applicants}
+                      </div>
                       <div className="text-xs text-gray-500">Applicants</div>
                     </div>
-                    
+
                     <div className="text-center">
-                      <div className="text-2xl font-semibold text-gray-900">{job.views}</div>
+                      <div className="text-2xl font-semibold text-gray-900">
+                        {job.views}
+                      </div>
                       <div className="text-xs text-gray-500">Views</div>
                     </div>
-                    
+
                     <div className="text-center">
-                      <div className={`text-2xl font-semibold ${
-                        getDaysRemaining(job.expiryDate) > 7 ? "text-green-600" :
-                        getDaysRemaining(job.expiryDate) > 0 ? "text-amber-600" : "text-red-600"
-                      }`}>
-                        {getDaysRemaining(job.expiryDate) > 0 
-                          ? `${getDaysRemaining(job.expiryDate)}d` 
+                      <div
+                        className={`text-2xl font-semibold ${
+                          getDaysRemaining(job.expiryDate) > 7
+                            ? "text-green-600"
+                            : getDaysRemaining(job.expiryDate) > 0
+                            ? "text-amber-600"
+                            : "text-red-600"
+                        }`}
+                      >
+                        {getDaysRemaining(job.expiryDate) > 0
+                          ? `${getDaysRemaining(job.expiryDate)}d`
                           : "0d"}
                       </div>
                       <div className="text-xs text-gray-500">Remaining</div>
                     </div>
                   </div>
-                  
+
                   {/* Actions */}
                   <div className="flex items-center gap-2">
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       size="sm"
-                      className="text-gray-700 border-gray-300" 
-                      onClick={() => router.push(`/employer/jobs/${job.id}/applicants`)}
+                      className="text-gray-700 border-gray-300"
+                      onClick={() =>
+                        router.push(`/employer/jobs/${job.id}/applicants`)
+                      }
                     >
                       <Users className="h-4 w-4 mr-1" />
                       View Applicants
                     </Button>
-                    
+
                     <div className="relative group">
                       <Button variant="ghost" size="icon" className="h-8 w-8">
                         <MoreHorizontal className="h-4 w-4" />
                       </Button>
-                      
+
                       <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-20 hidden group-hover:block">
                         <div className="py-1">
                           <button
                             className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                            onClick={() => router.push(`/employer/jobs/${job.id}/edit`)}
+                            onClick={() =>
+                              router.push(`/employer/jobs/${job.id}/edit`)
+                            }
                           >
                             <Edit className="h-4 w-4 mr-2 text-gray-500" />
                             Edit Job
                           </button>
-                          
+
                           <button className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             <Copy className="h-4 w-4 mr-2 text-gray-500" />
                             Duplicate
                           </button>
-                          
+
                           <button className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             <Eye className="h-4 w-4 mr-2 text-gray-500" />
                             Preview
                           </button>
-                          
+
                           {job.status === "active" ? (
                             <button className="flex w-full items-center px-4 py-2 text-sm text-amber-700 hover:bg-amber-50">
                               <Pause className="h-4 w-4 mr-2 text-amber-600" />
@@ -490,7 +571,7 @@ export default function EmployerJobsPage() {
                               Activate Job
                             </button>
                           ) : null}
-                          
+
                           <button className="flex w-full items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50">
                             <Trash className="h-4 w-4 mr-2 text-red-500" />
                             Delete Job
@@ -507,4 +588,4 @@ export default function EmployerJobsPage() {
       </div>
     </EmployerDashboardShell>
   );
-} 
+}

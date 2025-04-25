@@ -100,12 +100,13 @@ export const LandingPage = () => {
             </motion.p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+          <div className="flex justify-center">
             <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
               viewport={{ once: true }}
+              className="max-w-lg w-full"
             >
               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/10 shadow-xl">
                 <h3 className="text-2xl font-bold text-lime-300 mb-6">
@@ -188,7 +189,7 @@ export const LandingPage = () => {
                     </div>
                   </li>
                 </ul>
-                <div className="mt-8 flex flex-col sm:flex-row gap-4">
+                <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
                   <Button className="bg-gradient-to-r from-lime-300 to-lime-400 text-black hover:from-lime-200 hover:to-lime-300 font-medium shadow-xl hover:shadow-lime-400/20 transition-all hover:-translate-y-0.5 duration-300">
                     Become a Partner
                     <ArrowRight className="ml-2 h-4 w-4" />
@@ -202,22 +203,6 @@ export const LandingPage = () => {
                   </Button>
                 </div>
               </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              viewport={{ once: true }}
-              className="relative aspect-video md:aspect-square max-w-md mx-auto"
-            >
-              <Image
-                src="/img/partner-graphic.png"
-                alt="Partner with JobFit.AI"
-                width={500}
-                height={500}
-                className="object-contain"
-              />
             </motion.div>
           </div>
         </div>

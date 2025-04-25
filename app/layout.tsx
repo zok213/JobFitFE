@@ -5,6 +5,7 @@ import { AuthProvider } from "../context/AuthContext";
 import dynamic from "next/dynamic";
 import "../styles/globals.css";
 import "@n8n/chat/style.css";
+import { Toaster } from "sonner";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -37,6 +38,7 @@ export default function RootLayout({
       <body suppressHydrationWarning className="font-sans bg-background">
         <AuthProvider>{children}</AuthProvider>
         <DebugPanel />
+        <Toaster richColors position="top-right" />
       </body>
     </html>
   );
