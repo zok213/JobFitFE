@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { ArrowRight } from "lucide-react";
 import { Button } from "./ui/button";
 
 export const LogoStrip = () => {
@@ -34,37 +33,37 @@ export const LogoStrip = () => {
 
   return (
     <section className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-[1440px] mx-auto bg-white relative overflow-hidden">
-      {/* Simple CSS background pattern instead of image */}
+      {/* Simple CSS background pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:20px_20px] sm:bg-[size:24px_24px] opacity-50"></div>
-      
+
       <div className="relative z-10 max-w-7xl mx-auto">
-        {/* Section header - Better responsive typography */}
+        {/* Section header */}
         <div className="text-center mb-8 sm:mb-10 lg:mb-14 px-2">
           <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2 sm:mb-3 tracking-tight">
             TRUSTED BY LEADING JOB PLATFORMS
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto text-sm sm:text-base">
-            We integrate with top job boards and recruiting platforms to provide the most comprehensive job search experience
+            We integrate with top job boards and recruiting platforms to provide
+            the most comprehensive job search experience
           </p>
         </div>
-        
-        {/* Logo display section with improved container for better mobile display */}
-        <div className="relative mx-auto max-w-full sm:max-w-3xl lg:max-w-5xl mb-10 sm:mb-14">
-          {/* Edge fade effects - adjusted for better mobile view */}
+
+        {/* Logo display section */}
+        <div className="relative mx-auto max-w-full sm:max-w-3xl lg:max-w-5xl">
+          {/* Edge fade effects */}
           <div className="absolute left-0 top-0 bottom-0 w-12 sm:w-16 md:w-24 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
           <div className="absolute right-0 top-0 bottom-0 w-12 sm:w-16 md:w-24 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
-          
-          {/* Improved container with better border radius for small screens */}
+
+          {/* Logo container */}
           <div className="overflow-hidden rounded-lg sm:rounded-xl border border-gray-100 bg-white shadow-md">
             <div className="py-6 sm:py-8 px-2 sm:px-4 overflow-hidden">
               <div className="flex logo-carousel">
                 {/* Doubled logos for continuous carousel effect */}
                 {[...logos, ...logos].map((logo, index) => (
-                  <div 
-                    key={index} 
+                  <div
+                    key={index}
                     className="flex-none mx-4 sm:mx-6 md:mx-8 transition-all duration-300 hover:scale-105 transform"
                   >
-                    {/* Responsive logo container */}
                     <div className="bg-white p-3 sm:p-4 md:p-5 rounded-lg border border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 transition-all duration-300 h-16 sm:h-20 md:h-24 w-28 sm:w-32 md:w-40 flex items-center justify-center">
                       <Image
                         src={logo.src}
@@ -80,45 +79,9 @@ export const LogoStrip = () => {
             </div>
           </div>
         </div>
-        
-        {/* Partner section with dark theme */}
-        <div className="bg-gradient-to-r from-black to-gray-900 rounded-xl sm:rounded-2xl p-6 sm:p-8 md:p-10 border border-gray-800 shadow-lg max-w-sm sm:max-w-2xl md:max-w-4xl mx-auto relative overflow-hidden">
-          {/* Background grid pattern for consistency */}
-          <div className="absolute inset-0 bg-grid-white/[0.05] bg-[length:20px_20px]"></div>
-          {/* Decorative blurred elements */}
-          <div className="absolute right-0 top-0 -mr-16 -mt-16 w-32 h-32 bg-lime-400 rounded-full blur-3xl opacity-20"></div>
-          <div className="absolute left-0 bottom-0 -ml-16 -mb-16 w-32 h-32 bg-lime-300 rounded-full blur-3xl opacity-20"></div>
-          
-          <div className="relative z-10">
-            <div className="text-center mb-5 sm:mb-7">
-              <h3 className="text-xl sm:text-2xl font-semibold text-white mb-3 sm:mb-4">Why Partner With Us?</h3>
-              <p className="text-gray-300 text-sm sm:text-base max-w-xl mx-auto">
-                Enhance your recruitment process with advanced AI-matching technology and gain access to a qualified pool of candidates
-              </p>
-            </div>
-            
-            {/* Buttons styled to match the dark theme */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-4 sm:gap-5">
-              <Button 
-                className="bg-gradient-to-r from-lime-300 to-lime-400 text-black hover:from-lime-200 hover:to-lime-300 font-medium shadow-xl hover:shadow-lime-400/20 transition-all hover:-translate-y-0.5 duration-300 h-11 w-full text-sm"
-              >
-                Become a Partner
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-              
-              <Button 
-                variant="outline" 
-                className="border-white/50 text-black hover:bg-black/30 hover:border-lime-300 hover:text-lime-200 backdrop-blur-sm shadow-lg hover:shadow-lime-400/30 hover:-translate-y-0.5 hover:scale-105 transition-all duration-300 h-11 w-full text-sm"
-              >
-                View all integration partners
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </div>
-          </div>
-        </div>
       </div>
-      
-      {/* Improved responsive animation styles */}
+
+      {/* Animation styles */}
       <style jsx global>{`
         @keyframes scroll {
           0% {
@@ -128,17 +91,17 @@ export const LogoStrip = () => {
             transform: translateX(calc(-180px * 6));
           }
         }
-        
+
         .logo-carousel {
           animation: scroll 30s linear infinite;
           width: calc(180px * 12);
         }
-        
+
         .logo-carousel:hover {
           animation-play-state: paused;
         }
-        
-        /* Responsive adjustments for animation */
+
+        /* Responsive adjustments */
         @media (min-width: 640px) {
           @keyframes scroll {
             0% {
@@ -148,13 +111,13 @@ export const LogoStrip = () => {
               transform: translateX(calc(-220px * 6));
             }
           }
-          
+
           .logo-carousel {
             animation: scroll 30s linear infinite;
             width: calc(220px * 12);
           }
         }
-        
+
         @media (min-width: 768px) {
           @keyframes scroll {
             0% {
@@ -164,7 +127,7 @@ export const LogoStrip = () => {
               transform: translateX(calc(-250px * 6));
             }
           }
-          
+
           .logo-carousel {
             animation: scroll 30s linear infinite;
             width: calc(250px * 12);
