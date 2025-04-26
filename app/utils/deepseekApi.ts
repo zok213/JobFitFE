@@ -15,104 +15,47 @@ export async function callDeepseekAPI(prompt: string): Promise<string> {
     // Check API key
     if (!config.apiKey || config.apiKey === "") {
       console.warn(
-        "DeepSeek API key is not configured, falling back to OpenAI API"
+        "DeepSeek API key is not configured, cannot generate questions"
       );
-      return callOpenAIAPI(prompt);
+      throw new Error("DeepSeek API key is not configured");
     }
 
-    try {
-      // Call the actual API
-      const response = await fetch(config.apiUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${config.apiKey}`,
-        },
-        body: JSON.stringify({
-          model: config.model,
-          messages: [{ role: "user", content: prompt }],
-          temperature: config.temperature,
-        }),
-      });
+    // Call the actual API
+    const response = await fetch(config.apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${config.apiKey}`,
+      },
+      body: JSON.stringify({
+        model: config.model,
+        messages: [{ role: "user", content: prompt }],
+        temperature: config.temperature,
+      }),
+    });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.warn(
-          `DeepSeek API error: ${response.status} - ${errorText}, falling back to OpenAI API`
-        );
-        return callOpenAIAPI(prompt);
-      }
-
-      const data = await response.json();
-
-      // Check response structure
-      if (
-        !data ||
-        !data.choices ||
-        !data.choices[0] ||
-        !data.choices[0].message
-      ) {
-        console.warn(
-          "Invalid DeepSeek API response, falling back to OpenAI API"
-        );
-        return callOpenAIAPI(prompt);
-      }
-
-      return data.choices[0].message.content;
-    } catch (error) {
-      console.warn(
-        "Error calling DeepSeek API, falling back to OpenAI API:",
-        error
-      );
-      return callOpenAIAPI(prompt);
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`API error: ${response.status} - ${errorText}`);
     }
+
+    const data = await response.json();
+
+    // Check response structure
+    if (
+      !data ||
+      !data.choices ||
+      !data.choices[0] ||
+      !data.choices[0].message
+    ) {
+      throw new Error("Invalid API response: missing required data fields");
+    }
+
+    return data.choices[0].message.content;
   } catch (error) {
-    console.error("All API attempts failed:", error);
-    throw new Error("Không thể kết nối với dịch vụ AI. Vui lòng thử lại sau.");
+    console.error("Error calling Deepseek API:", error);
+    throw new Error("Cannot connect to Deepseek API");
   }
-}
-
-// Function to call OpenAI API as fallback
-async function callOpenAIAPI(prompt: string): Promise<string> {
-  const config = apiConfig.openai;
-
-  // Check OpenAI API key
-  if (!config.apiKey || config.apiKey === "") {
-    console.error("OpenAI API key is not configured");
-    throw new Error(
-      "Cấu hình API chưa đầy đủ. Vui lòng liên hệ quản trị viên."
-    );
-  }
-
-  console.log("Falling back to OpenAI API");
-
-  const response = await fetch(config.apiUrl, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${config.apiKey}`,
-    },
-    body: JSON.stringify({
-      model: config.model,
-      messages: [{ role: "user", content: prompt }],
-      temperature: config.temperature,
-      max_tokens: config.maxTokens,
-    }),
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`OpenAI API error: ${response.status} - ${errorText}`);
-  }
-
-  const data = await response.json();
-
-  // Check response structure
-  if (!data || !data.choices || !data.choices[0] || !data.choices[0].message) {
-    throw new Error("Invalid OpenAI API response");
-  }
-
-  return data.choices[0].message.content;
 }
 
 // Function to extract question from response
