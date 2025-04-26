@@ -14,15 +14,15 @@ interface ChatWidgetProps {
 export const ChatWidget: React.FC<ChatWidgetProps> = ({
   webhookUrl = "https://mrhuy.app.n8n.cloud/webhook/3a5c6e88-046d-4af9-a0ec-df9dc40981cd/chat",
   title = "JobFit Assistant",
-  subtitle = "Xin chào! Tôi có thể giúp gì cho bạn?",
-  inputPlaceholder = "Nhập câu hỏi của bạn...",
+  subtitle = "Hello! How can I help you today?",
+  inputPlaceholder = "Type your question...",
   customClass = "",
   role = "general",
   customMessages,
 }) => {
   const [isClient, setIsClient] = useState(false);
 
-  // Xác định webhook URL và các thông điệp tùy theo role
+  // Define webhook URL and messages based on role
   const getWebhookUrl = () => {
     switch (role) {
       case "employer":
@@ -42,19 +42,16 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({
     switch (role) {
       case "employer":
         return [
-          "Xin chào nhà tuyển dụng! 👋",
-          "Tôi là trợ lý JobFit dành cho nhà tuyển dụng. Tôi có thể giúp bạn tạo mô tả công việc, quản lý ứng viên, hoặc giải đáp các thắc mắc về quy trình tuyển dụng.",
+          "Hello employer! 👋",
+          "I'm the JobFit assistant for employers. I can help you create job descriptions, manage candidates, or answer questions about the recruitment process.",
         ];
       case "employee":
         return [
-          "Xin chào! 👋",
-          "Tôi là trợ lý JobFit dành cho ứng viên. Tôi có thể giúp bạn tìm kiếm việc làm phù hợp, cải thiện CV, hoặc chuẩn bị cho phỏng vấn.",
+          "Hello! 👋",
+          "I'm the JobFit assistant for job seekers. I can help you find suitable jobs, improve your CV, or prepare for interviews.",
         ];
       default:
-        return [
-          "Xin chào! 👋",
-          "Tôi là trợ lý JobFit. Tôi có thể giúp gì cho bạn?",
-        ];
+        return ["Hello! 👋", "I'm the JobFit assistant. How can I help you?"];
     }
   };
 
@@ -73,7 +70,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({
     setIsClient(true);
 
     if (typeof window !== "undefined") {
-      // Thêm CSS biến tùy chỉnh cho màu lime green
+      // Add custom CSS variables for lime green color
       const style = document.createElement("style");
       style.innerHTML = `
         :root {
@@ -98,14 +95,14 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({
             title,
             subtitle,
             footer: getFooterText(),
-            getStarted: "Bắt đầu trò chuyện",
+            getStarted: "Start conversation",
             inputPlaceholder,
-            closeButtonTooltip: "Đóng",
+            closeButtonTooltip: "Close",
           },
         },
         initialMessages: getInitialMessages(),
         metadata: {
-          // Thêm metadata mà bạn muốn gửi cùng với mỗi yêu cầu chat
+          // Add metadata to send with each chat request
           source: "jobfit-frontend",
           version: "1.0.0",
           userRole: role,
@@ -114,16 +111,16 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({
 
       // Cleanup function
       return () => {
-        // Xóa style khi component unmount
+        // Remove style when component unmounts
         if (style.parentNode) {
           document.head.removeChild(style);
         }
 
-        // Nếu API của n8n/chat thay đổi thì chúng ta có thể bỏ phần này
+        // If n8n/chat API changes we can remove this part
         try {
           const chatElement = document.getElementById("n8n-chat");
           if (chatElement) {
-            // Xóa các phần tử con từ chat container
+            // Remove children from chat container
             while (chatElement.firstChild) {
               chatElement.removeChild(chatElement.firstChild);
             }
@@ -135,12 +132,12 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({
     }
   }, [webhookUrl, title, subtitle, inputPlaceholder, role, customMessages]);
 
-  // Không render gì trong SSR
+  // Don't render anything during SSR
   if (!isClient) return null;
 
   return (
     <div id="n8n-chat" className={customClass}>
-      {/* n8n Chat sẽ được tự động chèn vào đây */}
+      {/* n8n Chat will be automatically inserted here */}
     </div>
   );
 };
