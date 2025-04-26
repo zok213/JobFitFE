@@ -44,19 +44,18 @@ export default function PricingPage() {
         monthly: 0,
         annual: 0,
       },
-      description: "Basic features for students and job seekers",
+      description: "Basic features for job seekers",
       features: [
-        "3 Job matches per month",
-        "Basic CV analysis",
-        "5 AI interview practice sessions",
-        "Basic career roadmap",
+        "CV Builder",
+        "3 free Job matches",
+        "Basic profile",
         "Community support",
       ],
       limitations: [
         "Limited job matches",
-        "Basic CV insights only",
-        "No advanced interview feedback",
-        "Basic career recommendations",
+        "No AI analysis",
+        "No interview practice",
+        "No career roadmap",
         "No priority support",
       ],
       cta: "Get Started Free",
@@ -64,92 +63,107 @@ export default function PricingPage() {
       icon: <Briefcase className="h-5 w-5" />,
     },
     {
-      name: "Pro",
+      name: "Student",
+      price: {
+        monthly: 0,
+        annual: 0,
+      },
+      description: "Limited trial for students",
+      features: [
+        "7 days trial of Premium plan",
+        "CV Builder",
+        "10 Job matches",
+        "Basic AI CV analysis",
+        "Limited interview practice",
+      ],
+      limitations: ["7-day access only", "Limited features"],
+      cta: "Start Trial",
+      ctaLink: "/register?plan=student",
+      icon: <Clock className="h-5 w-5" />,
+    },
+    {
+      name: "Premium",
       popular: true,
       price: {
-        monthly: 19.99,
-        annual: 14.99,
+        monthly: 9.99,
+        annual: 99.99 / 12, // Calculated per month for display
       },
-      description: "Advanced features for serious career advancement",
+      description: "All features for serious career advancement",
       features: [
+        "AI CV analysis & optimization",
         "Unlimited job matches",
-        "Advanced CV analysis & optimization",
-        "Unlimited AI interview practice",
-        "Personalized career roadmap",
-        "Priority support",
+        "AI simulated interview practice",
+        "Career path planning",
+        "All premium features",
         "Performance tracking & analytics",
         "Industry insights & salary data",
         "Resume export in multiple formats",
         "Personal career coach AI",
       ],
       limitations: [],
-      cta: "Upgrade to Pro",
-      ctaLink: "/register?plan=pro",
+      cta: "Upgrade to Premium",
+      ctaLink: "/register?plan=premium",
       icon: <Star className="h-5 w-5" />,
     },
   ];
 
   const employerTiers = [
     {
-      name: "Starter",
+      name: "Experience",
       price: {
-        monthly: 49,
-        annual: 39,
+        monthly: 39.99,
+        annual: 35.99,
       },
-      description: "Essential tools for small businesses and startups",
+      description: "For small businesses and startups",
       features: [
-        "5 active job postings",
+        "Max 50 CVs / analysis & classification",
         "Basic candidate matching",
-        "10 CV analyses per month",
         "Standard job listing visibility",
         "Email support",
         "Basic reporting",
       ],
       limitations: [
-        "Limited job postings",
+        "Limited CV analysis",
         "Basic matching algorithm",
         "No advanced analytics",
         "No ATS integration",
-        "No custom branding",
       ],
-      cta: "Start Recruiting",
-      ctaLink: "/register?role=employer&plan=starter",
+      cta: "Choose Experience",
+      ctaLink: "/register?role=employer&plan=experience",
       icon: <Building className="h-5 w-5" />,
     },
     {
-      name: "Business",
+      name: "Link",
       popular: true,
       price: {
-        monthly: 149,
-        annual: 119,
+        monthly: 69.99,
+        annual: 62.99,
       },
-      description: "Advanced recruiting tools for growing teams",
+      description: "For growing businesses",
       features: [
-        "25 active job postings",
+        "Max 100 CVs / analysis & classification",
         "Advanced AI candidate matching",
-        "Unlimited CV analyses",
         "Enhanced job visibility",
         "Candidate tracking system",
         "Advanced analytics & reporting",
         "Priority support",
         "ATS integration",
-        "Custom branding options",
         "Team collaboration tools",
       ],
-      limitations: [],
-      cta: "Choose Business",
-      ctaLink: "/register?role=employer&plan=business",
+      limitations: ["Limited to 100 CVs"],
+      cta: "Choose Link",
+      ctaLink: "/register?role=employer&plan=link",
       icon: <Star className="h-5 w-5" />,
     },
     {
-      name: "Enterprise",
+      name: "Engagement",
       price: {
-        monthly: 399,
-        annual: 349,
+        monthly: 199.99,
+        annual: 179.99,
       },
       description: "Comprehensive solution for large organizations",
       features: [
-        "Unlimited job postings",
+        "Unlimited CVs / analysis & classification",
         "Premium AI candidate matching",
         "Customizable recruitment workflow",
         "Maximum job visibility",
@@ -162,8 +176,8 @@ export default function PricingPage() {
         "Talent pool management",
       ],
       limitations: [],
-      cta: "Contact Sales",
-      ctaLink: "/contact?enterprise=true",
+      cta: "Choose Engagement",
+      ctaLink: "/register?role=employer&plan=engagement",
       icon: <Shield className="h-5 w-5" />,
     },
   ];
@@ -423,7 +437,10 @@ export default function PricingPage() {
                               Free
                             </th>
                             <th className="text-center py-4 px-4 font-medium text-zinc-900 bg-lime-50">
-                              Pro
+                              Student
+                            </th>
+                            <th className="text-center py-4 px-4 font-medium text-zinc-900">
+                              Premium
                             </th>
                           </tr>
                         </thead>
@@ -435,6 +452,9 @@ export default function PricingPage() {
                             <td className="text-center py-4 px-4 text-gray-700">
                               3 per month
                             </td>
+                            <td className="text-center py-4 px-4 text-gray-700">
+                              10 per month
+                            </td>
                             <td className="text-center py-4 px-4 bg-lime-50 font-medium text-gray-800">
                               Unlimited
                             </td>
@@ -444,10 +464,13 @@ export default function PricingPage() {
                               CV Analysis
                             </td>
                             <td className="text-center py-4 px-4 text-gray-700">
-                              Basic
+                              No AI analysis
+                            </td>
+                            <td className="text-center py-4 px-4 text-gray-700">
+                              Basic AI CV analysis
                             </td>
                             <td className="text-center py-4 px-4 bg-lime-50 font-medium text-gray-800">
-                              Advanced with suggestions
+                              AI CV analysis & optimization
                             </td>
                           </tr>
                           <tr className="border-b">
@@ -455,7 +478,10 @@ export default function PricingPage() {
                               AI Interview Practice
                             </td>
                             <td className="text-center py-4 px-4 text-gray-700">
-                              5 sessions
+                              No interview practice
+                            </td>
+                            <td className="text-center py-4 px-4 text-gray-700">
+                              Limited interview practice
                             </td>
                             <td className="text-center py-4 px-4 bg-lime-50 font-medium text-gray-800">
                               Unlimited
@@ -466,24 +492,33 @@ export default function PricingPage() {
                               Career Roadmap
                             </td>
                             <td className="text-center py-4 px-4 text-gray-700">
-                              Basic
+                              No career roadmap
+                            </td>
+                            <td className="text-center py-4 px-4 text-gray-700">
+                              No career roadmap
                             </td>
                             <td className="text-center py-4 px-4 bg-lime-50 font-medium text-gray-800">
-                              Personalized
+                              Career path planning
                             </td>
                           </tr>
                           <tr className="border-b">
                             <td className="py-4 px-6 text-gray-700">Support</td>
                             <td className="text-center py-4 px-4 text-gray-700">
-                              Community
+                              Community support
+                            </td>
+                            <td className="text-center py-4 px-4 text-gray-700">
+                              Community support
                             </td>
                             <td className="text-center py-4 px-4 bg-lime-50 font-medium text-gray-800">
-                              Priority
+                              Priority support
                             </td>
                           </tr>
                           <tr className="border-b">
                             <td className="py-4 px-6 text-gray-700">
                               Performance Analytics
+                            </td>
+                            <td className="text-center py-4 px-4">
+                              <X className="h-5 w-5 text-gray-400 mx-auto" />
                             </td>
                             <td className="text-center py-4 px-4">
                               <X className="h-5 w-5 text-gray-400 mx-auto" />
@@ -499,6 +534,9 @@ export default function PricingPage() {
                             <td className="text-center py-4 px-4">
                               <X className="h-5 w-5 text-gray-400 mx-auto" />
                             </td>
+                            <td className="text-center py-4 px-4">
+                              <X className="h-5 w-5 text-gray-400 mx-auto" />
+                            </td>
                             <td className="text-center py-4 px-4 bg-lime-50">
                               <Check className="h-5 w-5 text-lime-500 mx-auto" />
                             </td>
@@ -506,6 +544,9 @@ export default function PricingPage() {
                           <tr>
                             <td className="py-4 px-6 text-gray-700">
                               Resume Export Formats
+                            </td>
+                            <td className="text-center py-4 px-4 text-gray-700">
+                              Basic PDF
                             </td>
                             <td className="text-center py-4 px-4 text-gray-700">
                               Basic PDF
@@ -685,26 +726,26 @@ export default function PricingPage() {
                               Feature
                             </th>
                             <th className="text-center py-4 px-4 font-medium text-zinc-900">
-                              Starter
+                              Experience
                             </th>
                             <th className="text-center py-4 px-4 font-medium text-zinc-900 bg-lime-50">
-                              Business
+                              Link
                             </th>
                             <th className="text-center py-4 px-4 font-medium text-zinc-900">
-                              Enterprise
+                              Engagement
                             </th>
                           </tr>
                         </thead>
                         <tbody>
                           <tr className="border-b">
                             <td className="py-4 px-6 text-gray-700">
-                              Active Job Postings
+                              CV Analysis
                             </td>
                             <td className="text-center py-4 px-4 text-gray-700">
-                              5
+                              Max 50 CVs / analysis & classification
                             </td>
                             <td className="text-center py-4 px-4 bg-lime-50 font-medium text-gray-800">
-                              25
+                              Max 100 CVs / analysis & classification
                             </td>
                             <td className="text-center py-4 px-4 text-gray-700">
                               Unlimited
@@ -722,20 +763,6 @@ export default function PricingPage() {
                             </td>
                             <td className="text-center py-4 px-4 text-gray-700">
                               Premium
-                            </td>
-                          </tr>
-                          <tr className="border-b">
-                            <td className="py-4 px-6 text-gray-700">
-                              CV Analysis
-                            </td>
-                            <td className="text-center py-4 px-4 text-gray-700">
-                              10/month
-                            </td>
-                            <td className="text-center py-4 px-4 bg-lime-50 font-medium text-gray-800">
-                              Unlimited
-                            </td>
-                            <td className="text-center py-4 px-4 text-gray-700">
-                              Unlimited
                             </td>
                           </tr>
                           <tr className="border-b">
