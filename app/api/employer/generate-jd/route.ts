@@ -33,11 +33,28 @@ export async function POST(req: NextRequest) {
     // Construct prompt for DeepSeek API
     const prompt = generateJDPrompt(jobData);
 
-    // Call DeepSeek API
-    const jobDescription = await callDeepseekAPI(prompt);
+    try {
+      // Call DeepSeek API
+      const jobDescription = await callDeepseekAPI(prompt);
 
-    // Return the generated job description
-    return NextResponse.json({ jobDescription });
+      // Return the generated job description
+      return NextResponse.json({ jobDescription });
+    } catch (apiError) {
+      console.error("API call failed:", apiError);
+
+      // Fallback to a simpler job description format in case of API failure
+      const fallbackDescription = generateFallbackJD(jobData);
+
+      // Return the fallback with a warning
+      return NextResponse.json(
+        {
+          jobDescription: fallbackDescription,
+          warning:
+            "Đã sử dụng phiên bản đơn giản do dịch vụ AI không khả dụng.",
+        },
+        { status: 200 }
+      );
+    }
   } catch (error) {
     console.error("Error generating job description:", error);
     return NextResponse.json(
@@ -128,4 +145,64 @@ Phong cách viết: ${toneDescription}.
 Định dạng: sử dụng các tiêu đề rõ ràng, gạch đầu dòng cho các yêu cầu và trách nhiệm.
 Hãy viết sao cho thu hút, chuyên nghiệp, dễ hiểu và hấp dẫn ứng viên tiềm năng. Tránh sử dụng ngôn ngữ phân biệt đối xử.
 Mô tả công việc nên có độ dài vừa phải, từ 400-700 từ.`;
+}
+
+// Function to generate a basic job description format when API calls fail
+function generateFallbackJD(jobData: JobData): string {
+  const remoteOptionText =
+    {
+      onsite: "tại văn phòng",
+      hybrid: "làm việc kết hợp (hybrid)",
+      remote: "làm việc từ xa",
+    }[jobData.remoteOption] || "tại văn phòng";
+
+  const experienceLevelText =
+    {
+      entry: "mới đi làm (0-1 năm kinh nghiệm)",
+      mid: "trung cấp (2-4 năm kinh nghiệm)",
+      senior: "cao cấp (5+ năm kinh nghiệm)",
+      executive: "cấp quản lý",
+    }[jobData.experienceLevel] || "";
+
+  const employmentTypeText =
+    {
+      "full-time": "toàn thời gian",
+      "part-time": "bán thời gian",
+      contract: "hợp đồng",
+      internship: "thực tập",
+      freelance: "tự do",
+    }[jobData.employmentType] || "";
+
+  return `# ${jobData.title} tại ${jobData.companyName}
+
+## Giới thiệu
+${jobData.companyName} là công ty hoạt động trong lĩnh vực ${
+    jobData.industry
+  } đang tìm kiếm ứng viên cho vị trí ${jobData.title}.
+
+## Thông tin cơ bản
+- **Địa điểm làm việc**: ${jobData.location || "Không có thông tin"}
+- **Hình thức làm việc**: ${remoteOptionText}
+- **Cấp độ kinh nghiệm**: ${experienceLevelText}
+- **Loại hình công việc**: ${employmentTypeText}
+
+## Mô tả công việc và trách nhiệm
+${jobData.keyResponsibilities || "Thông tin chưa được cung cấp"}
+
+## Yêu cầu và kỹ năng bắt buộc
+${jobData.requiredSkills || "Thông tin chưa được cung cấp"}
+
+## Kỹ năng là lợi thế
+${jobData.preferredSkills || "Không yêu cầu"}
+
+## Yêu cầu học vấn
+${jobData.education || "Không có yêu cầu cụ thể"}
+
+## Thông tin bổ sung
+${jobData.additionalNotes || "Không có thông tin bổ sung"}
+
+## Quy trình ứng tuyển
+Vui lòng gửi CV và thông tin ứng tuyển để được xem xét cho vị trí này.
+
+*Mô tả công việc này được tạo tự động bởi hệ thống JobFit.AI*`;
 }
