@@ -10,12 +10,12 @@ interface DeepseekResponse {
 export async function callDeepseekAPI(prompt: string): Promise<string> {
   try {
     const config = apiConfig.deepseek;
-    console.log("Sending prompt to Deepseek API:", prompt);
+    console.log("Sending prompt to DeepSeek API");
 
     // Check API key
     if (!config.apiKey || config.apiKey === "") {
       console.warn(
-        "DeepSeek API key is not configured, falling back to OpenAI API"
+        "DeepSeek API key is not configured (NEXT_PUBLIC_DEEPSEEK_API_KEY), falling back to OpenAI API"
       );
       return callOpenAIAPI(prompt);
     }
@@ -78,9 +78,11 @@ async function callOpenAIAPI(prompt: string): Promise<string> {
 
   // Check OpenAI API key
   if (!config.apiKey || config.apiKey === "") {
-    console.error("OpenAI API key is not configured");
+    console.error(
+      "OpenAI API key is not configured (NEXT_PUBLIC_OPENAI_API_KEY)"
+    );
     throw new Error(
-      "Cấu hình API chưa đầy đủ. Vui lòng liên hệ quản trị viên."
+      "Cấu hình API chưa đầy đủ. Vui lòng xem hướng dẫn trong file README-API.md."
     );
   }
 
