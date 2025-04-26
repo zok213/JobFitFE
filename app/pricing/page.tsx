@@ -86,7 +86,7 @@ export default function PricingPage() {
       popular: true,
       price: {
         monthly: 9.99,
-        annual: 99.99 / 12, // Calculated per month for display
+        annual: 89.99, // Calculated per month for display
       },
       description: "All features for serious career advancement",
       features: [
@@ -437,7 +437,7 @@ export default function PricingPage() {
                               Free
                             </th>
                             <th className="text-center py-4 px-4 font-medium text-zinc-900 bg-lime-50">
-                              Student
+                              Only For Student
                             </th>
                             <th className="text-center py-4 px-4 font-medium text-zinc-900">
                               Premium
